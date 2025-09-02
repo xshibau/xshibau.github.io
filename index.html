@@ -61,6 +61,14 @@ input:checked + .slider:before { transform:translateX(20px); }
 </label>
 </div>
 
+<div class="toggle">
+<span>Fake Luarmor API</span>
+<label class="switch">
+<input id="fakeLuarmor" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
 <button id="generateBtn">Generate</button>
 <div class="actions">
 <button id="copyBtn">Copy</button>
@@ -80,21 +88,34 @@ function randomSection(len){
   return str;
 }
 
+function randomHex32(){
+  const chars="abcdef0123456789";
+  let str="";
+  for(let i=0;i<32;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));
+  return str;
+}
+
+function generateLuarmorLink(){
+  return "https://api.luarmor.net/files/v3/loaders/" + randomHex32() + ".lua";
+}
+
 function generateKeys(){
   const amount=parseInt(document.getElementById("amount").value)||1;
   const prefix=document.getElementById("prefix").value.trim().toUpperCase();
   const forceAura=document.getElementById("forceAura").checked;
   const customAura=document.getElementById("customAura").checked;
   const randomPos=document.getElementById("randomPos").checked;
+  const fakeLuarmor=document.getElementById("fakeLuarmor").checked;
   rawKeys=[];
   
   for(let i=0;i<amount;i++){
     let base="";
     
-    if(customAura){
+    if(fakeLuarmor){
+      base=generateLuarmorLink();
+    } else if(customAura){
       base="AURA-V2-"+randomSection(3)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5);
     } else if(prefix || forceAura){
-      // base sections chuáº©n 5-5-3-5-5
       let sections=[5,5,3,5,5];
       if(randomPos){
         for(let j=sections.length-1;j>0;j--){
@@ -106,7 +127,6 @@ function generateKeys(){
       if(prefix) base=prefix+"-"+keySections.join("-");
       else base="AURA-"+keySections.join("-");
     } else {
-      // prefix trá»‘ng + forceAura táº¯t => 5-5-5-5-5
       base=randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5);
     }
     
@@ -132,6 +152,7 @@ document.getElementById("customAura").addEventListener("change",updateOutput);
 document.getElementById("randomPos").addEventListener("change",updateOutput);
 document.getElementById("prefix").addEventListener("input",updateOutput);
 document.getElementById("format").addEventListener("change",updateOutput);
+document.getElementById("fakeLuarmor").addEventListener("change",updateOutput);
 
 document.getElementById("copyBtn").addEventListener("click",()=>{
   const output=document.getElementById("output");
