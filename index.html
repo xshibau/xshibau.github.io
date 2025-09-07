@@ -41,11 +41,11 @@ input:checked + .slider:before { transform:translateX(20px); }
 <div class="toggle"><span>Format LuaU ("KEY", )</span>
 <label class="switch"><input id="format" type="checkbox"><span class="slider"></span></label></div>
 
-<div class="toggle"><span>Fake Luarmor API</span>
-<label class="switch"><input id="fakeLuarmor" type="checkbox"><span class="slider"></span></label></div>
-
 <div class="toggle"><span>Random 32-char Key</span>
 <label class="switch"><input id="random32" type="checkbox"><span class="slider"></span></label></div>
+
+<div class="toggle"><span>Fake Luarmor API</span>
+<label class="switch"><input id="fakeLuarmor" type="checkbox"><span class="slider"></span></label></div>
 
 <div class="toggle"><span>Lua Loader Mode</span>
 <label class="switch"><input id="luaToggle" type="checkbox"><span class="slider"></span></label></div>
@@ -91,7 +91,7 @@ function randomKey32(){
 }
 
 function generateLuarmorLink(){
-  return "https://api.luarmor.net/files/v3/loaders/" + randomHex32() + ".lua";
+  return "https://api.luarmor.net/files/v4/loaders/" + randomHex32() + ".lua";
 }
 
 document.getElementById("luaToggle").addEventListener("change", e=>{
@@ -104,8 +104,8 @@ function generateKeys(){
   const forceAura=document.getElementById("forceAura").checked;
   const customAura=document.getElementById("customAura").checked;
   const randomPos=document.getElementById("randomPos").checked;
-  const fakeLuarmor=document.getElementById("fakeLuarmor").checked;
   const random32=document.getElementById("random32").checked;
+  const fakeLuarmor=document.getElementById("fakeLuarmor").checked;
   const luaToggle=document.getElementById("luaToggle").checked;
   const luaMode=document.getElementById("luaMode").value;
   rawKeys=[];
@@ -114,14 +114,14 @@ function generateKeys(){
     let base="";
     if(luaToggle){
       if(luaMode==="script_key"){
-        base = `script_key = "";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/${randomHex32()}.lua"))()`;
-      } else if(luaMode==="getgenv"){
-        base = `getgenv().Key = ""\nloadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/${randomHex32()}.lua"))()`;
+        base=`script_key = "";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/${randomHex32()}.lua"))()`;
+      } else {
+        base=`getgenv().Key = ""\nloadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/${randomHex32()}.lua"))()`;
       }
-    } else if(random32){
-      base=randomKey32();
     } else if(fakeLuarmor){
       base=generateLuarmorLink();
+    } else if(random32){
+      base=randomKey32();
     } else if(customAura){
       base="AURA-V2-"+randomSection(3)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5);
     } else if(prefix || forceAura){
@@ -147,9 +147,8 @@ function generateKeys(){
 function updateOutput(){
   const format=document.getElementById("format").checked;
   let lines=rawKeys.map(k=>{
-    let key=k;
-    if(format && !key.includes("loadstring")) key=`"${key}",`;
-    return key;
+    if(format && !k.includes("loadstring")) return `"${k}",`;
+    return k;
   });
   document.getElementById("output").value=lines.join("\n");
 }
