@@ -57,6 +57,19 @@ input:checked + .slider:before { transform:translateX(20px); }
 </select>
 </div>
 
+<div class="toggle"><span>Error Mode</span>
+<label class="switch"><input id="errorToggle" type="checkbox"><span class="slider"></span></label></div>
+
+<div id="errorOptions" style="display:none; margin:8px 0;">
+<input id="errLines" type="number" value="5" min="1" placeholder="Số lượng line random">
+<input id="errRand" type="number" value="5" min="1" placeholder="Số lượng random Line">
+<input id="errMax" type="number" value="1000000" min="1" placeholder="Số lượng tối đa random số">
+<select id="errDown">
+<option value="no">No (Don't Script Down)</option>
+<option value="yes">Yes (Script Down)</option>
+</select>
+</div>
+
 <button id="generateBtn">Generate</button>
 <div class="actions">
 <button id="copyBtn">Copy</button>
@@ -68,37 +81,41 @@ input:checked + .slider:before { transform:translateX(20px); }
 
 <script>
 let rawKeys=[];
+function randomSection(len){const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";let str="";for(let i=0;i<len;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));return str;}
+function randomHex32(){const chars="abcdef0123456789";let str="";for(let i=0;i<32;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));return str;}
+function randomKey32(){const chars="abcdefghijklmnopqrstuvwxyz0123456789";let str="";for(let i=0;i<32;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));return str;}
+function randomWord(len=20){const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";let s="";for(let i=0;i<len;i++) s+=chars.charAt(Math.floor(Math.random()*chars.length));return s;}
+function randomInt(max){return Math.floor(Math.random()*max)+1;}
+function formatNumber(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");}
+function generateLuarmorLink(){return "https://api.luarmor.net/files/v4/loaders/"+randomHex32()+".lua";}
 
-function randomSection(len){
-  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let str="";
-  for(let i=0;i<len;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));
-  return str;
+document.getElementById("luaToggle").addEventListener("change",e=>{document.getElementById("luaOptions").style.display=e.target.checked?"block":"none";});
+document.getElementById("errorToggle").addEventListener("change",e=>{document.getElementById("errorOptions").style.display=e.target.checked?"block":"none";});
+
+function generateError(){
+  const errRand=parseInt(document.getElementById("errRand").value)||5;
+  const errMax=parseInt(document.getElementById("errMax").value)||1000000;
+  const errDown=document.getElementById("errDown").value;
+  let out=[];
+  out.push("**Script Down**");
+  out.push("```"+(errDown==="yes"?"Script Down":"Don't Script Down")+"```");
+  out.push("**[Code Error]:**");
+  out.push("```"+randomWord(20)+"```");
+  out.push("**[Fixed]**");
+  let lines=[];for(let i=0;i<errRand;i++){lines.push("Line "+randomInt(errMax));}
+  out.push("```Fix Error Server, "+lines.join(", ")+"```");
+  out.push("**[Total Error]:**");
+  let NV=formatNumber(randomInt(1000000));
+  let EC=formatNumber(randomInt(1000000));
+  let F=formatNumber(randomInt(1000000));
+  out.push("```[NV]: "+NV+" Nil Value error\n[EC]: "+EC+" Extra Character error\n[F]: "+F+" Function Error Does Not Exist```");
+  out.push("**Note:**");
+  out.push("```Please wait for Owner to fix the error, use the script please do not use it hastily because the server is down```");
+  rawKeys=[out.join("\n")];
 }
-
-function randomHex32(){
-  const chars="abcdef0123456789";
-  let str="";
-  for(let i=0;i<32;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));
-  return str;
-}
-
-function randomKey32(){
-  const chars="abcdefghijklmnopqrstuvwxyz0123456789";
-  let str="";
-  for(let i=0;i<32;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));
-  return str;
-}
-
-function generateLuarmorLink(){
-  return "https://api.luarmor.net/files/v4/loaders/" + randomHex32() + ".lua";
-}
-
-document.getElementById("luaToggle").addEventListener("change", e=>{
-  document.getElementById("luaOptions").style.display = e.target.checked ? "block" : "none";
-});
 
 function generateKeys(){
+  if(document.getElementById("errorToggle").checked){generateError();updateOutput();return;}
   const amount=parseInt(document.getElementById("amount").value)||1;
   const prefix=document.getElementById("prefix").value.trim().toUpperCase();
   const forceAura=document.getElementById("forceAura").checked;
@@ -109,7 +126,6 @@ function generateKeys(){
   const luaToggle=document.getElementById("luaToggle").checked;
   const luaMode=document.getElementById("luaMode").value;
   rawKeys=[];
-
   for(let i=0;i<amount;i++){
     let base="";
     if(luaToggle){
@@ -140,7 +156,6 @@ function generateKeys(){
     }
     rawKeys.push(base);
   }
-
   updateOutput();
 }
 
@@ -154,29 +169,8 @@ function updateOutput(){
 }
 
 document.getElementById("generateBtn").addEventListener("click",generateKeys);
-document.getElementById("forceAura").addEventListener("change",updateOutput);
-document.getElementById("customAura").addEventListener("change",updateOutput);
-document.getElementById("randomPos").addEventListener("change",updateOutput);
-document.getElementById("prefix").addEventListener("input",updateOutput);
-document.getElementById("format").addEventListener("change",updateOutput);
-document.getElementById("fakeLuarmor").addEventListener("change",updateOutput);
-document.getElementById("random32").addEventListener("change",updateOutput);
-document.getElementById("luaToggle").addEventListener("change",updateOutput);
-document.getElementById("luaMode").addEventListener("change",updateOutput);
-
-document.getElementById("copyBtn").addEventListener("click",()=>{
-  const output=document.getElementById("output");
-  output.select();
-  navigator.clipboard.writeText(output.value);
-});
-
-document.getElementById("downloadBtn").addEventListener("click",()=>{
-  const blob=new Blob([document.getElementById("output").value],{type:"text/plain"});
-  const link=document.createElement("a");
-  link.href=URL.createObjectURL(blob);
-  link.download="keys.txt";
-  link.click();
-});
+document.getElementById("copyBtn").addEventListener("click",()=>{const output=document.getElementById("output");output.select();navigator.clipboard.writeText(output.value);});
+document.getElementById("downloadBtn").addEventListener("click",()=>{const blob=new Blob([document.getElementById("output").value],{type:"text/plain"});const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="keys.txt";link.click();});
 </script>
 </body>
-</html>
+  </html>
