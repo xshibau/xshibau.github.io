@@ -201,7 +201,19 @@ redeemConfirm.addEventListener("click",()=>{
   const keyObj=predefinedPremiumKeys.find(k=>k.value===enteredKey && k.type===type);
   if(!keyObj) return alert("Invalid key!");
   if(keys.find(k=>k.value===enteredKey)) return alert("Key already exists!");
-  const newKey={value:enteredKey,expireAt:Date.now(),expired:false,type:type};
+  const durationMap = {
+    "1 Day": 24*3600*1000,
+    "7 Day": 7*24*3600*1000,
+    "15 Day": 15*24*3600*1000,
+    "30 Day": 30*24*3600*1000,
+    "Lifetime": 0
+};
+const newKey = {
+    value: enteredKey,
+    expireAt: type === "Lifetime" ? 0 : Date.now() + durationMap[type],
+    expired: false,
+    type: type
+};
   keys.push(newKey);
   saveKeys();
   createKeyBox(newKey);
