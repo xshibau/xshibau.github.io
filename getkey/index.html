@@ -40,7 +40,7 @@ button:disabled {background:#444;color:#aaa;cursor:not-allowed;}
 <div class="keys-container" id="keysContainer"></div>
 </div>
 <script>
-const btn = document.getElementById('mainBtn');
+  const btn = document.getElementById('mainBtn');
 const keysContainer = document.getElementById('keysContainer');
 const redeemBtn = document.getElementById('redeemBtn');
 const redeemBox = document.getElementById('redeemBox');
@@ -50,171 +50,152 @@ const redeemConfirm = document.getElementById('redeemConfirm');
 
 let keys = [];
 let predefinedPremiumKeys = [
-    { value: "AURA-SZM2M-O3WU0-XZR-D1C6E-0XR49", type: "Lifetime" },
-
-
+  {value:"AURA-O0OQ9-MAKY8-7SM-XQRAV-RDQ58", type:"Lifetime"},
   
-    { value: "AURA-YQW9C-NW68L-ECH-S2SDR-RYJUI", type: "7 Day" }
+  {value:"AURA-COV0M-QHU8P-TK9-4V6PZ-AMJS6", type:"7 Day"}
 ];
 let blacklistedKeys = [
-    { value: "PREM-BLACK1", reason: "Fraud detected" },
-    { value: "PREM-ABC123", reason: "Expired promotion" }
+  {value:"PREM-BLACK1", reason:"Fraud detected"},
+  {value:"PREM-ABC123", reason:"Expired promotion"}
 ];
 
-function saveKeys() { localStorage.setItem('auraKeys', JSON.stringify(keys)); }
-function loadKeys() { let k = localStorage.getItem('auraKeys'); keys = k ? JSON.parse(k) : []; }
-function randomPart(len) { const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; let p = ""; for (let i=0;i<len;i++) p+=chars.charAt(Math.floor(Math.random()*chars.length)); return p; }
-function randomKey() { return "FREE-"+randomPart(5)+"-"+randomPart(5)+"-"+randomPart(3)+"-"+randomPart(5)+"-"+randomPart(5); }
-function formatTime(sec){ let h=String(Math.floor(sec/3600)).padStart(2,"0"); let m=String(Math.floor((sec%3600)/60)).padStart(2,"0"); let s=String(sec%60).padStart(2,"0"); return `${h}:${m}:${s}`; }
+function saveKeys(){ localStorage.setItem('auraKeys', JSON.stringify(keys)); }
+function loadKeys(){ let k = localStorage.getItem('auraKeys'); keys = k ? JSON.parse(k) : []; }
+
+function randomPart(len){ const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; let p = ""; for(let i=0;i<len;i++) p += chars.charAt(Math.floor(Math.random()*chars.length)); return p; }
+function randomKey(){ return "FREE-"+randomPart(5)+"-"+randomPart(5)+"-"+randomPart(3)+"-"+randomPart(5)+"-"+randomPart(5); }
+function formatTime(sec){ let h = String(Math.floor(sec/3600)).padStart(2,"0"); let m = String(Math.floor((sec%3600)/60)).padStart(2,"0"); let s = String(sec%60).padStart(2,"0"); return `${h}:${m}:${s}`; }
 
 function createKeyBox(keyObj){
-    const wrap=document.createElement("div");
-    wrap.className="key-box";
-    const keyText=document.createElement("div");
-    keyText.className="key-text";
-    keyText.textContent=keyObj.value;
-    wrap.appendChild(keyText);
-    const status=document.createElement("div");
-    status.className="key-status";
-    wrap.appendChild(status);
-    const btnWrap=document.createElement("div");
-    btnWrap.className="key-buttons";
-    const copyBtn=document.createElement("button");
-    copyBtn.textContent="Copy";
-    const addBtn=document.createElement("button");
-    addBtn.textContent="+2h";
-    const delBtn=document.createElement("button");
-    delBtn.textContent="Delete";
+  const wrap = document.createElement("div");
+  wrap.className = "key-box";
 
-    const blItem = blacklistedKeys.find(b=>b.value===keyObj.value);
-    if(blItem){
-        status.textContent=`Key is Blacklist: ${blItem.reason}`;
-        status.classList.add("expired");
-        addBtn.disabled=true;
-        copyBtn.disabled=true;
-        delBtn.disabled=true;
-        keyObj.expired=true;
-    } else {
-        copyBtn.onclick=()=>{
-            const temp=document.createElement("textarea");
-            temp.value=keyObj.value;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand("copy");
-            document.body.removeChild(temp);
-            copyBtn.textContent="Copied!";
-            setTimeout(()=>copyBtn.textContent="Copy",1000);
-        };
-        addBtn.disabled=keyObj.expired || keyObj.type?.includes("PREM");
-        addBtn.onclick=()=>{
-            if(keyObj.expired || keyObj.cooldown || keyObj.type?.includes("PREM")) return;
-            keyObj.cooldown=40;
-            addBtn.disabled=true;
-            const cdInterval=setInterval(()=>{
-                if(keyObj.cooldown>0){
-                    addBtn.textContent=`Wait ${keyObj.cooldown}s...`;
-                    keyObj.cooldown--;
-                } else {
-                    clearInterval(cdInterval);
-                    keyObj.expireAt+=2*3600*1000;
-                    addBtn.disabled=false;
-                    addBtn.textContent="+2h";
-                    delete keyObj.cooldown;
-                    saveKeys();
-                }
-            },1000);
-        };
-        delBtn.onclick=()=>{
-            if(confirm("Delete this key?")){
-                keys = keys.filter(k => k!==keyObj);
-                saveKeys();
-                wrap.remove();
-            }
-        };
+  const keyText = document.createElement("div");
+  keyText.className = "key-text";
+  keyText.textContent = keyObj.value;
+  wrap.appendChild(keyText);
+
+  const status = document.createElement("div");
+  status.className = "key-status";
+  wrap.appendChild(status);
+
+  const btnWrap = document.createElement("div");
+  btnWrap.className = "key-buttons";
+
+  const copyBtn = document.createElement("button"); copyBtn.textContent = "Copy";
+  const addBtn = document.createElement("button"); addBtn.textContent = "+2h";
+  const delBtn = document.createElement("button"); delBtn.textContent = "Delete";
+
+  const blItem = blacklistedKeys.find(b => b.value === keyObj.value);
+  if(blItem){
+    status.textContent = `Key is Blacklist: ${blItem.reason}`;
+    status.classList.add("expired");
+    addBtn.disabled = true; copyBtn.disabled = true; delBtn.disabled = true; keyObj.expired = true;
+  } else {
+    copyBtn.onclick = () => {
+      const temp = document.createElement("textarea");
+      temp.value = keyObj.value;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand("copy");
+      document.body.removeChild(temp);
+      copyBtn.textContent = "Copied!";
+      setTimeout(()=>copyBtn.textContent="Copy",1000);
     }
 
-    btnWrap.appendChild(copyBtn);
-    btnWrap.appendChild(addBtn);
-    btnWrap.appendChild(delBtn);
-    wrap.appendChild(btnWrap);
-
-    const interval=setInterval(()=>{
-        if(!keyObj.expired && !blItem){
-            if(keyObj.type==="Lifetime") status.textContent="Expires: Lifetime";
-            else {
-                let left=Math.floor((keyObj.expireAt-Date.now())/1000);
-                if(left>0) status.textContent=`Expires in: ${formatTime(left)}`;
-                else{
-                    status.textContent=keyObj.type==="Lifetime"?"Expired: Lifetime":"Expired: 🟢";
-                    status.classList.add("expired");
-                    keyObj.expired=true;
-                    addBtn.disabled=true;
-                    saveKeys();
-                }
-            }
+    addBtn.disabled = keyObj.expired || predefinedPremiumKeys.some(k => k.value===keyObj.value);
+    addBtn.onclick = () => {
+      if(keyObj.expired || predefinedPremiumKeys.some(k => k.value===keyObj.value) || keyObj.cooldown) return;
+      keyObj.cooldown = 40;
+      addBtn.disabled = true;
+      const cdInterval = setInterval(()=>{
+        if(keyObj.cooldown>0){ addBtn.textContent=`Wait ${keyObj.cooldown}s...`; keyObj.cooldown--; }
+        else {
+          clearInterval(cdInterval);
+          keyObj.expireAt += 2*3600*1000;
+          addBtn.disabled=false;
+          addBtn.textContent="+2h";
+          delete keyObj.cooldown;
+          saveKeys();
         }
-    },1000);
+      },1000);
+    }
 
-    keysContainer.appendChild(wrap);
+    delBtn.onclick = () => {
+      keys = keys.filter(k => k !== keyObj);
+      saveKeys();
+      wrap.remove();
+    }
+  }
+
+  btnWrap.appendChild(copyBtn);
+  btnWrap.appendChild(addBtn);
+  btnWrap.appendChild(delBtn);
+  wrap.appendChild(btnWrap);
+
+  const interval = setInterval(()=>{
+    if(!keyObj.expired && !blItem){
+      let left = Math.floor((keyObj.expireAt-Date.now())/1000);
+      if(left>0){
+        if(keyObj.type === "Lifetime") status.textContent="Expires: Lifetime";
+        else status.textContent=`Expires in: ${formatTime(left)}`;
+      } else{
+        status.textContent = keyObj.type==="Lifetime"?"Expired: Lifetime":"Expired: 🟢";
+        status.classList.add("expired");
+        keyObj.expired=true;
+        addBtn.disabled=true;
+        saveKeys();
+      }
+    }
+  },1000);
+
+  keysContainer.appendChild(wrap);
 }
 
 function renderKeys(){ keysContainer.innerHTML=""; keys.forEach(k=>createKeyBox(k)); }
 
-loadKeys();
-renderKeys();
+loadKeys(); renderKeys();
 if(keys.length>0) redeemBtn.style.display="block";
 
 btn.addEventListener("click",()=>{
-    btn.disabled=true;
-    btn.textContent="Redirecting...";
-    let sites=["https://www.google.com/search?q=shop","https://www.google.com/search?q=news","https://www.google.com/search?q=games","https://www.google.com/search?q=anime"];
-    window.open(sites[Math.floor(Math.random()*sites.length)],"_blank");
-    let wait=0;
-    const countdown=setInterval(()=>{
-        btn.textContent=`Wait: ${formatTime(wait)}`;
-        wait--;
-        if(wait<0){
-            clearInterval(countdown);
-            btn.disabled=false;
-            btn.textContent="Get Key";
-            const newKey={value:randomKey(),expireAt:Date.now()+2*3600*1000,expired:false};
-            keys.push(newKey);
-            saveKeys();
-            createKeyBox(newKey);
-            redeemBtn.style.display="block";
-        }
-    },1000);
+  btn.disabled=true;
+  btn.textContent="Redirecting...";
+  let sites=["https://www.google.com/search?q=shop","https://www.google.com/search?q=news","https://www.google.com/search?q=games","https://www.google.com/search?q=anime"];
+  window.open(sites[Math.floor(Math.random()*sites.length)],"_blank");
+  let wait=0;
+  const countdown=setInterval(()=>{
+    btn.textContent=`Wait: ${formatTime(wait)}`;
+    wait--;
+    if(wait<0){
+      clearInterval(countdown);
+      btn.disabled=false;
+      btn.textContent="Get Key";
+      const newKey={value:randomKey(),expireAt:Date.now()+2*3600*1000,expired:false};
+      keys.push(newKey);
+      saveKeys();
+      createKeyBox(newKey);
+      redeemBtn.style.display="block";
+    }
+  },1000);
 });
 
-redeemBtn.addEventListener("click",()=>{ redeemBox.style.display=redeemBox.style.display==="none"?"block":"none"; });
+redeemBtn.addEventListener("click",()=>{ redeemBox.style.display = redeemBox.style.display==="none"?"block":"none"; });
 
 redeemConfirm.addEventListener("click",()=>{
-    const enteredKey=redeemInput.value.trim();
-    const type=keyTypeSelect.value;
-    if(!enteredKey) return alert("Enter key!");
-    const blCheck=blacklistedKeys.find(b=>b.value===enteredKey);
-    if(blCheck) return alert(`This key is blacklisted: ${blCheck.reason}`);
-    const keyObj=predefinedPremiumKeys.find(k=>k.value===enteredKey && k.type===type);
-    if(!keyObj) return alert("Invalid key!");
-    if(keys.find(k=>k.value===enteredKey)) return alert("Key already exists!");
-    const durationMap = {
-    "1 Day": 24*3600*1000,
-    "7 Day": 7*24*3600*1000,
-    "15 Day": 15*24*3600*1000,
-    "30 Day": 30*24*3600*1000,
-    "Lifetime": 0
-};
-const newKey = {
-    value: enteredKey,
-    expireAt: type === "Lifetime" ? 0 : Date.now() + durationMap[type],
-    expired: false,
-    type: type
-};
-    keys.push(newKey);
-    saveKeys();
-    createKeyBox(newKey);
-    redeemInput.value="";
-    alert(`Key redeemed: ${type}`);
+  const enteredKey=redeemInput.value.trim();
+  const type=keyTypeSelect.value;
+  if(!enteredKey) return alert("Enter key!");
+  const blCheck=blacklistedKeys.find(b=>b.value===enteredKey);
+  if(blCheck) return alert(`This key is blacklisted: ${blCheck.reason}`);
+  const keyObj=predefinedPremiumKeys.find(k=>k.value===enteredKey && k.type===type);
+  if(!keyObj) return alert("Invalid key!");
+  if(keys.find(k=>k.value===enteredKey)) return alert("Key already exists!");
+  const newKey={value:enteredKey, expireAt:Date.now()+(type==="Lifetime"?0:24*3600*1000), expired:false, type:type};
+  keys.push(newKey);
+  saveKeys();
+  createKeyBox(newKey);
+  redeemInput.value="";
+  alert(`Key redeemed: ${type}`);
 });
 </script>
 </body>
