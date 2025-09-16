@@ -173,7 +173,7 @@ btn.addEventListener("click",()=>{
   btn.textContent="Redirecting...";
   let sites=["https://www.google.com/search?q=shop","https://www.google.com/search?q=news","https://www.google.com/search?q=games","https://www.google.com/search?q=anime"];
   window.open(sites[Math.floor(Math.random()*sites.length)],"_blank");
-  let wait=0;
+  let wait=30;
   const countdown=setInterval(()=>{
     btn.textContent=`Wait: ${formatTime(wait)}`;
     wait--;
