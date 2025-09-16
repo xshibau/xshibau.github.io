@@ -32,6 +32,7 @@ button:disabled {background:#444;color:#aaa;cursor:not-allowed;}
 <div class="redeem-box" id="redeemBox">
 <input type="text" id="redeemInput" placeholder="Enter Key">
 <select id="keyType">
+  <option value="7 Day">7 Day (Working)</option>
   <option value="Lifetime">Lifetime (Working)</option>
 </select>
 <button id="redeemConfirm">Redeem</button>
@@ -49,6 +50,7 @@ const redeemConfirm=document.getElementById('redeemConfirm');
 
 let keys=[];
 let predefinedPremiumKeys=[
+  {value:"AURA-YJFDW-6LYZU-290-7KUAM-9GTK5",type:"7 Day"},
   {value:"AURA-W6TMM-0MQS4-1DR-1ULPU-DZG78",type:"Lifetime"},
   {value:"AURA-LOJMQ-LP50V-IBU-9AIIQ-38WU9",type:"Lifetime"},
   {value:"AURA-SC90N-76VS4-314-J5UB9-LUWJV",type:"Lifetime"},
