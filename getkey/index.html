@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Get Key Aura Hub</title>
 <style>
 body {font-family:"Segoe UI",sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;margin:0;}
@@ -32,10 +32,6 @@ button:disabled {background:#444;color:#aaa;cursor:not-allowed;}
 <div class="redeem-box" id="redeemBox">
 <input type="text" id="redeemInput" placeholder="Enter Key">
 <select id="keyType">
-  <option value="1 Day">1 Day (Giveaway)</option>
-  <option value="7 Day">7 Day (Giveaway)</option>
-  <option value="15 Day">15 Day (Outdated)</option>
-  <option value="30 Day">30 Day (Off Stock)</option>
   <option value="Lifetime">Lifetime (Working)</option>
 </select>
 <button id="redeemConfirm">Redeem</button>
@@ -107,9 +103,9 @@ function createKeyBox(keyObj){
       copyBtn.textContent="Copied!";
       setTimeout(()=>copyBtn.textContent="Copy",1000);
     }
-    addBtn.disabled=keyObj.expired || keyObj.type?.includes("PREM");
+    addBtn.disabled=keyObj.expired || keyObj.type==="Lifetime";
     addBtn.onclick=()=>{
-      if(keyObj.expired || keyObj.cooldown || keyObj.type?.includes("PREM")) return;
+      if(keyObj.expired || keyObj.cooldown || keyObj.type==="Lifetime") return;
       keyObj.cooldown=40;
       addBtn.disabled=true;
       const cdInterval=setInterval(()=>{
@@ -142,16 +138,18 @@ function createKeyBox(keyObj){
 
   const interval=setInterval(()=>{
     if(!keyObj.expired && !blItem){
-      let left=Math.floor((keyObj.expireAt-Date.now())/1000);
-      if(left>0){
-        if(keyObj.type==="Lifetime") status.textContent="Expires: Lifetime";
-        else status.textContent=`Expires in: ${formatTime(left)}`;
-      } else{
-        status.textContent=keyObj.type==="Lifetime"?"Expired: Lifetime":"Expired: 🟢";
-        status.classList.add("expired");
-        keyObj.expired=true;
-        addBtn.disabled=true;
-        saveKeys();
+      if(keyObj.type==="Lifetime"){
+        status.textContent="Expired: Lifetime";
+      } else {
+        let left=Math.floor((keyObj.expireAt-Date.now())/1000);
+        if(left>0) status.textContent=`Expires in: ${formatTime(left)}`;
+        else{
+          status.textContent="Expired: 🟢";
+          status.classList.add("expired");
+          keyObj.expired=true;
+          addBtn.disabled=true;
+          saveKeys();
+        }
       }
     }
   },1000);
@@ -173,7 +171,7 @@ btn.addEventListener("click",()=>{
   btn.textContent="Redirecting...";
   let sites=["https://www.google.com/search?q=shop","https://www.google.com/search?q=news","https://www.google.com/search?q=games","https://www.google.com/search?q=anime"];
   window.open(sites[Math.floor(Math.random()*sites.length)],"_blank");
-  let wait=30;
+  let wait=5;
   const countdown=setInterval(()=>{
     btn.textContent=`Wait: ${formatTime(wait)}`;
     wait--;
@@ -201,7 +199,7 @@ redeemConfirm.addEventListener("click",()=>{
   const keyObj=predefinedPremiumKeys.find(k=>k.value===enteredKey && k.type===type);
   if(!keyObj) return alert("Invalid key!");
   if(keys.find(k=>k.value===enteredKey)) return alert("Key already exists!");
-  const newKey={value:enteredKey,expireAt:Date.now()+(type==="Lifetime"?0:24*3600*1000),expired:false,type:type};
+  const newKey={value:enteredKey,expireAt:Date.now(),expired:false,type:type};
   keys.push(newKey);
   saveKeys();
   createKeyBox(newKey);
