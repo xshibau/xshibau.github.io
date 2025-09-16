@@ -3,198 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<title>Get Key Aura Hub</title>
+<title>AURA Key Generator</title>
 <style>
-body {font-family:"Segoe UI",sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;margin:0;}
-.container {text-align:center;padding:30px;border-radius:18px;background:rgba(20,20,20,0.9);box-shadow:0 8px 25px rgba(0,0,0,0.6);width:380px;backdrop-filter: blur(8px);}
-h2 {margin-bottom:22px;font-size:24px;font-weight:bold;color:#00ffc6;text-shadow:0 0 8px #00ffc6;}
-button {background:linear-gradient(135deg,#00ffc6,#00b894);color:#000;border:none;padding:12px 22px;border-radius:12px;font-size:17px;cursor:pointer;font-weight:600;width:100%;margin-top:12px;}
-button:hover:enabled {transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,255,198,0.5);}
-button:disabled {background:#444;color:#aaa;cursor:not-allowed;}
-.keys-container {margin-top:18px;max-height:250px;overflow-y:auto;padding-right:6px;}
-.key-box {margin-top:10px;padding:12px 14px;border-radius:10px;background:#111;border:2px solid #00ffc6;text-align:center;position:relative;}
-.key-text {font-family:monospace;font-weight:bold;color:#00ffcc;text-shadow:0 0 6px #00ffc6;word-break:break-all;margin-bottom:6px;}
-.key-status {font-size:13px;display:inline-block;padding:4px 6px;border:1px solid #ffcc00;border-radius:6px;margin-bottom:6px;color:#ffcc00;}
-.key-buttons {display:flex;justify-content:center;gap:6px;}
-.key-buttons button {flex:1;padding:6px;font-size:14px;}
-.expired {color:#ff4444 !important;border:1px solid #ff4444 !important;text-shadow:none !important;border-radius:6px;padding:4px 6px;}
-#redeemBtn,#redeemBox {margin-top:12px;}
-#redeemBox {display:none;background:#222;padding:15px;border-radius:12px;border:2px solid #00ffc6;}
-#redeemBox input,#redeemBox select {width:calc(100% - 12px);margin-bottom:8px;padding:6px;border-radius:6px;border:1px solid #00ffc6;background:#111;color:#fff;}
-#redeemBox button {width:100%;}
+body { font-family: Arial,sans-serif; background:#0f172a; color:#f1f5f9; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; padding:10px; }
+.container { background:#1e293b; padding:20px; border-radius:12px; width:100%; max-width:400px; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+h2 { text-align:center; margin-bottom:15px; }
+input[type="number"], input[type="text"], textarea, select { width:100%; padding:10px; margin:8px 0; border-radius:8px; border:none; font-size:14px; background:#334155; color:#f1f5f9; box-sizing:border-box; }
+textarea { height:180px; resize:none; font-size:12px; line-height:1.4; }
+button { width:100%; padding:10px; border-radius:8px; border:none; margin-top:8px; font-size:14px; background:#3b82f6; color:white; cursor:pointer; transition: background 0.2s; }
+button:hover { background:#2563eb; }
+.actions { display:flex; gap:10px; margin-top:8px; }
+.actions button { flex:1; }
+.toggle { display:flex; align-items:center; justify-content:space-between; margin:10px 0; font-size:14px; }
+.switch { position:relative; display:inline-block; width:40px; height:20px; }
+.switch input { opacity:0; width:0; height:0; }
+.slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#475569; transition:.4s; border-radius:20px; }
+.slider:before { position:absolute; content:""; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; }
+input:checked + .slider { background-color:#3b82f6; }
+input:checked + .slider:before { transform:translateX(20px); }
 </style>
 </head>
 <body>
 <div class="container">
-<h2>Get Key Aura Hub</h2>
-<button id="mainBtn">Get Key</button>
-<button id="redeemBtn" style="display:none;">Redeem Premium</button>
-<div class="redeem-box" id="redeemBox">
-<input type="text" id="redeemInput" placeholder="Enter Key">
-<select id="keyType">
-  <option value="1 Day">1 Day</option>
-  <option value="7 Day">7 Day</option>
-  <option value="15 Day">15 Day</option>
-  <option value="30 Day">30 Day</option>
-  <option value="Lifetime">Lifetime</option>
+<h2>🔑 AURA HUB 🔑</h2>
+<input id="prefix" type="text" placeholder="Enter prefix (optional)">
+<input id="amount" type="number" value="5" min="1">
+
+<div class="toggle"><span>Force AURA if no prefix</span>
+<label class="switch"><input id="forceAura" type="checkbox"><span class="slider"></span></label></div>
+
+<div class="toggle"><span>Custom AURA Format V2</span>
+<label class="switch"><input id="customAura" type="checkbox"><span class="slider"></span></label></div>
+
+<div class="toggle"><span>Random 3-char Section Position</span>
+<label class="switch"><input id="randomPos" type="checkbox"><span class="slider"></span></label></div>
+
+<div class="toggle"><span>Format LuaU ("KEY", )</span>
+<label class="switch"><input id="format" type="checkbox"><span class="slider"></span></label></div>
+
+<div class="toggle"><span>Random 32-char Key</span>
+<label class="switch"><input id="random32" type="checkbox"><span class="slider"></span></label></div>
+
+<div class="toggle"><span>Fake Luarmor API</span>
+<label class="switch"><input id="fakeLuarmor" type="checkbox"><span class="slider"></span></label></div>
+
+<div class="toggle"><span>Lua Loader Mode</span>
+<label class="switch"><input id="luaToggle" type="checkbox"><span class="slider"></span></label></div>
+
+<div id="luaOptions" style="display:none; margin:8px 0;">
+<select id="luaMode">
+<option value="script_key">script_key = "";</option>
+<option value="getgenv">getgenv().Key = ""</option>
 </select>
-<button id="redeemConfirm">Redeem</button>
 </div>
-<div class="keys-container" id="keysContainer"></div>
+
+<div class="toggle"><span>Error Mode</span>
+<label class="switch"><input id="errorToggle" type="checkbox"><span class="slider"></span></label></div>
+
+<div id="errorOptions" style="display:none; margin:8px 0;">
+<input id="errLines" type="number" value="5" min="1" placeholder="Số lượng line random">
+<input id="errRand" type="number" value="5" min="1" placeholder="Số lượng random Line">
+<input id="errMax" type="number" value="1000000" min="1" placeholder="Số lượng tối đa random số">
+<select id="errDown">
+<option value="no">No (Don't Script Down)</option>
+<option value="yes">Yes (Script Down)</option>
+</select>
 </div>
+
+<button id="generateBtn">Generate</button>
+<div class="actions">
+<button id="copyBtn">Copy</button>
+<button id="downloadBtn">Download</button>
+</div>
+
+<textarea id="output" readonly></textarea>
+</div>
+
 <script>
-const btn=document.getElementById('mainBtn');
-const keysContainer=document.getElementById('keysContainer');
-const redeemBtn=document.getElementById('redeemBtn');
-const redeemBox=document.getElementById('redeemBox');
-const redeemInput=document.getElementById('redeemInput');
-const keyTypeSelect=document.getElementById('keyType');
-const redeemConfirm=document.getElementById('redeemConfirm');
+let rawKeys=[];
+function randomSection(len){const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";let str="";for(let i=0;i<len;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));return str;}
+function randomHex32(){const chars="abcdef0123456789";let str="";for(let i=0;i<32;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));return str;}
+function randomKey32(){const chars="abcdefghijklmnopqrstuvwxyz0123456789";let str="";for(let i=0;i<32;i++) str+=chars.charAt(Math.floor(Math.random()*chars.length));return str;}
+function randomWord(len=20){const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";let s="";for(let i=0;i<len;i++) s+=chars.charAt(Math.floor(Math.random()*chars.length));return s;}
+function randomInt(max){return Math.floor(Math.random()*max)+1;}
+function formatNumber(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");}
+function generateLuarmorLink(){return "https://api.luarmor.net/files/v4/loaders/"+randomHex32()+".lua";}
 
-let keys=[];
-let predefinedPremiumKeys=[
-  {value:"PREM-ABC123",type:"1 Day"},
-  {value:"PREM-XYZ789",type:"7 Day"},
-  {value:"PREM-HELLO1",type:"Lifetime"}
-];
-let blacklistedKeys=["PREM-BLACK1","PREM-ABC123"];
+document.getElementById("luaToggle").addEventListener("change",e=>{document.getElementById("luaOptions").style.display=e.target.checked?"block":"none";});
+document.getElementById("errorToggle").addEventListener("change",e=>{document.getElementById("errorOptions").style.display=e.target.checked?"block":"none";});
 
-function saveKeys(){localStorage.setItem('auraKeys',JSON.stringify(keys));}
-function loadKeys(){let k=localStorage.getItem('auraKeys');if(k)keys=JSON.parse(k);else keys=[];}
+function generateError(){
+  const errRand=parseInt(document.getElementById("errRand").value)||5;
+  const errMax=parseInt(document.getElementById("errMax").value)||1000000;
+  const errDown=document.getElementById("errDown").value;
+  let out=[];
+  out.push("**Script Down**");
+  out.push("```"+(errDown==="yes"?"Script Down":"Don't Script Down")+"```");
+  out.push("**[Code Error]:**");
+  out.push("```"+randomWord(20)+"```");
+  out.push("**[Fixed]**");
+  let lines=[];for(let i=0;i<errRand;i++){lines.push("Line "+randomInt(errMax));}
+  out.push("```Fix Error Server, "+lines.join(", ")+"```");
+  out.push("**[Total Error]:**");
+  let NV=formatNumber(randomInt(1000000));
+  let EC=formatNumber(randomInt(1000000));
+  let F=formatNumber(randomInt(1000000));
+  out.push("```[NV]: "+NV+" Nil Value error\n[EC]: "+EC+" Extra Character error\n[F]: "+F+" Function Error Does Not Exist```");
+  out.push("**Note:**");
+  out.push("```Please wait for Owner to fix the error, use the script please do not use it hastily because the server is down```");
+  rawKeys=[out.join("\n")];
+}
 
-function randomPart(len){const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";let p="";for(let i=0;i<len;i++)p+=chars.charAt(Math.floor(Math.random()*chars.length));return p;}
-function randomKey(){return "FREE-"+randomPart(5)+"-"+randomPart(5)+"-"+randomPart(3)+"-"+randomPart(5)+"-"+randomPart(5);}
-function formatTime(sec){let h=String(Math.floor(sec/3600)).padStart(2,"0");let m=String(Math.floor((sec%3600)/60)).padStart(2,"0");let s=String(sec%60).padStart(2,"0");return `${h}:${m}:${s}`;}
-
-function createKeyBox(keyObj){
-  const wrap=document.createElement("div");
-  wrap.className="key-box";
-  const keyText=document.createElement("div");
-  keyText.className="key-text";
-  keyText.textContent=keyObj.value;
-  wrap.appendChild(keyText);
-  const status=document.createElement("div");
-  status.className="key-status";
-  wrap.appendChild(status);
-  const btnWrap=document.createElement("div");
-  btnWrap.className="key-buttons";
-  const copyBtn=document.createElement("button");
-  copyBtn.textContent="Copy";
-  const addBtn=document.createElement("button");
-  addBtn.textContent="+2h";
-  const delBtn=document.createElement("button");
-  delBtn.textContent="Delete";
-
-  if(blacklistedKeys.includes(keyObj.value)){
-    status.textContent="Key is Blacklist";
-    status.classList.add("expired");
-    addBtn.disabled=true;
-    copyBtn.disabled=true;
-    delBtn.disabled=true;
-    keyObj.expired=true;
-  } else {
-    copyBtn.onclick=()=>{
-      const temp=document.createElement("textarea");
-      temp.value=keyObj.value;
-      document.body.appendChild(temp);
-      temp.select();
-      document.execCommand("copy");
-      document.body.removeChild(temp);
-      copyBtn.textContent="Copied!";
-      setTimeout(()=>copyBtn.textContent="Copy",1000);
-    }
-    addBtn.disabled=keyObj.expired;
-    addBtn.onclick=()=>{
-      if(keyObj.expired || keyObj.cooldown) return;
-      keyObj.cooldown=40;
-      addBtn.disabled=true;
-      const cdInterval=setInterval(()=>{
-        if(keyObj.cooldown>0){
-          addBtn.textContent=`Wait ${keyObj.cooldown}s...`;
-          keyObj.cooldown--;
-        } else {
-          clearInterval(cdInterval);
-          keyObj.expireAt += 2*3600*1000;
-          addBtn.disabled=false;
-          addBtn.textContent="+2h";
-          delete keyObj.cooldown;
-          saveKeys();
-        }
-      },1000);
-    }
-    delBtn.onclick=()=>{
-      if(confirm("Delete this key?")){
-        keys = keys.filter(k => k !== keyObj);
-        saveKeys();
-        wrap.remove();
+function generateKeys(){
+  if(document.getElementById("errorToggle").checked){generateError();updateOutput();return;}
+  const amount=parseInt(document.getElementById("amount").value)||1;
+  const prefix=document.getElementById("prefix").value.trim().toUpperCase();
+  const forceAura=document.getElementById("forceAura").checked;
+  const customAura=document.getElementById("customAura").checked;
+  const randomPos=document.getElementById("randomPos").checked;
+  const random32=document.getElementById("random32").checked;
+  const fakeLuarmor=document.getElementById("fakeLuarmor").checked;
+  const luaToggle=document.getElementById("luaToggle").checked;
+  const luaMode=document.getElementById("luaMode").value;
+  rawKeys=[];
+  for(let i=0;i<amount;i++){
+    let base="";
+    if(luaToggle){
+      if(luaMode==="script_key"){
+        base=`script_key = "";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/${randomHex32()}.lua"))()`;
+      } else {
+        base=`getgenv().Key = ""\nloadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/${randomHex32()}.lua"))()`;
       }
-    };
+    } else if(fakeLuarmor){
+      base=generateLuarmorLink();
+    } else if(random32){
+      base=randomKey32();
+    } else if(customAura){
+      base="AURA-V2-"+randomSection(3)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5);
+    } else if(prefix || forceAura){
+      let sections=[5,5,3,5,5];
+      if(randomPos){
+        for(let j=sections.length-1;j>0;j--){
+          let k=Math.floor(Math.random()*(j+1));
+          [sections[j],sections[k]]=[sections[k],sections[j]];
+        }
+      }
+      let keySections=sections.map(len=>randomSection(len));
+      if(prefix) base=prefix+"-"+keySections.join("-");
+      else base="AURA-"+keySections.join("-");
+    } else {
+      base=randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5)+"-"+randomSection(5);
+    }
+    rawKeys.push(base);
   }
-
-  btnWrap.appendChild(copyBtn);
-  btnWrap.appendChild(addBtn);
-  btnWrap.appendChild(delBtn);
-  wrap.appendChild(btnWrap);
-
-  const interval=setInterval(()=>{
-    if(!keyObj.expired && !blacklistedKeys.includes(keyObj.value)){
-      let left=Math.floor((keyObj.expireAt-Date.now())/1000);
-      if(left>0){status.textContent=`Expires in: ${formatTime(left)}`;}
-      else{status.textContent="Expired: 🟢"; status.classList.add("expired"); keyObj.expired=true; addBtn.disabled=true; saveKeys();}
-    }
-  },1000);
-
-  keysContainer.appendChild(wrap);
+  updateOutput();
 }
 
-function renderKeys(){
-  keysContainer.innerHTML="";
-  keys.forEach(k=>createKeyBox(k));
+function updateOutput(){
+  const format=document.getElementById("format").checked;
+  let lines=rawKeys.map(k=>{
+    if(format && !k.includes("loadstring")) return `"${k}",`;
+    return k;
+  });
+  document.getElementById("output").value=lines.join("\n");
 }
 
-loadKeys();
-renderKeys();
-if(keys.length>0){redeemBtn.style.display="block";}
-
-btn.addEventListener("click",()=>{
-  btn.disabled=true;
-  btn.textContent="Redirecting...";
-  let sites=["https://www.google.com/search?q=shop","https://www.google.com/search?q=news","https://www.google.com/search?q=games","https://www.google.com/search?q=anime"];
-  window.open(sites[Math.floor(Math.random()*sites.length)],"_blank");
-  let wait=0;
-  const countdown=setInterval(()=>{
-    btn.textContent=`Wait: ${formatTime(wait)}`;
-    wait--;
-    if(wait<0){
-      clearInterval(countdown);
-      btn.disabled=false;
-      btn.textContent="Get Key";
-      const newKey={value:randomKey(),expireAt:Date.now()+2*3600*1000,expired:false};
-      keys.push(newKey);
-      saveKeys();
-      createKeyBox(newKey);
-      redeemBtn.style.display="block";
-    }
-  },1000);
-});
-
-redeemBtn.addEventListener("click",()=>{redeemBox.style.display=redeemBox.style.display==="none"?"block":"none";});
-
-redeemConfirm.addEventListener("click",()=>{
-  const enteredKey=redeemInput.value.trim();
-  const type=keyTypeSelect.value;
-  if(!enteredKey) return alert("Enter key!");
-  if(blacklistedKeys.includes(enteredKey)) return alert("This key is blacklisted!");
-  const keyObj=predefinedPremiumKeys.find(k=>k.value===enteredKey && k.type===type);
-  if(!keyObj) return alert("Invalid key!");
-  if(keys.find(k=>k.value===enteredKey)) return alert("Key already exists!");
-  const newKey={value:enteredKey,expireAt:Date.now()+2*3600*1000,expired:false,type:type};
-  keys.push(newKey);
-  saveKeys();
-  createKeyBox(newKey);
-  redeemInput.value="";
-  alert(`Key redeemed: ${type}`);
-});
+document.getElementById("generateBtn").addEventListener("click",generateKeys);
+document.getElementById("copyBtn").addEventListener("click",()=>{const output=document.getElementById("output");output.select();navigator.clipboard.writeText(output.value);});
+document.getElementById("downloadBtn").addEventListener("click",()=>{const blob=new Blob([document.getElementById("output").value],{type:"text/plain"});const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="keys.txt";link.click();});
 </script>
 </body>
 </html>
