@@ -50,8 +50,7 @@ const redeemBox=document.getElementById('redeemBox');
 const redeemInput=document.getElementById('redeemInput');
 const keyTypeSelect=document.getElementById('keyType');
 const redeemConfirm=document.getElementById('redeemConfirm');
-let keys=[],predefinedPremiumKeys=[{value:"PREM-1DAY",type:"1 Day"},{value:"PREM-7DAY",type:"7 Day"},
-{value:"PREM-30DAY",type:"30 Day"},{value:"PREM-LIFETIME",type:"Lifetime"}];
+let keys=[],predefinedPremiumKeys=[{value:"PREM-1DAY",type:"1 Day"},{value:"AURA-RARGA-9QRZU-L4P-DUG9O-SE42I",type:"Lifetime"}];
 let blacklistedKeys=["PREM-BLACK1"];
 function saveKeys(){localStorage.setItem('auraKeys',JSON.stringify(keys));}
 function loadKeys(){let k=localStorage.getItem('auraKeys');keys=k?JSON.parse(k):[];}
