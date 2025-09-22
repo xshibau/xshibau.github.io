@@ -6,35 +6,110 @@
 <title>AURA HUB</title>
 <style>
 body{font-family:Arial,sans-serif;background:#0f172a;color:#f1f5f9;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:10px}
-.container{background:#1e293b;padding:20px;border-radius:12px;width:100%;max-width:400px;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.container{background:#1e293b;padding:20px;border-radius:12px;width:100%;max-width:420px;box-shadow:0 4px 12px rgba(0,0,0,.5)}
 h2{text-align:center;margin-bottom:15px}
-input,select{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;font-size:14px;background:#334155;color:#f1f5f9;box-sizing:border-box}
+input,select,textarea{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:none;font-size:14px;background:#334155;color:#f1f5f9;box-sizing:border-box}
 button{width:100%;padding:10px;border-radius:8px;border:none;margin-top:8px;font-size:14px;background:#3b82f6;color:#fff;cursor:pointer}
 button:hover{background:#2563eb}
 .hidden{display:none}
-.toggle{display:flex;align-items:center;justify-content:space-between;margin:10px 0;font-size:14px}
-.switch{position:relative;display:inline-block;width:40px;height:20px}
-.switch input{opacity:0;width:0;height:0}
-.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#475569;transition:.4s;border-radius:20px}
-.slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background:#fff;transition:.4s;border-radius:50%}
-input:checked+.slider{background:#3b82f6}
-input:checked+.slider:before{transform:translateX(20px)}
 </style>
 </head>
 <body>
 <div class="container">
 <h2>🔑 AURA HUB 🔑</h2>
 
-<input id="webhookUrl" type="text" placeholder="Webhook URL">
+<input id="webhook" type="text" placeholder="Enter Webhook URL">
 
-<select id="sendMode">
+<label>Mode</label>
+<select id="mode">
 <option value="normal">Normal</option>
 <option value="embed">Embed</option>
 </select>
 
+<div id="normalBox">
+<label>Normal Message</label>
+<textarea id="normalText" placeholder="Enter message"></textarea>
+</div>
+
 <div id="embedBox" class="hidden">
-<input id="embedTitle" type="text" placeholder="Embed Title">
-<select id="titleStyle"><option value="normal">Normal</option><option value="bold">Bold</option></select>
+<label>Embed Title</label>
+<input id="embedTitle" type="text" placeholder="Title">
+<label>Title Style</label>
+<select id="titleStyle">
+<option value="normal">Normal</option>
+<option value="bold">Bold</option>
+</select>
+
+<label>Embed Description</label>
+<textarea id="embedDesc" placeholder="Description"></textarea>
+<label>Description Style</label>
+<select id="descStyle">
+<option value="normal">Normal</option>
+<option value="bold">Bold</option>
+</select>
+</div>
+
+<label>Ping</label>
+<select id="pingMode">
+<option value="none">None</option>
+<option value="everyone">@everyone</option>
+<option value="here">@here</option>
+<option value="custom">Custom ID</option>
+</select>
+<input id="pingCustom" type="text" placeholder="Enter ID or @User" class="hidden">
+
+<button id="sendBtn">Send</button>
+</div>
+
+<script>
+const webhookInput=document.getElementById("webhook");
+if(localStorage.getItem("webhook")) webhookInput.value=localStorage.getItem("webhook");
+
+document.getElementById("mode").addEventListener("change",e=>{
+  document.getElementById("normalBox").classList.toggle("hidden",e.target.value!=="normal");
+  document.getElementById("embedBox").classList.toggle("hidden",e.target.value!=="embed");
+});
+
+document.getElementById("pingMode").addEventListener("change",e=>{
+  document.getElementById("pingCustom").classList.toggle("hidden",e.target.value!=="custom");
+});
+
+document.getElementById("sendBtn").addEventListener("click",async()=>{
+  const url=webhookInput.value.trim();
+  if(!url) return alert("Webhook URL required!");
+  localStorage.setItem("webhook",url);
+
+  const mode=document.getElementById("mode").value;
+  let payload={};
+
+  let pingText="";
+  const ping=document.getElementById("pingMode").value;
+  if(ping==="everyone") pingText="@everyone";
+  else if(ping==="here") pingText="@here";
+  else if(ping==="custom") pingText=document.getElementById("pingCustom").value;
+
+  if(mode==="normal"){
+    let msg=document.getElementById("normalText").value;
+    payload={content:(pingText?pingText+" ":"")+msg};
+  }else{
+    let title=document.getElementById("embedTitle").value;
+    let desc=document.getElementById("embedDesc").value;
+    if(document.getElementById("titleStyle").value==="bold") title="**"+title+"**";
+    if(document.getElementById("descStyle").value==="bold") desc="**"+desc+"**";
+    payload={
+      content:pingText||"",
+      embeds:[{title:title,description:desc,color:5814783}]
+    };
+  }
+
+  try{
+    await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    alert("Sent!");
+  }catch(e){alert("Error: "+e);}
+});
+</script>
+</body>
+</html><select id="titleStyle"><option value="normal">Normal</option><option value="bold">Bold</option></select>
 <input id="embedDesc" type="text" placeholder="Embed Description">
 <select id="descStyle"><option value="normal">Normal</option><option value="bold">Bold</option></select>
 </div>
