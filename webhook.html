@@ -11,6 +11,7 @@ h2{text-align:center;margin-bottom:15px}
 input,select{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;font-size:14px;background:#334155;color:#f1f5f9;box-sizing:border-box}
 button{width:100%;padding:10px;border-radius:8px;border:none;margin-top:8px;font-size:14px;background:#3b82f6;color:#fff;cursor:pointer}
 button:hover{background:#2563eb}
+.hidden{display:none}
 .toggle{display:flex;align-items:center;justify-content:space-between;margin:10px 0;font-size:14px}
 .switch{position:relative;display:inline-block;width:40px;height:20px}
 .switch input{opacity:0;width:0;height:0}
@@ -18,7 +19,6 @@ button:hover{background:#2563eb}
 .slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background:#fff;transition:.4s;border-radius:50%}
 input:checked+.slider{background:#3b82f6}
 input:checked+.slider:before{transform:translateX(20px)}
-.hidden{display:none}
 </style>
 </head>
 <body>
@@ -27,9 +27,12 @@ input:checked+.slider:before{transform:translateX(20px)}
 
 <input id="webhookUrl" type="text" placeholder="Webhook URL">
 
-<div class="toggle"><span>Embed Mode</span>
-<label class="switch"><input id="embedToggle" type="checkbox"><span class="slider"></span></label></div>
-<div id="embedOptions" class="hidden">
+<select id="sendMode">
+<option value="normal">Normal</option>
+<option value="embed">Embed</option>
+</select>
+
+<div id="embedBox" class="hidden">
 <input id="embedTitle" type="text" placeholder="Embed Title">
 <select id="titleStyle"><option value="normal">Normal</option><option value="bold">Bold</option></select>
 <input id="embedDesc" type="text" placeholder="Embed Description">
@@ -51,8 +54,8 @@ const whInput=document.getElementById("webhookUrl");
 if(localStorage.webhookUrl) whInput.value=localStorage.webhookUrl;
 whInput.addEventListener("input",()=>localStorage.webhookUrl=whInput.value);
 
-document.getElementById("embedToggle").addEventListener("change",e=>{
-  document.getElementById("embedOptions").classList.toggle("hidden",!e.target.checked);
+document.getElementById("sendMode").addEventListener("change",e=>{
+  document.getElementById("embedBox").classList.toggle("hidden",e.target.value!=="embed");
 });
 document.getElementById("pingToggle").addEventListener("change",e=>{
   document.getElementById("pingOptions").classList.toggle("hidden",!e.target.checked);
@@ -61,20 +64,27 @@ function styleText(txt,mode){return mode==="bold"?"**"+txt+"**":txt;}
 
 document.getElementById("sendBtn").addEventListener("click",async()=>{
   const url=whInput.value.trim(); if(!url) return alert("Nhập webhook");
+  const mode=document.getElementById("sendMode").value;
   let payload={};
+
   if(document.getElementById("pingToggle").checked){
-    const mode=document.getElementById("pingMode").value;
-    if(mode==="everyone") payload.content="@everyone";
+    const pMode=document.getElementById("pingMode").value;
+    if(pMode==="everyone") payload.content="@everyone";
     else{
       const v=document.getElementById("pingCustom").value.trim();
       if(v) payload.content=v;
     }
   }
-  if(document.getElementById("embedToggle").checked){
+
+  if(mode==="normal"){
+    payload.content=(payload.content?payload.content+" ":"")+
+      document.getElementById("embedDesc").value;
+  }else{
     const title=styleText(document.getElementById("embedTitle").value,document.getElementById("titleStyle").value);
     const desc=styleText(document.getElementById("embedDesc").value,document.getElementById("descStyle").value);
     payload.embeds=[{title:title,description:desc,color:5814783}];
   }
+
   await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
   alert("Đã gửi");
 });
