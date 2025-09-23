@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber Neon UI</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+    font-family: 'Orbitron', sans-serif;
+    overflow: hidden;
+}
+
+.background-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background: repeating-linear-gradient(45deg, #ff00ff 0 2px, transparent 2px 20px, #00ffff 20px 22px, transparent 22px 40px);
+    animation: moveLines 10s linear infinite;
+    z-index: 0;
+    opacity: 0.2;
+}
+
+@keyframes moveLines {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(-50%, -50%); }
+}
+
+.container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 1;
+    width: 90%;
+    max-width: 700px;
+    padding: 50px;
+    background: rgba(0,0,0,0.5);
+    box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff;
+}
+
+h1 {
+    color: #fff;
+    font-size: 3rem;
+    text-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
+    margin-bottom: 30px;
+}
+
+.text-label {
+    color: #fff;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+    margin-bottom: 40px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.btn {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+    padding: 20px 50px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 50px; /* nút vẫn bo tròn */
+    overflow: hidden;
+    letter-spacing: 1px;
+    transition: 0.3s;
+    box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff, 0 0 60px #00ffff;
+}
+
+.btn.youtube {
+    background: linear-gradient(45deg, #ff0000, #ff5555);
+}
+
+.btn.discord {
+    background: linear-gradient(45deg, #7289da, #99a9f1);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
+    transform: skewX(-25deg);
+    transition: 0.5s;
+}
+
+.btn:hover::before {
+    left: 125%;
+}
+
+.btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px #fff, 0 0 60px #ff00ff, 0 0 80px #00ffff;
+}
+</style>
+</head>
+<body>
+<div class="background-lines"></div>
+<div class="container">
+    <h1>Regulations</h1>
+    <div class="text-label">
+    Article 1: Do not insult other members in the server, no matter who they are.
+    </div>
+    <div class="text-label">
+    Article 2: without regard to race, gender, region, country, continent or any other discriminatory practice.
+    </div>
+    <div class="text-label">
+    Article 3: Do not resell scripts, do not resell keys, do not share scripts, do not share keys, do not do anything to benefit yourself.
+    </div>
+    <div class="text-label">
+    Article 4: Do not send 18+ links, bank links, scam links, links containing malicious code, links containing dirty things.
+    </div>
+    <div class="text-label">
+    Article 5: Do not compare hubs with other hubs, do not mention other hubs on the server, do not request additional features of other hubs in the script.
+    </div>
+    <a href="https://discord.gg/Mcaen6qP" target="_blank" class="btn discord">Discord</a>
+    <a href="https://youtube.com/@VuaScript" target="_blank" class="btn youtube">YouTube</a>
+</div>
+</body>
+</html>
