@@ -15,7 +15,7 @@ body {
     align-items: center;
     background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
     font-family: 'Orbitron', sans-serif;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .background-lines {
@@ -42,25 +42,25 @@ body {
     align-items: center;
     text-align: center;
     z-index: 1;
-    width: 90%;
-    max-width: 700px;
-    padding: 50px;
+    width: 95%;
+    max-width: 600px;
+    padding: 30px;
     background: rgba(0,0,0,0.5);
     box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff;
 }
 
 h1 {
     color: #fff;
-    font-size: 3rem;
+    font-size: 2.5rem;
     text-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .text-label {
     color: #fff;
-    font-size: 1.2rem;
+    font-size: 1rem;
     text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     line-height: 1.5;
     word-wrap: break-word;
 }
@@ -69,12 +69,12 @@ h1 {
     position: relative;
     display: inline-block;
     margin: 10px;
-    padding: 20px 50px;
-    font-size: 1.3rem;
+    padding: 15px 40px;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #fff;
     text-decoration: none;
-    border-radius: 50px; /* nút vẫn bo tròn */
+    border-radius: 50px;
     overflow: hidden;
     letter-spacing: 1px;
     transition: 0.3s;
@@ -106,8 +106,22 @@ h1 {
 }
 
 .btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
     box-shadow: 0 0 30px #fff, 0 0 60px #ff00ff, 0 0 80px #00ffff;
+}
+
+/* Responsive text cho mobile */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2rem;
+    }
+    .text-label {
+        font-size: 0.9rem;
+    }
+    .btn {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
 }
 </style>
 </head>
@@ -131,7 +145,7 @@ h1 {
     Article 5: Do not compare hubs with other hubs, do not mention other hubs on the server, do not request additional features of other hubs in the script.
     </div>
     <a href="https://discord.gg/Mcaen6qP" target="_blank" class="btn discord">Discord</a>
-    <a href="https://youtube.com/@VuaScript" target="_blank" class="btn youtube">YouTube</a>
+    <a href="https://youtube.com" target="_blank" class="btn youtube">YouTube</a>
 </div>
 </body>
 </html>
