@@ -29,37 +29,20 @@ input:checked + .slider:before { transform:translateX(20px); }
 <input id="prefix" type="text" placeholder="Enter prefix (optional)">
 <input id="amount" type="number" value="5" min="1">
 
-<div class="toggle"><span>Force AURA if no prefix</span>
-<label class="switch"><input id="forceAura" type="checkbox"><span class="slider"></span></label></div>
-
-<div class="toggle"><span>Custom AURA Format V2</span>
-<label class="switch"><input id="customAura" type="checkbox"><span class="slider"></span></label></div>
-
-<div class="toggle"><span>Random 3-char Section Position</span>
-<label class="switch"><input id="randomPos" type="checkbox"><span class="slider"></span></label></div>
-
-<div class="toggle"><span>Format LuaU ("KEY", )</span>
-<label class="switch"><input id="format" type="checkbox"><span class="slider"></span></label></div>
-
-<div class="toggle"><span>Random 32-char Key</span>
-<label class="switch"><input id="random32" type="checkbox"><span class="slider"></span></label></div>
-
-<div class="toggle"><span>Fake Luarmor API</span>
-<label class="switch"><input id="fakeLuarmor" type="checkbox"><span class="slider"></span></label></div>
-
-<div class="toggle"><span>Lua Loader Mode</span>
-<label class="switch"><input id="luaToggle" type="checkbox"><span class="slider"></span></label></div>
-
+<div class="toggle"><span>Force AURA if no prefix</span><label class="switch"><input id="forceAura" type="checkbox"><span class="slider"></span></label></div>
+<div class="toggle"><span>Custom AURA Format V2</span><label class="switch"><input id="customAura" type="checkbox"><span class="slider"></span></label></div>
+<div class="toggle"><span>Random 3-char Section Position</span><label class="switch"><input id="randomPos" type="checkbox"><span class="slider"></span></label></div>
+<div class="toggle"><span>Format LuaU ("KEY", )</span><label class="switch"><input id="format" type="checkbox"><span class="slider"></span></label></div>
+<div class="toggle"><span>Random 32-char Key</span><label class="switch"><input id="random32" type="checkbox"><span class="slider"></span></label></div>
+<div class="toggle"><span>Fake Luarmor API</span><label class="switch"><input id="fakeLuarmor" type="checkbox"><span class="slider"></span></label></div>
+<div class="toggle"><span>Lua Loader Mode</span><label class="switch"><input id="luaToggle" type="checkbox"><span class="slider"></span></label></div>
 <div id="luaOptions" style="display:none; margin:8px 0;">
 <select id="luaMode">
 <option value="script_key">script_key = "";</option>
 <option value="getgenv">getgenv().Key = ""</option>
 </select>
 </div>
-
-<div class="toggle"><span>Error Mode</span>
-<label class="switch"><input id="errorToggle" type="checkbox"><span class="slider"></span></label></div>
-
+<div class="toggle"><span>Error Mode</span><label class="switch"><input id="errorToggle" type="checkbox"><span class="slider"></span></label></div>
 <div id="errorOptions" style="display:none; margin:8px 0;">
 <input id="errLines" type="number" value="5" min="1" placeholder="Số lượng line random">
 <input id="errRand" type="number" value="5" min="1" placeholder="Số lượng random Line">
@@ -70,12 +53,17 @@ input:checked + .slider:before { transform:translateX(20px); }
 </select>
 </div>
 
+<div class="toggle"><span>Custom Random Chars</span><label class="switch"><input id="customCharToggle" type="checkbox"><span class="slider"></span></label></div>
+<div id="customCharOptions" style="display:none; margin:8px 0;">
+<input id="customCharCount" type="number" value="5" min="1" placeholder="Số lượng ký tự random">
+<input id="customCharSet" type="text" placeholder="Ký tự muốn random, ví dụ ABC123">
+</div>
+
 <button id="generateBtn">Generate</button>
 <div class="actions">
 <button id="copyBtn">Copy</button>
 <button id="downloadBtn">Download</button>
 </div>
-
 <textarea id="output" readonly></textarea>
 </div>
 
@@ -91,6 +79,7 @@ function generateLuarmorLink(){return "https://api.luarmor.net/files/v4/loaders/
 
 document.getElementById("luaToggle").addEventListener("change",e=>{document.getElementById("luaOptions").style.display=e.target.checked?"block":"none";});
 document.getElementById("errorToggle").addEventListener("change",e=>{document.getElementById("errorOptions").style.display=e.target.checked?"block":"none";});
+document.getElementById("customCharToggle").addEventListener("change",e=>{document.getElementById("customCharOptions").style.display=e.target.checked?"block":"none";});
 
 function generateError(){
   const errRand=parseInt(document.getElementById("errRand").value)||5;
@@ -125,10 +114,17 @@ function generateKeys(){
   const fakeLuarmor=document.getElementById("fakeLuarmor").checked;
   const luaToggle=document.getElementById("luaToggle").checked;
   const luaMode=document.getElementById("luaMode").value;
+  const customChar=document.getElementById("customCharToggle").checked;
+  const customCount=parseInt(document.getElementById("customCharCount").value)||5;
+  const customSet=document.getElementById("customCharSet").value||"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   rawKeys=[];
   for(let i=0;i<amount;i++){
     let base="";
-    if(luaToggle){
+    if(customChar){
+      let s="";
+      for(let j=0;j<customCount;j++){s+=customSet.charAt(Math.floor(Math.random()*customSet.length));}
+      base=s;
+    } else if(luaToggle){
       if(luaMode==="script_key"){
         base=`script_key = "";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/${randomHex32()}.lua"))()`;
       } else {
@@ -173,4 +169,4 @@ document.getElementById("copyBtn").addEventListener("click",()=>{const output=do
 document.getElementById("downloadBtn").addEventListener("click",()=>{const blob=new Blob([document.getElementById("output").value],{type:"text/plain"});const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="keys.txt";link.click();});
 </script>
 </body>
-</html>
+  </html>
