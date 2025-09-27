@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Panel Tách Rõ</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #12121b;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 20px;
+}
+
+.panel {
+  background: #1f1f2e;
+  border-radius: 16px;
+  margin-bottom: 15px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+
+.panel h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #ffdd57;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.feature:last-child {
+  border-bottom: none;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.icon.check {
+  background-color: #4caf50;
+}
+
+.icon.check::after {
+  content: '';
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.icon.cross {
+  background-color: #f44336;
+  position: relative;
+}
+
+.icon.cross::before,
+.icon.cross::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 3px;
+  background-color: white;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+
+.icon.cross::before { transform: translate(-50%, -50%) rotate(45deg); }
+.icon.cross::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+.buy-btn {
+  display: block;
+  margin-top: 15px;
+  padding: 12px 0;
+  width: 100%;
+  border-radius: 14px;
+  background: linear-gradient(90deg,#ff8c00,#ff3d00);
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  text-align: center;
+}
+
+.buy-btn:hover {
+  background: linear-gradient(90deg,#ff3d00,#ff8c00);
+}
+</style>
+</head>
+<body>
+
+<div id="productContainer"></div>
+
+<script>
+const products = [
+  {
+    name: "Aura Hub Premium",
+    features: [
+      { text: "Unlock all map", type: "check" },
+      { text: "Lifetime", type: "check" },
+      { text: "Main Mode", type: "check" },
+      { text: "Kaitun Mode", type: "check" },
+      { text: "Quick support", type: "check" },
+      { text: "Webhook", type: "check" },
+      { text: "VIP Member", type: "cross" },
+      { text: "Partner", type: "cross" },
+      { text: "Resethwid unlimited", type: "cross" },
+      { text: "Confirm credibility", type: "cross" },
+    ],
+    buyLink: "#"
+  },
+  {
+    name: "Aura Hub [Vietnam Only]",
+    features: [
+      { text: "Sắp có", type: "check" },
+      ],
+    buyLink: "#"
+  },
+];
+
+const container = document.getElementById('productContainer');
+
+products.forEach(p => {
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+
+  let html = `<h2>${p.name}</h2>`;
+
+  p.features.forEach(f => {
+    html += `<div class="feature"><span class="icon ${f.type}"></span>${f.text}</div>`;
+  });
+
+  html += `<a class="buy-btn" href="${p.buyLink}" target="_blank">Buy Package</a>`;
+
+  panel.innerHTML = html;
+
+  container.appendChild(panel);
+});
+</script>
+
+</body>
+</html>
