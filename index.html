@@ -1,162 +1,246 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Website Closed</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #0d0d0d;
-      font-family: "Poppins", sans-serif;
-      color: #fff;
-      text-align: center;
-      padding: 1rem;
-      overflow-x: hidden;
-    }/* background particles */
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #12121b;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 20px;
 }
 
-h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  font-weight: 1000;
-  background: linear-gradient(90deg, #FFFF00, #FFFFFF, #FFFFFF, #48D1CC, #FFFFFF, #00FFFF, #40E0D0);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 247, 255, 0.6);
-}
-h2 {
-  font-size: 15px;
-  margin-bottom: 1rem;
-  font-weight: 700;
-  background: linear-gradient(90deg, #FFFF88, #FFFF99);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 247, 255, 0.6);
+.panel {
+  background: #1f1f2e;
+  border-radius: 16px;
+  margin-bottom: 15px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
 }
 
-p {
+.panel h2 {
   font-size: 20px;
-  margin-bottom: 1rem;
-  font-weight: 700;
-  background: linear-gradient(90deg, #FFFFFF, #FFFF00, #FFFF11);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 247, 255, 0.6);
+  margin-bottom: 15px;
+  color: #ffdd57;
+}
+.h2 {
+  font-size: 18px;
+  margin-bottom: 5px;
+  color: #ffdd57;
+  }
+.h4 {
+  font-size: 10px;
+  margin-bottom: 5px;
+  color: #ffdd57;
+}
+.h3 {
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #ffdd57;
+}
+.feature {
+  display: flex;
+  a
+    lign-items: center;
+  padding: 8px 0;
+  font-size: 16px;
+  border-bottom: 1px solid #333;
 }
 
-.reasons {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
+.feature:last-child {
+  border-bottom: none;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.icon.check {
+  background-color: #4caf50;
+}
+
+.icon.check::after {
+  content: '';
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.icon.cross {
+  background-color: #f44336;
+  position: relative;
+}
+
+.icon.cross::before,
+.icon.cross::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 3px;
+  background-color: white;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+
+.icon.cross::before { transform: translate(-50%, -50%) rotate(45deg); }
+.icon.cross::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+.buy-btn {
+  display: block;
+  margin-top: 15px;
+  padding: 12px 0;
   width: 100%;
-  max-width: 1000px;
+  border-radius: 14px;
+  background: linear-gradient(90deg,#ff8c00,#ff3d00);
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  text-align: center;
 }
 
-.reason-card {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  padding: 1rem;
-  border-radius: 15px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-  font-size: 0.95rem;
-  color: #eee;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
-  border: 1px solid rgba(255,255,255,0.1);
-  text-align: left;
+.buy-btn:hover {
+  background: linear-gradient(90deg,#ff3d00,#ff8c00);
 }
-
-.reason-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.6);
-  border: 1px solid rgba(0, 247, 255, 0.4);
-}
-
-.reason-card span {
-  font-size: 1.2rem;
-  margin-right: 6px;
-}
-
-footer {
-  margin-top: 1.5rem;
-  font-size: 0.8rem;
-  color: #aaa;
-}
-
-@media (min-width: 600px) {
-  h1 { font-size: 2.5rem; }
-  .reasons { grid-template-columns: repeat(2, 1fr); }
-  .reason-card { font-size: 1rem; padding: 1.2rem; }
-}
-
-@media (min-width: 992px) {
-  h1 { font-size: 3rem; }
-  .reasons { grid-template-columns: repeat(3, 1fr); }
-  .reason-card { font-size: 1.05rem; padding: 1.4rem; }
-}
-
-  </style>
+  .stats-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.6);
+  }
+  .stat-icon img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.5rem;
+  }
+  .stat-number {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .stat-label {
+    font-size: 1rem;
+    opacity: 0.85;
+  }
+  @media(min-width:600px){
+    .stats-container { grid-template-columns: repeat(2,1fr); max-width:700px; }
+    .stat-number{font-size:2rem;}
+  }
+  @media(min-width:992px){
+    .stats-container { grid-template-columns: repeat(3,1fr); max-width:900px; }
+    .stat-number{font-size:2.2rem;}
+  }
+</style>
 </head>
 <body>
-  <canvas id="bg"></canvas>
-  <h1>Aura Hub - Code 410</h1>
-  <p>We regret to announce this, Website Officially Ceased Operation</p>
-  <h2>👋🏻 Thank you for accompanying Aura Hub these past days, thank you for trusting us and now we have to say goodbye</h2>    
-  <div class="reasons">
-    <div class="reason-card"><span>💸</span>Reason: Insufficient funds to maintain</div>
-    <div class="reason-card"><span>👥</span>Reason: No more customers using the website much</div>
-    <div class="reason-card"><span>🔄</span>Reason: We are no longer able to operate the system.</div>
-    <div class="reason-card"><span>📜</span>Reason: Due to change in anticheat sales policy and system completely crashed</div>
-    <div class="reason-card"><span>🛑</span>Reason: No more operating staff, Developer, and all have stopped working</div>
+<div class="stats-container">
+  <div class="stat-card">
+    <div class="stat-icon"><img src="https://i.imgur.com/RnvJA00.png" alt=""></div>
+    <div class="stat-number">Users: 300,000+</div>
+    </div>
+  <div class="stat-card">
+    <div class="stat-icon"><img src="https://i.imgur.com/hpvKHNs.png" alt=""></div>
+    <div class="stat-number">Sold: 45,000+</div>
+    </div>
+  <div class="stat-card">
+    <div class="stat-icon"><img src="https://i.imgur.com/3UXg0qW.png" alt=""></div>
+    <div class="stat-number">Active: 50.000+</div>
   </div>
-  <footer>© 2025 Shutdown Notice</footer>  <script>
-    const canvas = document.getElementById("bg");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+   <div class="stat-card">
+    <div class="stat-icon"><img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt=""></div>
+    <div class="stat-number">API Type: 750+</div>
+  </div>
+</div>
+<div id="productContainer"></div>
+<script>
+const products = [
+  {
+    name: "Aura Hub [Mega-Plus]",
+    features: [
+      { text: "No Warranty", type: "check"},
+      { text: "Owner Verification", type: "check"},
+      { text: "Approved - Completed", type: "check"},
+      { text: "API Key [API-11 + API-12]", type: "check"},
+      { text: "API Security [SCR-99M + SCR-75M]", type: "check"},
+      { text: "API Server [SVAPI-99M]", type: "check"},
+      { text: "API Synthetic [STT-36 + STT-37M]", type: "cross"},
+      { text: "API Anti-Crash [ATC-66M]", type: "cross"},
+      { text: "API Anti-Bot [ATBT-39M]", type: "cross"},
+      { text: "API Anti-Fake IP [AFI-3M]", type: "cross"},
+      { text: "API Anti-Fake Bug [AFB-2M]", type: "cross"},
+      { text: "First Time: 25.00$ - 1 months", type: ""},
+      { text: "Next Renewal: 150.00$ - 1 months", type: ""},
+      ],
+    buyLink: "mailto:ziugpro@gmail.com"
+  },
+  {
+    name: "Aura Hub [Mega-Plus]",
+    features: [
+      { text: "No Warranty", type: "check"},
+      { text: "Owner Verification", type: "check"},
+      { text: "Approved - Completed", type: "check"},
+      { text: "API Key [API-11 + API-12]", type: "check"},
+      { text: "API Security [SCR-99M + SCR-75M]", type: "check"},
+      { text: "API Server [SVAPI-99M]", type: "check"},
+      { text: "API Synthetic [STT-36 + STT-37M]", type: "check"},
+      { text: "API Anti-Crash [ATC-66M]", type: "check"},
+      { text: "API Anti-Bot [ATBT-39M]", type: "check"},
+      { text: "API Anti-Fake IP [AFI-3M]", type: "check"},
+      { text: "API Anti-Fake Bug [AFB-2M]", type: "check"},
+      { text: "First Time: 35.00$ - 1 months", type: ""},
+      { text: "Next Renewal: 350.00$ - 1 months", type: ""},
+      ],
+    buyLink: "mailto:ziugpro@gmail.com"
+  },
+];
 
-    let particles = [];
-    for (let i = 0; i < 80; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 1,
-        dx: (Math.random() - 0.5) * 0.5,
-        dy: (Math.random() - 0.5) * 0.5
-      });
-    }
+const container = document.getElementById('productContainer');
 
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "white";
-      particles.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-        p.x += p.dx;
-        p.y += p.dy;
-        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-      });
-      requestAnimationFrame(animate);
-    }
-    animate();
+products.forEach(p => {
+  const panel = document.createElement('div');
+  panel.className = 'panel';
 
-    window.addEventListener("resize", () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-  </script></body>
+  let html = `<h2>${p.name}</h2>`;
+
+  p.features.forEach(f => {
+    html += `<div class="feature"><span class="icon ${f.type}"></span>${f.text}</div>`;
+  });
+
+  html += `<a class="buy-btn" href="${p.buyLink}" target="_blank">Buy Package</a>`;
+
+  panel.innerHTML = html;
+
+  container.appendChild(panel);
+});
+</script>
+</body>
 </html>
