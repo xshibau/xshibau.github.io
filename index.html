@@ -1,152 +1,162 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aura Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
-<style>
-body {
-    margin: 0;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
-    font-family: 'Orbitron', sans-serif;
-    overflow-x: hidden;
-}
-
-.background-lines {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: repeating-linear-gradient(45deg, #ff00ff 0 2px, transparent 2px 20px, #00ffff 20px 22px, transparent 22px 40px);
-    animation: moveLines 10s linear infinite;
-    z-index: 0;
-    opacity: 0.2;
-}
-
-@keyframes moveLines {
-    0% { transform: translate(0,0); }
-    100% { transform: translate(-50%, -50%); }
-}
-
-.container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    z-index: 1;
-    width: 100%;
-    max-width: 600px;
-    padding: 30px;
-    background: rgba(0,0,0,0.5);
-    box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Closed</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0d0d0d;
+      font-family: "Poppins", sans-serif;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+      overflow-x: hidden;
+    }/* background particles */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
 h1 {
-    color: #fff;
-    font-size: 2.5rem;
-    text-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
-    margin-bottom: 20px;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 1000;
+  background: linear-gradient(90deg, #FFFF00, #FFFFFF, #FFFFFF, #48D1CC, #FFFFFF, #00FFFF, #40E0D0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 247, 255, 0.6);
+}
+h2 {
+  font-size: 15px;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #FFFF88, #FFFF99);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 247, 255, 0.6);
 }
 
-.text-label {
-    color: #fff;
-    font-size: 1rem;
-    text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
-    margin-bottom: 30px;
-    line-height: 1.5;
-    word-wrap: break-word;
+p {
+  font-size: 20px;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #FFFFFF, #FFFF00, #FFFF11);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 247, 255, 0.6);
 }
 
-.btn {
-    position: relative;
-    display: inline-block;
-    margin: 10px;
-    padding: 15px 40px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 50px;
-    overflow: hidden;
-    letter-spacing: 1px;
-    transition: 0.3s;
-    box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff, 0 0 60px #00ffff;
+.reasons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1000px;
 }
 
-.btn.youtube {
-    background: linear-gradient(45deg, #ff0000, #ff5555);
+.reason-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 1rem;
+  border-radius: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  font-size: 0.95rem;
+  color: #eee;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: left;
 }
 
-.btn.discord {
-    background: linear-gradient(45deg, #7289da, #99a9f1);
+.reason-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.6);
+  border: 1px solid rgba(0, 247, 255, 0.4);
 }
 
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -75%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
-    transform: skewX(-25deg);
-    transition: 0.5s;
+.reason-card span {
+  font-size: 1.2rem;
+  margin-right: 6px;
 }
 
-.btn:hover::before {
-    left: 125%;
+footer {
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  color: #aaa;
 }
 
-.btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 30px #fff, 0 0 60px #ff00ff, 0 0 80px #00ffff;
+@media (min-width: 600px) {
+  h1 { font-size: 2.5rem; }
+  .reasons { grid-template-columns: repeat(2, 1fr); }
+  .reason-card { font-size: 1rem; padding: 1.2rem; }
 }
 
-@media (max-width: 100%) {
-    h1 {
-        font-size: 2rem;
-    }
-    .text-label {
-        font-size: 0.9rem;
-    }
-    .btn {
-        padding: 12px 30px;
-        font-size: 1rem;
-    }
+@media (min-width: 992px) {
+  h1 { font-size: 3rem; }
+  .reasons { grid-template-columns: repeat(3, 1fr); }
+  .reason-card { font-size: 1.05rem; padding: 1.4rem; }
 }
-</style>
+
+  </style>
 </head>
 <body>
-<div class="background-lines"></div>
-<div class="container">
-    <h1>Regulations</h1>
-    <div class="text-label">
-    Article 1: Do not insult other members in the server, no matter who they are.
-    </div>
-    <div class="text-label">
-    Article 2: without regard to race, gender, region, country, continent or any other discriminatory practice.
-    </div>
-    <div class="text-label">
-    Article 3: Do not resell scripts, do not resell keys, do not share scripts, do not share keys, do not do anything to benefit yourself.
-    </div>
-    <div class="text-label">
-    Article 4: Do not send 18+ links, bank links, scam links, links containing malicious code, links containing dirty things.
-    </div>
-    <div class="text-label">
-    Article 5: Do not compare hubs with other hubs, do not mention other hubs on the server, do not request additional features of other hubs in the script.
-    </div>
-    <a href="https://discord.gg/Mcaen6qP" target="_blank" class="btn discord">Discord</a>
-    <a href="https://youtube.com" target="_blank" class="btn youtube">YouTube</a>
-    <h1>Premium</h1>
-    <a href="https://xshibau.github.io/tool" target="_blank" class="btn youtube">Buy Premium</a>
-</div>
-</body>
+  <canvas id="bg"></canvas>
+  <h1>Aura Hub - Code 410</h1>
+  <p>We regret to announce this, Website Officially Ceased Operation</p>
+  <h2>👋🏻 Thank you for accompanying Aura Hub these past days, thank you for trusting us and now we have to say goodbye</h2>    
+  <div class="reasons">
+    <div class="reason-card"><span>💸</span>Reason: Insufficient funds to maintain</div>
+    <div class="reason-card"><span>👥</span>Reason: No more customers using the website much</div>
+    <div class="reason-card"><span>🔄</span>Reason: We are no longer able to operate the system.</div>
+    <div class="reason-card"><span>📜</span>Reason: Due to change in anticheat sales policy and system completely crashed</div>
+    <div class="reason-card"><span>🛑</span>Reason: No more operating staff, Developer, and all have stopped working</div>
+  </div>
+  <footer>© 2025 Shutdown Notice</footer>  <script>
+    const canvas = document.getElementById("bg");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        dx: (Math.random() - 0.5) * 0.5,
+        dy: (Math.random() - 0.5) * 0.5
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script></body>
 </html>
