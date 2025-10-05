@@ -145,22 +145,32 @@ h1 {
 </head>
 <body>
 
-<h1>Danh sách Bài viết</h1>
+<h1>List of Articles</h1>
 
 <div class="search-box">
-  <input type="text" id="searchInput" placeholder="🔍 Tìm theo tên hoặc code (vd: 0000)">
+  <input type="text" id="searchInput" placeholder="🔍 Search by name or code (fe: 0000)">
   <div class="suggestions" id="suggestions"></div>
 </div>
 
 <div class="blog-container" id="blogContainer">
 
-  <div class="card" data-id="chatgpt01" data-title="Khám phá thế giới ChatGPT">
-    <img src="https://picsum.photos/400/250?random=1">
+  <div class="card" data-id="galaxy-M51A" data-title="Whirlpool M-51A">
+    <img src="https://i.imgur.com/YfdckVw.jpeg">
     <div class="card-content">
-      <span class="id-tag">#chatgpt01</span>
-      <h3>Khám phá thế giới ChatGPT</h3>
-      <p>Tìm hiểu cách AI thay đổi cách con người giao tiếp và làm việc.</p>
-      <button onclick="window.location.href='info.html'">Xem thêm</button>
+      <span class="id-tag">#galaxy-M51A</span>
+      <h3>Whirlpool M-51A</h3>
+      <p>Learn about the whirlpool galaxy</p>
+      <button onclick="window.location.href='m-51a.html'">See more</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="galaxy-M31" data-title="Andromeda M-31">
+    <img src="https://i.imgur.com/gdUesaf.jpeg">
+    <div class="card-content">
+      <span class="id-tag">#galaxy-M31</span>
+      <h3>Andromeda M-31</h3>
+      <p>Learn about the galaxy.</p>
+      <button onclick="window.location.href='m-31.html'">See more</button>
     </div>
   </div>
 
@@ -169,52 +179,65 @@ h1 {
 <script>
 const searchInput = document.getElementById("searchInput");
 const suggestions = document.getElementById("suggestions");
-const cards = document.querySelectorAll(".card");
+const blogContainer = document.getElementById("blogContainer");
+const cards = Array.from(document.querySelectorAll(".card"));
+const originalOrder = cards.slice(); // lưu thứ tự gốc
 
 function highlightText(text, keyword) {
   const pattern = new RegExp(`(${keyword})`, "gi");
   return text.replace(pattern, '<span class="highlight">$1</span>');
 }
 
-searchInput.addEventListener("input", () => {
-  const keyword = searchInput.value.toLowerCase().trim();
-  let matches = [];
-  if (keyword) {
-    cards.forEach(card => {
-      const title = card.dataset.title.toLowerCase();
-      const id = card.dataset.id.toLowerCase();
-      if (title.includes(keyword) || id.includes(keyword)) {
-        matches.push({
-          title: card.dataset.title,
-          id: card.dataset.id
-        });
-      }
+function updateDisplay(keyword) {
+  const lowerKeyword = keyword.toLowerCase().trim();
+  if (!lowerKeyword) {
+    blogContainer.innerHTML = "";
+    originalOrder.forEach(card => {
+      card.classList.remove("hidden");
+      blogContainer.appendChild(card);
     });
-    suggestions.innerHTML = matches
-      .slice(0, 5)
-      .map(m => `<div data-id="${m.id}">${highlightText(m.title, keyword)} <small style="color:#888;">#${m.id}</small></div>`)
-      .join("");
-    suggestions.style.display = matches.length ? "block" : "none";
-  } else {
-    suggestions.style.display = "none";
+    return;
   }
 
+  const matches = [];
   cards.forEach(card => {
     const title = card.dataset.title.toLowerCase();
     const id = card.dataset.id.toLowerCase();
-    card.classList.toggle("hidden", !(title.includes(keyword) || id.includes(keyword)));
+    const isMatch = title.includes(lowerKeyword) || id.includes(lowerKeyword);
+
+    card.classList.toggle("hidden", !isMatch);
+    if (isMatch) matches.push(card);
   });
+
+  matches.forEach(card => blogContainer.prepend(card));
+}
+
+searchInput.addEventListener("input", () => {
+  const keyword = searchInput.value;
+  updateDisplay(keyword);
+
+  if (keyword) {
+    const matchData = cards
+      .filter(card => !card.classList.contains("hidden"))
+      .map(card => ({ title: card.dataset.title, id: card.dataset.id }));
+
+    suggestions.innerHTML = matchData
+      .slice(0, 5)
+      .map(m => `<div data-id="${m.id}">${highlightText(m.title, keyword)} <small style="color:#888;">#${m.id}</small></div>`)
+      .join("");
+    suggestions.style.display = matchData.length ? "block" : "none";
+  } else {
+    suggestions.style.display = "none";
+  }
 });
 
 suggestions.addEventListener("click", (e) => {
-  if (e.target.closest("div")) {
-    const id = e.target.closest("div").dataset.id;
-    searchInput.value = id;
-    suggestions.style.display = "none";
-    cards.forEach(card => {
-      card.classList.toggle("hidden", card.dataset.id !== id);
-    });
-  }
+  const targetDiv = e.target.closest("div");
+  if (!targetDiv) return;
+  const id = targetDiv.dataset.id;
+  searchInput.value = id;
+  suggestions.style.display = "none";
+  updateDisplay(id);
 });
 
 document.addEventListener("click", (e) => {
