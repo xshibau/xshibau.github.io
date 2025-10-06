@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thông tin Blog</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f0f;
+  --panel: #18181b;
+  --accent: #ff4b5c;
+  --text: #f5f5f5;
+  --font: 'Inter', sans-serif;
+  --verify1: #1da1f2;
+  --verify2: #3ec9ff;
+  --warning-bg: #ff2f43;
+  --job-bg: red;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.container {
+  background: var(--panel);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  padding: 50px;
+  max-width: 700px;
+  width: 90%;
+  text-align: center;
+  animation: fadeIn 0.8s ease;
+}
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(20px);}
+  to {opacity:1; transform:translateY(0);}
+}
+img.avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+  margin-bottom: 20px;
+}
+h1 {
+  font-size: 26px;
+  margin-bottom: 5px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-direction: row;
+}
+.tick {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg,var(--verify1),var(--verify2));
+  box-shadow: 0 0 8px var(--verify1);
+  cursor: pointer;
+}
+.tick svg {
+  width: 20px;
+  height: 20px;
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.warning-inline {
+  background: var(--warning-bg);
+  color: #fff;
+  padding: 5px 15px;
+  border-radius: 8px;
+  font-weight: 700;
+  margin-top: 10px;
+  display: none;
+}
+.job-inline {
+  background: var(--job-bg);
+  color: #fff;
+  padding: 5px 15px;
+  border-radius: 8px;
+  font-weight: 700;
+  margin-top: 8px;
+  display: none;
+  font-size: 14px;
+}
+p.desc {
+  color: #aaa;
+  font-size: 15px;
+  margin-bottom: 35px;
+  line-height: 1.7;
+}
+.info-box {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: left;
+  font-size: 15px;
+  margin-bottom: 30px;
+}
+.info-box strong { color: var(--accent); }
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 10px;
+}
+.socials a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 22px;
+  transition: 0.3s;
+}
+.socials a:hover {
+  color: var(--accent);
+  transform: scale(1.1);
+}
+button {
+  margin-top: 35px;
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover {
+  background: #ff2f43;
+  transform: translateY(-2px);
+}
+.verify-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s;
+  z-index: 10;
+}
+.verify-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+.verify-content {
+  background: var(--panel);
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  max-width: 350px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+.verify-content h2 {
+  margin: 0 0 10px;
+  color: var(--verify1);
+}
+.verify-content p {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.close {
+  margin-top: 20px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.close:hover {
+  background: #ff2f43;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <img src="https://i.imgur.com/IxwLjcW.png" class="avatar" alt="Avatar">
+  <h1>
+    MuTant Toilet <span class="tick" id="verifyTick" style="display:none;">
+      <svg width="40" height="40" viewBox="0 0 24 24">
+        <polygon fill="#fff" points="6.5,12 10.5,16 17.5,9 16.5,8 10.5,14 7.5,11"/>
+      </svg>
+    </span>
+  </h1>
+  <div class="warning-inline" id="scamWarning"></div>
+  <div class="job-inline" id="jobInfo">Partner: Aura Hub</div>
+
+  <p class="desc">
+    Confirm Partner Aura Hub
+  </p>
+
+  <div class="info-box">
+    <p><strong>Name:</strong> MuTant Toilet</p>
+    <p><strong>Email:</strong> ngandu12345689@gmail.com</p>
+    <p><strong>Discord:</strong> stylish_tiger_44516</p>
+    <p><strong>Facebook:</strong> not used</p>
+  </div>
+
+  <div class="socials">
+    <a href="#">🌐</a>
+    <a href="#">🐦</a>
+    <a href="#">📸</a>
+    <a href="#">💬</a>
+  </div>
+
+  <button onclick="window.location.href='index.html'">⬅ Back to Home Page</button>
+</div>
+
+<div class="verify-modal" id="verifyModal">
+  <div class="verify-content">
+    <h2>Ziugpro Confirmed</h2>
+    <p>Account: <strong>MuTant Toilet</strong> If you see any account with blue tick, trade and use service learn about the blog of the user with blue tick.</p>
+    <button class="close" onclick="toggleVerify(false)">Close</button>
+  </div>
+</div>
+
+<script>
+const verified = true;
+const scam = false;
+const job = true;
+const tick = document.getElementById('verifyTick');
+const modal = document.getElementById('verifyModal');
+const warning = document.getElementById('scamWarning');
+const jobInfo = document.getElementById('jobInfo');
+
+if (verified) {
+  tick.style.display = 'inline-flex';
+  tick.addEventListener('click', () => toggleVerify(true));
+}
+
+if (scam) {
+  warning.style.display = 'block';
+}
+
+if (job) {
+  jobInfo.style.display = 'block';
+}
+
+function toggleVerify(show) {
+  modal.classList.toggle('active', show);
+}
+</script>
+
+</body>
+  </html>
