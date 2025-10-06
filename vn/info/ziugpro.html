@@ -12,8 +12,12 @@
   --accent: #ff4b5c;
   --text: #f5f5f5;
   --font: 'Inter', sans-serif;
-  --verify1: #1da1f2;
-  --verify2: #3ec9ff;
+  --verify1: yellow;
+  --verify2: red;
+  --verify3: pink;
+  --verify4: blue;
+  --verify5: white;
+  --verify6: black;
   --warning-bg: #ff2f43;
   --job-bg: red;
 }
@@ -67,7 +71,7 @@ h1 {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg,var(--verify1),var(--verify2));
+  background: linear-gradient(135deg,var(--verify1),var(--verify2),var(--verify3),var(--verify4),var(--verify5),var(--verify6));
   box-shadow: 0 0 8px var(--verify1);
   cursor: pointer;
 }
@@ -190,6 +194,39 @@ button:hover {
 .close:hover {
   background: #ff2f43;
 }
+
+.tick-own-list {
+  margin-top: 15px;
+  display: none;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+.tick-own {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+.tick-own .circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+.tick-own .circle svg {
+  width: 12px;
+  height: 12px;
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 </style>
 </head>
 <body>
@@ -203,12 +240,12 @@ button:hover {
       </svg>
     </span>
   </h1>
+  <div class="tick-own-list" id="tickOwnList"></div>
   <div class="warning-inline" id="scamWarning">Developer: Aura Hub</div>
   <div class="job-inline" id="jobInfo">Occupation: Programmer</div>
 
   <p class="desc">
-   Confirm Ziugpro Owner 
-  </p>
+Ziugpro owner confirmation  </p>
 
   <div class="info-box">
     <p><strong>Name:</strong> Thanawat Sornchai</p>
@@ -239,22 +276,46 @@ button:hover {
 const verified = true;
 const scam = true;
 const job = true;
+const listick = true;
+
 const tick = document.getElementById('verifyTick');
 const modal = document.getElementById('verifyModal');
 const warning = document.getElementById('scamWarning');
 const jobInfo = document.getElementById('jobInfo');
+const tickOwnList = document.getElementById('tickOwnList');
 
 if (verified) {
   tick.style.display = 'inline-flex';
   tick.addEventListener('click', () => toggleVerify(true));
 }
+if (scam) warning.style.display = 'block';
+if (job) jobInfo.style.display = 'block';
 
-if (scam) {
-  warning.style.display = 'block';
-}
-
-if (job) {
-  jobInfo.style.display = 'block';
+if (listick) {
+  const ticks = [
+    { color: 'linear-gradient(135deg,yellow,red,pink,blue,white,black)', label: 'Owner Tick' },
+    { color: 'linear-gradient(135deg,yellow,pink,red,blue)', label: 'Dev Tick' },
+    { color: 'linear-gradient(135deg,#1da1f2,#3ec9ff)', label: 'Blue Tick' },
+    { color: 'linear-gradient(135deg,red,#e5e5e5)', label: 'Red Tick' },
+    { color: 'linear-gradient(135deg,pink,red,white,black)', label: 'VIP Tick' },
+    { color: 'linear-gradient(135deg,white,black,red,yellow,white)', label: 'Youtuber Tick' },
+    { color: 'linear-gradient(135deg,green,#e5e5e5)', label: 'Green Tick' },
+  
+  ];
+  tickOwnList.style.display = 'flex';
+  ticks.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'tick-own';
+    div.innerHTML = `
+      <span class="circle" style="background:${t.color};">
+        <svg viewBox="0 0 25 25">
+         <polygon fill="#fff" points="6.5,12 10.5,16 17.5,9 16.5,8 10.5,14 7.5,11"/> 
+        </svg>
+      </span>
+      ${t.label}
+    `;
+    tickOwnList.appendChild(div);
+  });
 }
 
 function toggleVerify(show) {
