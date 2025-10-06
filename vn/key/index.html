@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chi tiết Blog</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f0f;
+  --text: #f5f5f5;
+  --accent: #ff4b5c;
+  --panel: #18181b;
+  --font: 'Inter', sans-serif;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.7;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 800px;
+  margin: 60px auto;
+  background: var(--panel);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  overflow: hidden;
+  animation: fadeIn 0.8s ease;
+}
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(20px);}
+  to {opacity:1; transform:translateY(0);}
+}
+.header-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  filter: brightness(0.9);
+}
+.content {
+  padding: 35px 40px 45px;
+}
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+.date {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 25px;
+}
+.content p {
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+.highlight {
+  color: var(--accent);
+  font-weight: 600;
+}
+.white {
+  color: white;
+  font-weight: 600;
+}
+blockquote {
+  margin: 25px 0;
+  padding: 15px 20px;
+  background: rgba(255,255,255,0.05);
+  border-left: 4px solid var(--accent);
+  border-radius: 5px;
+  font-style: normal;
+}
+button {
+  display: inline-block;
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 25px;
+}
+button:hover {
+  background: #ff2f43;
+  transform: translateY(-2px);
+}
+.code-block {
+  margin: 25px 0;
+  border: 1px solid #2d2d2d;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1a1a1a;
+}
+.code-header {
+  background: #2a2a2a;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #bbb;
+  font-family: var(--font);
+}
+.code-header .title {
+  font-weight: 700;
+  color: #fff;
+}
+pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+}
+pre code {
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
+  color: #eaeaea;
+  line-height: 1.6;
+  display: block;
+  white-space: pre;
+}
+.copy-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.copy-btn:hover {
+  background: #ff2f43;
+}
+@media (max-width: 600px) {
+  .container {margin: 30px 15px;}
+  .content {padding: 25px;}
+  h1 {font-size: 24px;}
+}
+</style>
+</head>
+<body>
+<div id="google_translate_element"></div>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'vi', 
+    includedLanguages: 'en,vi,th', 
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+  }, 'google_translate_element');
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<div class="container">
+  <img src="https://picsum.photos/1200/500?random=12" class="header-image" alt="Ảnh Blog">
+  <div class="content">
+    <h1>Aura Hub Whitelister</h1>
+    <div class="date">Đăng ngày: 6-10-2025 • Tác Giả: <span class="highlight">Ziugpro</span></div>
+
+    <p>Aura Hub tặng Key (<span class="highlight">Premium</span>) mỗi ngày cho các thành viên trong máy chủ Discord, script hỗ trợ nhiều game, staff support nhanh, fix lỗi nhanh, cập nhật liên tục, nếu script có lỗi vui lòng report bug cho chúng tôi, chúng tôi sẽ fix lỗi ngay lập tức sau khi nhận được báo cáo lỗi, và Xshibau là người phát triển ui website/ui script.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="title">Script Cheat:</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code>--# Aura Hub Premium 
+--# Redeem Key In Script
+loadstring(game:HttpGet("https://raw.githubusercontent.com/xshibau/Premium/main/AuraHub.luau"))()</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="title">Script Cheat:</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code>--# Aura Hub Kaitun 
+--# Redeem Key In Script
+loadstring(game:HttpGet("https://raw.githubusercontent.com/xshibau/Kaitun/refs/heads/main/Script.of"))()</code></pre>
+    </div>
+
+    <blockquote><span class="white">Key List:</span>
+
+<blockquote><span class="white">Expired: 24h</span>
+<h2>AURA-f2f18996-468a-43c0-a3b2-55ea4432f4e4 <span class="highlight">Status:</span> <span class="white">New</span></h2>
+
+<h2>AURA-42594e89-c1c7-49d9-9def-0c560b96d0c4 <span class="highlight">Status:</span> <span class="white">New</span></h2>
+</blockquote>
+
+<blockquote><span class="white">Expired: 72h</span>
+
+</blockquote>
+
+    <blockquote><span class="white">Trạng Thái:</span>
+<h2>Status: Soon = key sắp hoạt động</h2>
+<h2>Status: New = key vẫn còn hoạt động</h2>
+<h2>Status: Expired = key hết hạn</h2>
+<h2>Status: Blacklist = key bị blacklist</h2></blockquote>
+
+</blockquote>
+
+    <p>Trong thời gian sắp tới, script sẽ cập nhật thêm nhiều tính năng và thêm nhiều script...</p>
+
+    <button onclick="window.location.href='https://xshibau.github.io/vn'">⬅ Quay lại Blog</button>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll(".code-block").forEach(block => {
+  const btn = block.querySelector(".copy-btn");
+  btn.addEventListener("click", () => {
+    const code = block.querySelector("code").innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = "✓ Copied";
+      setTimeout(() => (btn.textContent = "Copy"), 1500);
+    });
+  });
+});
+</script>
+
+</body>
+  </html>
