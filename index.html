@@ -1,1 +1,162 @@
-<meta http-equiv="refresh" content="0; url=https://xshibau.github.io/vn">
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luarmor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif;}
+html,body{width:100%;height:100%;background:linear-gradient(135deg,#0a0a1f,#1c1c3f);color:#fff;display:flex;justify-content:center;align-items:flex-start;overflow-x:hidden;}
+header{position:fixed;width:100%;top:0;left:0;display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:rgba(20,20,50,0.85);backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(0,0,0,0.7);z-index:100;}
+.logo{font-size:2rem;color:#ff4c4c;font-weight:bold;text-shadow:0 0 12px #ff4c4c,0 0 20px #ff8c4c;}
+.hamburger{width:35px;height:30px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;z-index:101;}
+.hamburger div{height:4px;background:#fff;border-radius:2px;box-shadow:0 0 6px #ff4c4c;transition:0.3s;}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:0.3s;z-index:99;}
+.overlay.active{opacity:1;pointer-events:auto;}
+.sidebar{position:fixed;top:0;left:-300px;width:280px;height:100%;background:rgba(30,30,60,0.95);padding-top:80px;transition:0.4s;box-shadow:5px 0 25px rgba(255,76,76,0.7);z-index:100;border-left:1px solid #ff4c4c;}
+.sidebar.active{left:0;}
+.sidebar ul{list-style:none;display:flex;flex-direction:column;gap:12px;padding:0 20px;}
+.sidebar ul li button{width:100%;padding:15px;border:none;border-radius:8px;background:rgba(60,60,120,0.9);color:#fff;font-size:1.2rem;cursor:pointer;transition:0.3s;text-align:left;text-shadow:0 0 4px #fff;}
+.sidebar ul li button:hover{background:#ff4c4c;color:#fff;text-shadow:0 0 12px #fff,0 0 20px #ff8c4c;}
+.container{margin-top:100px;display:flex;flex-direction:column;align-items:center;gap:25px;width:300px;}
+.main{width:100%;background:rgba(40,40,80,0.95);border-radius:16px;box-shadow:0 0 30px rgba(255,76,76,0.5);padding:20px;}
+.info-block{margin:15px 0;padding:15px;background:rgba(60,60,120,0.95);border-radius:12px;transition:0.3s;box-shadow:0 0 25px rgba(255,76,76,0.6);}
+.info-block:hover{background:rgba(80,80,160,0.95);box-shadow:0 0 35px rgba(255,140,97,0.7);}
+.contact-section{width:100%;padding:15px;background:rgba(50,50,100,0.95);border-radius:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 25px rgba(255,76,76,0.6);}
+.contact-section b{color:#ff4c4c;text-shadow:0 0 6px #fff;}
+.footer{margin-top:20px;width:300px;text-align:center;color:#aaa;font-size:0.9rem;text-shadow:0 0 4px #fff;}
+.advertisement-section {
+    max-width: 850px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.advertisement-section h1 {
+    color: #004d40;
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #004d40;
+    padding-bottom: 10px;
+}
+
+.advertisement-section h2 {
+    color: #00796b;
+    font-size: 22px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.advertisement-section p {
+    margin-bottom: 20px;
+}
+
+.advertisement-section ul,
+.advertisement-section ol {
+    margin-left: 20px;
+    padding: 0;
+    margin-bottom: 25px;
+}
+
+.advertisement-section ul li,
+.advertisement-section ol li {
+    margin-bottom: 10px;
+}
+
+.cta-button {
+    display: block;
+    width: fit-content;
+    margin: 30px auto 10px auto;
+    padding: 15px 30px;
+    background-color: #ff5722;
+    color: white;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #e64a19;
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.4);
+}
+
+</style>
+</head>
+<body>
+<header>
+<div class="logo">Kynect.dev 🔥</div>
+<div class="hamburger" id="hamburger"><div></div><div></div><div></div></div>
+</header>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+<ul>
+<div class="logo">Kynect.dev 🔥</div>
+<li><button onclick="location.href='https://xshibau.github.io/vn'">Blogs</button></li>
+<li><button onclick="location.href='https://xshibau.github.io/vn/info'">Info Staff</button></li>
+<li><button onclick="location.href='https://xshibau.github.io/vn/api'">API Key</button></li>
+</ul>
+</div>
+<div class="container">
+<div class="main">
+<div class="advertisement-section">
+    <h1>Chào mừng đến với Cổng Thông Tin Đa Chiều – Nơi Mọi Kiến Thức Hội Tụ và Phát Triển!</h1>
+
+    <p>Bạn đang tìm kiếm điều gì? Một góc nhìn mới về một vấn đề cũ? Thông tin cập nhật nhất từ lĩnh vực chuyên môn? Hay đơn giản là một nơi để lắng đọng và chiêm nghiệm qua những câu chuyện cuộc sống? Dù mục đích của bạn là gì, bạn đã đến đúng nơi.</p>
+
+    <h2>🌐 Khám Phá Sức Mạnh của Nội Dung Đa Dạng (Info & Blog)</h2>
+    <p>Website của chúng tôi được xây dựng trên nền tảng của sự <strong>đa dạng và chất lượng</strong>. Chúng tôi không chỉ là một trang blog; chúng tôi là một thư viện số sống động, nơi mỗi chuyên mục đều có một giọng điệu và giá trị riêng biệt:</p>
+    
+    <ul>
+        <li>
+            <strong>🔍 Thông Tin Chuyên Sâu (Info):</strong> Đi sâu vào cốt lõi của các chủ đề phức tạp. Từ khoa học, công nghệ, kinh tế, đến những hướng dẫn thực tế, chúng tôi cung cấp các bài viết được nghiên cứu kỹ lưỡng, số liệu xác thực, và phân tích sắc bén. Đây là nguồn tài nguyên không thể thiếu cho những ai muốn <strong>nâng cao kiến thức và ra quyết định thông minh</strong>.
+        </li>
+        <li>
+            <strong>💡 Góc Nhìn Cá Nhân (Blog):</strong> Nơi những câu chuyện, kinh nghiệm và góc nhìn độc đáo được chia sẻ một cách chân thật nhất. Từ hành trình phát triển bản thân, những mẹo vặt trong cuộc sống, đến những cảm nhận sâu sắc về văn hóa và xã hội. Đây là nơi bạn tìm thấy sự đồng cảm và những nguồn cảm hứng để <strong>bắt đầu thay đổi cuộc sống</strong>.
+        </li>
+    </ul>
+
+    <h2>🌟 Điều Gì Làm Chúng Tôi Khác Biệt?</h2>
+    <p>Chúng tôi tin rằng nội dung tốt nhất là nội dung vừa có chiều sâu học thuật (Info) vừa có sự kết nối cảm xúc (Blog). Chúng tôi cam kết:</p>
+    
+    <ol>
+        <li><strong>Chất Lượng là Ưu Tiên:</strong> Mọi bài viết đều trải qua quy trình kiểm duyệt nghiêm ngặt để đảm bảo tính chính xác và giá trị.</li>
+        <li><strong>Đa Dạng Chủ Đề:</strong> Chúng tôi liên tục mở rộng phạm vi nội dung để phục vụ mọi sở thích và nhu cầu tìm kiếm của bạn.</li>
+        <li><strong>Cộng Đồng Kết Nối:</strong> Chúng tôi khuyến khích sự tương tác, thảo luận và trao đổi ý kiến giữa các độc giả. Hãy tham gia bình luận và trở thành một phần của cộng đồng tri thức này.</li>
+    </ol>
+
+    <p><strong>Đừng để sự tìm kiếm của bạn dừng lại ở đây.</strong> Hãy cuộn xuống, chọn một chuyên mục bạn quan tâm nhất, và bắt đầu hành trình khám phá không giới hạn.</p>
+
+    <a href="#" class="cta-button">👉🏻Tìm hiểu thêm</a>
+    
+</div>
+
+<div class="contact-section">
+<h3>Liên hệ</h3>
+<span><b>Email:</b> ziugpro@gmail.com</span>
+<span><b>Discord:</b> https://discord com/@ziugpro</span>
+
+</div>
+</div>
+<div class="footer">
+© 2013 Copyright belongs to Ziugpro
+</div>
+</div>
+<script>
+const hamburger=document.getElementById('hamburger');
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('overlay');
+hamburger.addEventListener('click',()=>{sidebar.classList.toggle('active');overlay.classList.toggle('active');});
+overlay.addEventListener('click',()=>{sidebar.classList.remove('active');overlay.classList.remove('active');});
+</script>
+</body>
+  </html>
