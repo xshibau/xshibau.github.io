@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aura Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Xshibau.dev</title>
 <style>
 :root {
   --bg: #0f0f0f;
@@ -13,15 +12,115 @@
   --text: #f5f5f5;
   --font: 'Inter', sans-serif;
 }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 60px 20px;
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif;}
+html,body{width:100%;height:100%;background:linear-gradient(135deg,#0a0a1f,#1c1c3f);color:#fff;display:flex;justify-content:center;align-items:flex-start;overflow-x:hidden;}
+header{position:fixed;width:100%;top:0;left:0;display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:rgba(20,20,50,0.85);backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(0,0,0,0.7);z-index:100;}
+.logo{font-size:2rem;color:#ff4c4c;font-weight:bold;text-shadow:0 0 12px #ff4c4c,0 0 20px #ff8c4c;}
+.hamburger{width:35px;height:30px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;z-index:101;}
+.hamburger div{height:4px;background:#fff;border-radius:2px;box-shadow:0 0 6px #ff4c4c;transition:0.3s;}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:0.3s;z-index:99;}
+.overlay.active{opacity:1;pointer-events:auto;}
+.sidebar{position:fixed;top:0;left:-300px;width:280px;height:100%;background:rgba(30,30,60,0.95);padding-top:80px;transition:0.4s;box-shadow:5px 0 25px rgba(255,76,76,0.7);z-index:100;border-left:1px solid #ff4c4c;}
+.sidebar.active{left:0;}
+.sidebar ul{list-style:none;display:flex;flex-direction:column;gap:12px;padding:0 20px;}
+.sidebar ul li button{width:100%;padding:15px;border:none;border-radius:8px;background:rgba(60,60,120,0.9);color:#fff;font-size:1.2rem;cursor:pointer;transition:0.3s;text-align:left;text-shadow:0 0 4px #fff;}
+.sidebar ul li button:hover{background:#ff4c4c;color:#fff;text-shadow:0 0 12px #fff,0 0 20px #ff8c4c;}
+.container{margin-top:100px;display:flex;flex-direction:column;align-items:center;gap:25px;width:300px;}
+.main{width:100%;background:rgba(40,40,80,0.95);border-radius:16px;box-shadow:0 0 30px rgba(255,76,76,0.5);padding:20px;}
+.info-block{margin:15px 0;padding:15px;background:rgba(60,60,120,0.95);border-radius:12px;transition:0.3s;box-shadow:0 0 25px rgba(255,76,76,0.6);}
+.info-block:hover{background:rgba(80,80,160,0.95);box-shadow:0 0 35px rgba(255,140,97,0.7);}
+.contact-section{width:100%;padding:15px;background:rgba(50,50,100,0.95);border-radius:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 25px rgba(255,76,76,0.6);}
+.contact-section b{color:#ff4c4c;text-shadow:0 0 6px #fff;}
+.footer{margin-top:20px;width:300px;text-align:center;color:#aaa;font-size:0.9rem;text-shadow:0 0 4px #fff;}
+.advertisement-section {
+    max-width: 850px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.advertisement-section h1 {
+    color: #004d40;
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #004d40;
+    padding-bottom: 10px;
+}
+
+.advertisement-section h2 {
+    color: #00796b;
+    font-size: 22px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.advertisement-section p {
+    margin-bottom: 20px;
+}
+
+.advertisement-section ul,
+.advertisement-section ol {
+    margin-left: 20px;
+    padding: 0;
+    margin-bottom: 25px;
+}
+
+.advertisement-section ul li,
+.advertisement-section ol li {
+    margin-bottom: 10px;
+}
+
+.cta-button {
+    display: block;
+    width: fit-content;
+    margin: 30px auto 10px auto;
+    padding: 15px 30px;
+    background-color: #ff5722;
+    color: white;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #e64a19;
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.4);
+}
+#google_translate_element {
+  width: 200px;
+  padding: 10px;
+  background: rgba(40,40,80,0.95);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255,76,76,0.6);
+  color: #fff;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  text-align: center;
+  margin: 20px auto;
+}
+#google_translate_element select {
+  background: rgba(60,60,120,0.95);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255,76,76,0.5);
+  font-size: 1rem;
+}
+#google_translate_element select:hover {
+  background: #ff4c4c;
+  color: #fff;
+  box-shadow: 0 0 15px #ff4c4c, 0 0 25px #ff8c4c;
 }
 h1 {
   font-size: 28px;
@@ -34,7 +133,7 @@ h2 {
   margin-bottom: 25px;
 }
 #google_translate_element {
-  width: 300px;
+  width: 200px;
   padding: 10px;
   background: rgba(40,40,80,0.95);
   border-radius: 12px;
@@ -66,7 +165,7 @@ h2 {
   margin-bottom: 40px;
 }
 .search-box input {
-  width: 90%;
+  width: 100%;
   padding: 12px 15px;
   border-radius: 10px;
   border: none;
@@ -175,26 +274,45 @@ h2 {
 </style>
 </head>
 <body>
+<header>
+<div class="logo">Kynect.dev 🔥</div>
+<div class="hamburger" id="hamburger"><div></div><div></div><div></div></div>
+</header>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+<ul>
+<div class="logo">Kynect.dev 🔥</div>
+<li><button onclick="location.href='https://xshibau.github.io/'">Home</button></li>
+<li><button onclick="location.href='https://xshibau.github.io/vn/info'">Info Staff</button></li>
+<li><button onclick="location.href='https://xshibau.github.io/vn/api'">API Key</button></li>
+<li><button onclick="location.href='webhook.html'">Webhook</button></li>
+<li><button onclick="location.href='https://xshibau.github.io/vn/key/'">Get Key</button></li>
 <div id="google_translate_element"></div>
 
 <script type="text/javascript">
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'vi', 
-    includedLanguages: 'en,vi,cn,th,la,ja,fr,ru,pa,hi', 
+    includedLanguages: 'en,vi,cn,th', 
     layout: google.translate.TranslateElement.InlineLayout.SIMPLE
   }, 'google_translate_element');
 }
 </script>
 
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-<h1>Danh sách Bài viết</h1>
-
+    
+</ul>
+</div>
+<div class="container">
+<div class="main">
 <div class="search-box">
   <input type="text" id="searchInput" placeholder="🔍 Tìm theo tên hoặc code (vd: 0000)">
   <div class="suggestions" id="suggestions"></div>
 </div>
+<h1>Aura Hub Website's</h1>
+</div>
 
+<div class="contact-section">
 <div class="blog-container" id="blogContainer">
   <div class="card" data-id="AuraHubInfo" data-title="Thông tin website">
     <img src="https://picsum.photos/400/250?random=1">
@@ -207,7 +325,7 @@ function googleTranslateElementInit() {
   </div
   <div class="blog-container" id="blogContainer">
   <div class="card" data-id="AuraHubContact" data-title="Liên Hệ Aura Hub">
-    <img src="https://picsum.photos/400/250?random=1">
+    <img src="https://picsum.photos/400/250?random=2">
     <div class="card-content">
       <span class="id-tag">#AuraHubContact</span>
       <h3>Contact</h3>
@@ -217,7 +335,7 @@ function googleTranslateElementInit() {
   </div
   <div class="blog-container" id="blogContainer">
   <div class="card" data-id="Aurahub-ScriptCheat" data-title="Aura Hub Cheat Roblox">
-    <img src="https://picsum.photos/400/250?random=1">
+    <img src="https://picsum.photos/400/250?random=3">
     <div class="card-content">
       <span class="id-tag">#Aurahub-ScriptCheat</span>
       <h3>Aura Hub Cheat Roblox</h3>
@@ -227,7 +345,7 @@ function googleTranslateElementInit() {
   </div
   <div class="blog-container" id="blogContainer">
   <div class="card" data-id="chatgpt-mzxjl9poba" data-title="Khám phá thế giới ChatGPT">
-    <img src="https://picsum.photos/400/250?random=1">
+    <img src="https://picsum.photos/400/250?random=4">
     <div class="card-content">
       <span class="id-tag">#chatgpt-mzxjl9poba</span>
       <h3>Khám phá thế giới ChatGPT</h3>
@@ -235,10 +353,11 @@ function googleTranslateElementInit() {
       <button onclick="window.location.href='https://xshibau.github.io/vn/chatgpt'">Xem thêm</button>
     </div>
   </div
-
 </div>
-<h2>© Website được bảo vệ bản quyền bởi Aura Hub</h2>
-
+<div class="footer">
+© 2013 Copyright belongs to Ziugpro
+</div>
+</div>
 <script>
 const searchInput = document.getElementById("searchInput");
 const suggestions = document.getElementById("suggestions");
@@ -295,7 +414,11 @@ document.addEventListener("click", (e) => {
     suggestions.style.display = "none";
   }
 });
+const hamburger=document.getElementById('hamburger');
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('overlay');
+hamburger.addEventListener('click',()=>{sidebar.classList.toggle('active');overlay.classList.toggle('active');});
+overlay.addEventListener('click',()=>{sidebar.classList.remove('active');overlay.classList.remove('active');});
 </script>
-
 </body>
-</html>
+  </html>
