@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Truyện Ma Ai Kể</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Spectral+SC:wght@500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  width:100%;height:100%;
+  background:radial-gradient(circle at top,#300000,#000);
+  color:#f5f5f5;
+  font-family:'Spectral SC',serif;
+  overflow-x:hidden;
+}
+
+header{
+  position:fixed;
+  width:100%;
+  top:0;left:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 40px;
+  background:rgba(20,0,0,0.85);
+  backdrop-filter:blur(10px);
+  box-shadow:0 4px 20px rgba(255,0,0,0.4);
+  z-index:100;
+}
+.logo{
+  font-size:27px;
+  color:crimson;
+  font-weight:bold;
+  text-shadow:0 0 15px crimson,0 0 25px #900;
+}
+.logosli{
+  font-size:24px;
+  color:crimson;
+  font-weight:bold;
+  text-shadow:0 0 15px crimson,0 0 25px #900;
+}
+.tacgia{
+  font-size:22px;
+  color:yellow;
+  font-weight:bold;
+  text-shadow:0 0 15px crimson,0 0 25px #900;
+}
+.name{
+  font-size:22px;
+  color:white;
+  font-weight:bold;
+  text-shadow:0 0 15px crimson,0 0 25px #900;
+}
+.hamburger{
+  width:35px;height:30px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  cursor:pointer;
+  z-index:101;
+}
+.hamburger div{
+  height:4px;background:#fff;border-radius:2px;
+  box-shadow:0 0 6px #ff4c4c;
+  transition:0.3s;
+}
+.overlay{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;
+  transition:0.3s;z-index:99;
+}
+.overlay.active{opacity:1;pointer-events:auto;}
+.sidebar{
+  position:fixed;top:0;left:-300px;
+  width:260px;height:100%;
+  background:rgba(40,0,0,0.95);
+  padding-top:100px;
+  transition:0.4s;
+  box-shadow:5px 0 30px rgba(255,0,0,0.6);
+  z-index:100;
+  border-right:1px solid crimson;
+}
+.sidebar.active{left:0;}
+.sidebar ul{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:0 20px;
+}
+.sidebar ul li button{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:8px;
+  background:rgba(60,0,0,0.9);
+  color:#fff;
+  font-size:1.1rem;
+  cursor:pointer;
+  transition:0.3s;
+  text-align:left;
+  text-shadow:0 0 6px #fff;
+}
+.sidebar ul li button:hover{
+  background:crimson;
+  color:#fff;
+  box-shadow:0 0 25px crimson;
+}
+.container{
+  margin-top:120px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:0 20px;
+}
+.story-box{
+  max-width:800px;
+  background:rgba(20,0,0,0.6);
+  border:1px solid crimson;
+  border-radius:12px;
+  box-shadow:0 0 35px crimson;
+  padding:30px;
+  text-align:left;
+  transition:opacity 1s ease,transform 1s ease;
+  opacity:0;transform:translateY(30px);
+}
+.story-box.visible{opacity:1;transform:translateY(0);}
+.story-box p{line-height:1.8;margin-bottom:20px;}
+.story-nav{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  margin-top:30px;
+}
+button.nav-btn{
+  padding:10px 25px;
+  color:#fff;
+  background:linear-gradient(90deg,crimson,#440000);
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  box-shadow:0 0 20px crimson;
+  font-family:'Cinzel',serif;
+  transition:0.3s;
+}
+button.nav-btn:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 30px #ff0033;
+}
+.footer{
+  margin:50px 0 20px;
+  text-align:center;
+  color:#999;
+  font-size:0.9rem;
+}
+.fade-out{opacity:0;transform:translateY(-30px);}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Truyện Ma Ai Kể</div>
+  <div class="hamburger" id="hamburger">
+    <div></div><div></div><div></div>
+  </div>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="sidebar" id="sidebar">
+  <ul>
+    <div class="logosli">Truyện Ma Ai Kể</div>
+    <li><button onclick="location.href='https://xshibau.github.io/'">🏠 Trang chủ</button></li>
+    <li><button onclick="location.href='https://xshibau.github.io/i/docs.html'">📜 Tài liệu</button></li>
+    <li><button onclick="location.href='https://xshibau.github.io/i/int.html'">📖 Giới thiệu</button></li>
+  </ul>
+</div>
+
+<div class="container">
+<div class="tacgia">Tên Truyện:</div>
+ <div class="name">SỰ BIẾN DẠNG CUỐI CÙNG</div>
+  <div class="tacgia">Tác giả: Truyện Ma Ai Kể</div>
+  <div class="story-box" id="story">
+    <div id="chapter"></div>
+    <div class="story-nav">
+      <button id="prev" class="nav-btn" disabled>◀ Trước</button>
+      <button id="next" class="nav-btn">Tiếp ▶</button>
+    </div>
+  </div>
+
+  <div class="footer">© 2025 – Truyện Ma Ai Kể</div>
+</div>
+
+<script>
+const hamburger=document.getElementById('hamburger');
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('overlay');
+hamburger.addEventListener('click',()=>{
+  sidebar.classList.toggle('active');
+  overlay.classList.toggle('active');
+});
+overlay.addEventListener('click',()=>{
+  sidebar.classList.remove('active');
+  overlay.classList.remove('active');
+});
+
+const story=document.getElementById('story');
+const chapter=document.getElementById('chapter');
+const nextBtn=document.getElementById('next');
+const prevBtn=document.getElementById('prev');
+
+const chapters=[
+  `<p><strong>Chương 1:</strong> Thanh, một thợ săn cổ vật khét tiếng vì sự tàn độc và kiêu ngạo tột độ, đã đâm thẳng vào Hầm Mộ Đế Vương cổ xưa. Anh ta đéo tin vào bất cứ thứ gì ngoài quyền lực của chính mình. Thanh biết rõ nguy hiểm của Thánh Tích bên trong, nhưng tham vọng hủy diệt của anh ta đã vượt qua mọi rào cản. Anh thề sẽ độc chiếm quyền lực và hủy diệt mọi đối thủ. Cánh cửa cuối cùng bị phá bung, mùi tử khí và kim loại tanh tưởi nồng nặc trong không khí đặc quánh. Áp lực vật lý từ THỰC THỂ HỦY DIỆT đang đứng đợi, khiến cơ thể Thanh run rẩy không kiểm soát.
+Thực Thể không tên, không hình dạng, chỉ là khối đen cuộn xoáy – hiện thân của mọi sự tuyệt vọng và ác độc bị chôn giấu qua hàng thiên niên kỷ. Nó phóng thích một làn sóng ĐAU ĐỚN xé nát đầu Thanh, buộc anh phải đối diện với sự thật trần trụi: Nỗ lực của anh chỉ là trò hề của kẻ ngu dốt, Thành công của anh là sự lừa dối được xây trên sự tham lam vô độ. Thực Thể ghì chặt tâm trí Thanh: "Mày thất bại! Mày là cặn bã! Mày đéo có tài năng! Tao sẽ phơi bày tất cả sự kiêu ngạo ngu dốt của mày!" Thanh gào thét không ra tiếng, máu tươi rỉ ra từ lỗ tai và mắt, nhưng anh vẫn cắn răng chống cự bằng ý chí độc chiếm tàn bạo của mình. Anh đéo thể chấp nhận thất bại ngay tại ngưỡng cửa của quyền lực tối thượng.</p>
+   <p>Lan nhìn ra ngoài cửa sổ, ánh trăng đỏ chiếu lên bức tường loang lổ. Một bóng người mờ đang đứng nhìn cô.</p>`,
+  `<p><strong>Chương 2:</strong> Sự chống cự điên cuồng của Thanh kích hoạt Thực Thể. Nó biến dạng thành bản sao của Thanh – một kẻ hoàn hảo lạnh lẽo, tàn độc và vô cảm đến tột cùng, không có bất kỳ điểm yếu nào. Bản sao trườn tới, ánh mắt khinh miệt như một đòn chí mạng vào lòng tự trọng của Thanh, đá văng mọi ảo tưởng còn sót lại.
+Bản Sao Hoàn Hảo: "Mày quá yếu! Mày sẽ cố gắng cả đời vô ích! Tao sẽ hấp thụ mày, và MÀY sẽ là quyền lực mà mày khao khát! Chết đi, kẻ ngu dốt!"
+Cuộc giao tranh bùng nổ trong một cơn lốc màu đen của ác ý. Bản Sao lao tới, không phải để đánh, mà để hòa tan vào Thanh, cấy vào anh ác độc và khinh miệt vĩnh cửu. Quá trình hợp nhất là sự hòa tan kinh tởm giữa hai thể xác vật chất và phi vật chất. Da thịt Thanh nhão ra, tan chảy thành chất lỏng màu đen, hòa lẫn với lớp bóng tối của Thực Thể. Xương cốt anh vặn vẹo, được đúc lại một cách quái dị và tàn bạo để trở nên cứng cáp hơn, nhưng đổi lại là sự mất mát mọi cảm xúc con người. Thanh cảm nhận được từng thớ thịt, từng dây thần kinh bị hủy hoại và tái tạo trong một cơn đau siêu việt kéo dài vô tận. Cuối cùng, sự hòa tan hoàn tất. Thanh đã thắng – anh độc chiếm quyền năng của Thực Thể, nhưng cái giá là mất đi nhân tính của mình.</p>
+   <p></em></p>`,
+  `<p><strong>Chương 3:</strong> Thanh rơi xuống sàn, cơ thể anh được bao phủ bởi lớp màng đen của Thực Thể, rồi từ từ bong ra như lớp vỏ xác cũ. Anh đã đạt được quyền lực vô biên. Khi anh đứng dậy, KHUÔN MẶT anh giờ đây biến dạng vĩnh viễn thành một nụ cười kiêu ngạo lạnh lẽo. Anh đã thành công rực rỡ, nhưng đéo còn là con người. Anh là Thực Thể Hủy Diệt được hiện hình trong xác thịt con người. Cái chạm tay của anh biến mọi thứ thành tro bụi.
+Anh bước ra khỏi hầm mộ, hủy diệt cánh cửa đá bằng một hơi thở lạnh lẽo. Anh sống mãi mãi trong sự tàn bạo và kiêu ngạo vô độ. Anh theo đuổi sự hủy diệt vĩnh cửu mà không cần bất kỳ mục đích nào nữa. Anh đã hủy diệt chính mình để chiến thắng. Câu chuyện của anh là sự cảnh báo tột cùng về tham vọng không giới hạn.</p>`
+];
+let current=0;
+
+function showChapter(index){
+  chapter.innerHTML=chapters[index];
+  prevBtn.disabled=index===0;
+  nextBtn.disabled=index===chapters.length-1;
+}
+
+function changeChapter(dir){
+  story.classList.add('fade-out');
+  setTimeout(()=>{
+    current+=dir;
+    showChapter(current);
+    story.classList.remove('fade-out');
+  },600);
+}
+
+nextBtn.addEventListener('click',()=>changeChapter(1));
+prevBtn.addEventListener('click',()=>changeChapter(-1));
+
+window.addEventListener('load',()=>{
+  story.classList.add('visible');
+  showChapter(current);
+});
+</script>
+</body>
+</html>
