@@ -5,10 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Xshibau.dev</title>
 <style>
+:root {
+  --bg: #0f0f0f;
+  --panel: #1a1a1d;
+  --accent: #ff4b5c;
+  --text: #f5f5f5;
+  --font: 'Inter', sans-serif;
+}
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif;}
 html,body{width:100%;height:100%;background:linear-gradient(135deg,#0a0a1f,#1c1c3f);color:#fff;display:flex;justify-content:center;align-items:flex-start;overflow-x:hidden;}
 header{position:fixed;width:100%;top:0;left:0;display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:rgba(20,20,50,0.85);backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(0,0,0,0.7);z-index:100;}
 .logo{font-size:2rem;color:#ff4c4c;font-weight:bold;text-shadow:0 0 12px #ff4c4c,0 0 20px #ff8c4c;}
+.logo1{font-size:35px;color:yellow;font-weight:bold;text-shadow:0 0 15px yellow,0 0 20px #ff8c4c;}
 .hamburger{width:35px;height:30px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;z-index:101;}
 .hamburger div{height:4px;background:#fff;border-radius:2px;box-shadow:0 0 6px #ff4c4c;transition:0.3s;}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:0.3s;z-index:99;}
@@ -25,6 +33,124 @@ header{position:fixed;width:100%;top:0;left:0;display:flex;justify-content:space
 .contact-section{width:100%;padding:15px;background:rgba(50,50,100,0.95);border-radius:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 25px rgba(255,76,76,0.6);}
 .contact-section b{color:#ff4c4c;text-shadow:0 0 6px #fff;}
 .footer{margin-top:20px;width:300px;text-align:center;color:#aaa;font-size:0.9rem;text-shadow:0 0 4px #fff;}
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+.search-box {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 40px;
+}
+.search-box input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background: #18181b;
+  color: var(--text);
+  box-shadow: 0 0 0 1px #333;
+  transition: 0.3s;
+}
+.search-box input:focus {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.suggestions {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  width: 100%;
+  background: #1b1b1f;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  overflow: hidden;
+  display: none;
+  z-index: 10;
+}
+.suggestions div {
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.suggestions div:hover {
+  background: rgba(255,75,92,0.15);
+}
+.highlight {
+  color: var(--accent);
+  font-weight: 600;
+}
+.blog-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  width: 100%;
+  max-width: 1000px;
+}
+.card {
+  background: var(--panel);
+  border-radius: 20px;
+  overflow: hidden;
+  width: 300px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  transition: 0.3s;
+  opacity: 1;
+  transform: scale(1);
+}
+.card.hidden {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  filter: brightness(0.9);
+}
+.card-content {
+  padding: 18px 20px 25px;
+}
+.card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.card p {
+  font-size: 14px;
+  color: #b3b3b3;
+  margin-bottom: 20px;
+}
+.card button {
+  background: var(--accent);
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+.card button:hover {
+  background: #ff2f43;
+}
+.id-tag {
+  font-size: 12px;
+  color: #999;
+  background: rgba(255,255,255,0.05);
+  padding: 2px 6px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
 .advertisement-section {
     max-width: 850px;
     margin: 40px auto;
@@ -119,24 +245,53 @@ header{position:fixed;width:100%;top:0;left:0;display:flex;justify-content:space
 </head>
 <body>
 <header>
-<div class="logo">Truyện Ma Ai Kể🔥</div>
+<div class="logo">Truyện Ma Ai Kể</div>
 <div class="hamburger" id="hamburger"><div></div><div></div><div></div></div>
 </header>
 <div class="overlay" id="overlay"></div>
 <div class="sidebar" id="sidebar">
 <ul>
-<div class="logo">Truyện Ma Ai Kể🔥</div>
-<li><button onclick="location.href='doc.html'">Docs</button></li>
-<li><button onclick="location.href='imagetool.html'">Image Tool</button></li>
+<div class="logo">Truyện Ma Ai Kể</div>
+<li><button onclick="location.href='https://xshibau.github.io/doc.html'">Docs</button></li>
+<li><button onclick="location.href='https://xshibau.github.io/imagetool.html'">Image Tool</button></li>
         
 </ul>
 </div>
 <div class="container">
 <div class="main">
-
+<div class="logo1">Truyện Ma Ai Kể</div>
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="🔍 Nhập tên truyện hoặc code">
+  <div class="suggestions" id="suggestions"></div>
 </div>
+</div>
+<div class="main">
+<div class="blog-container" id="blogContainer">
+  <div class="card" data-id="chatgpt01" data-title="Khám phá thế giới ChatGPT">
+    <img src="https://picsum.photos/400/250?random=1">
+    <div class="card-content">
+      <span class="id-tag">#chatgpt01</span>
+      <h3>Khám phá thế giới ChatGPT</h3>
+      <p>Tìm hiểu cách AI thay đổi cách con người giao tiếp và làm việc.</p>
+      <button onclick="window.location.href='index.html'">Đọc truyện</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="design02" data-title="Thiết kế sáng tạo UI/UX">
+    <img src="https://picsum.photos/400/250?random=2">
+    <div class="card-content">
+      <span class="id-tag">#design02</span>
+      <h3>Thiết kế sáng tạo UI/UX</h3>
+      <p>Học cách tạo giao diện tinh tế và trải nghiệm người dùng hoàn hảo.</p>
+      <button onclick="window.location.href='index.html'">Đọc truyện</button>
+    </div>
+   </div>
+
+  </div>
+</div>
+
 <div class="footer">
-© 2013 Copyright belongs to Ziugpro
+© 2013 Bản quyền thuộc về Truyện Ma Ai Kể 
 </div>
 </div>
 <script>
@@ -145,6 +300,75 @@ const sidebar=document.getElementById('sidebar');
 const overlay=document.getElementById('overlay');
 hamburger.addEventListener('click',()=>{sidebar.classList.toggle('active');overlay.classList.toggle('active');});
 overlay.addEventListener('click',()=>{sidebar.classList.remove('active');overlay.classList.remove('active');});
+const searchInput = document.getElementById("searchInput");
+const suggestions = document.getElementById("suggestions");
+const blogContainer = document.getElementById("blogContainer");
+const cards = Array.from(document.querySelectorAll(".card"));
+const originalOrder = cards.slice(); // lưu thứ tự gốc
+
+function highlightText(text, keyword) {
+  const pattern = new RegExp(`(${keyword})`, "gi");
+  return text.replace(pattern, '<span class="highlight">$1</span>');
+}
+
+function updateDisplay(keyword) {
+  const lowerKeyword = keyword.toLowerCase().trim();
+  if (!lowerKeyword) {
+    blogContainer.innerHTML = "";
+    originalOrder.forEach(card => {
+      card.classList.remove("hidden");
+      blogContainer.appendChild(card);
+    });
+    return;
+  }
+
+  const matches = [];
+  cards.forEach(card => {
+    const title = card.dataset.title.toLowerCase();
+    const id = card.dataset.id.toLowerCase();
+    const isMatch = title.includes(lowerKeyword) || id.includes(lowerKeyword);
+
+    card.classList.toggle("hidden", !isMatch);
+    if (isMatch) matches.push(card);
+  });
+
+  matches.forEach(card => blogContainer.prepend(card));
+}
+
+searchInput.addEventListener("input", () => {
+  const keyword = searchInput.value;
+  updateDisplay(keyword);
+
+  if (keyword) {
+    const matchData = cards
+      .filter(card => !card.classList.contains("hidden"))
+      .map(card => ({ title: card.dataset.title, id: card.dataset.id }));
+
+    suggestions.innerHTML = matchData
+      .slice(0, 5)
+      .map(m => `<div data-id="${m.id}">${highlightText(m.title, keyword)} <small style="color:#888;">#${m.id}</small></div>`)
+      .join("");
+    suggestions.style.display = matchData.length ? "block" : "none";
+  } else {
+    suggestions.style.display = "none";
+  }
+});
+
+suggestions.addEventListener("click", (e) => {
+  const targetDiv = e.target.closest("div");
+  if (!targetDiv) return;
+  const id = targetDiv.dataset.id;
+  searchInput.value = id;
+  suggestions.style.display = "none";
+  updateDisplay(id);
+});
+
+document.addEventListener("click", (e) => {
+  if (!suggestions.contains(e.target) && e.target !== searchInput) {
+    suggestions.style.display = "none";
+  }
+});
 </script>
 </body>
-  </html>
+    </html>
+    
