@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACCESS BLOCKED</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Share+Tech+Mono&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  background: radial-gradient(circle at center, #050505 0%, #000 80%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  position: relative;
+  color: #ff4444;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, transparent, rgba(255,0,0,0.15), transparent);
+  animation: scan 3s linear infinite;
+  z-index: 1;
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.glow {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: conic-gradient(from 0deg, #ff0000, #ff5500, #000, #000, #ff0000);
+  animation: rotate 8s linear infinite;
+  opacity: 0.2;
+  z-index: 0;
+}
+
+@keyframes rotate {
+  100% { transform: rotate(360deg); }
+}
+
+.frame {
+  position: relative;
+  z-index: 2;
+  width: 500px;
+  text-align: center;
+  padding: 50px 40px;
+  background: rgba(10,0,0,0.9);
+  border: 2px solid #ff2b2b;
+  border-radius: 14px;
+  box-shadow: 0 0 40px white, 0 0 60px yellow, 0 0 80px yellow;
+}
+
+.frame h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5em;
+  color: yellow;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  text-shadow: 0 0 30px white, 0 0 30px yellow, 0 0 80px yellow;
+}
+
+.frame p {
+  margin: 10px 0;
+  font-size: 1em;
+  color: #ff8888;
+}
+
+.code {
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.request-btn {
+  margin-top: 30px;
+  padding: 10px 25px;
+  border: 2px solid #ff2b2b;
+  border-radius: 8px;
+  background: transparent;
+  color: #ff2b2b;
+  cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1em;
+}
+
+.request-btn:hover {
+  background: rgba(255,43,43,0.2);
+}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="frame">
+  <h1>ACCESS BLOCKED</h1>
+  <p>You do not have permission to access this file.</p>
+  <p>Your IP has been temporarily locked to ensure the safety of the code file.</p>
+  <div class="code">Error Code: <span>403-FW-LOCK</span></div>
+  <button class="request-btn">Request Access</button>
+</div>
+</body>
+</html>
