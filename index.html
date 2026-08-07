@@ -2,384 +2,590 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber Neon Overdrive - Ultimate Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ & Blog Đỉnh Cao 🗿</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
+
         body {
-            background: #020205;
-            color: #fff;
-            font-family: 'Orbitron', sans-serif;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            touch-action: none;
-        }
-        #game-container {
-            position: relative;
-            width: 100%;
-            max-width: 480px;
-            height: 100%;
-            max-height: 850px;
-            background: radial-gradient(circle at center, #11052c 0%, #05020a 100%);
-            box-shadow: 0 0 50px rgba(0, 243, 255, 0.4), inset 0 0 30px rgba(255, 0, 128, 0.2);
-            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            border: 2px solid rgba(0, 243, 255, 0.3);
+            overflow-x: hidden;
         }
-        canvas {
-            display: block;
-            flex-grow: 1;
-        }
-        .hud {
-            position: absolute;
-            top: 25px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 18px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            color: #00f3ff;
-            text-shadow: 0 0 10px #00f3ff, 0 0 20px rgba(0, 243, 255, 0.5);
-            pointer-events: none;
-            z-index: 10;
-        }
-        .controls {
-            height: 130px;
-            background: rgba(10, 5, 25, 0.6);
-            backdrop-filter: blur(15px);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 2px solid rgba(255, 0, 128, 0.4);
-            z-index: 10;
-            box-shadow: inset 0 10px 20px rgba(0,0,0,0.8);
-        }
-        .btn {
-            width: 85px;
-            height: 75px;
-            background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(255, 0, 128, 0.1));
-            border: 2px solid #00f3ff;
-            border-radius: 20px;
-            color: #00f3ff;
-            font-size: 26px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.2);
-            transition: all 0.1s ease;
-        }
-        .btn:active {
-            background: linear-gradient(135deg, rgba(0, 243, 255, 0.5), rgba(255, 0, 128, 0.5));
-            border-color: #ff0080;
-            color: #fff;
-            transform: scale(0.92);
-            box-shadow: 0 0 30px #ff0080;
-        }
-        .screen {
-            position: absolute;
+                /* Header & Navigation */
+        header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(2, 2, 5, 0.85);
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            text-align: center;
-            padding: 30px;
+            z-index: 1000;
         }
-        .screen h1 {
-            font-size: 38px;
-            font-weight: 900;
-            background: linear-gradient(45deg, #00f3ff, #ff0080);
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--primary);
+        }
+
+        main {
+            flex: 1;
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            text-align: center;
+            padding: 5rem 1rem;
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            border-radius: 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(to right, #818cf8, #c084fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
-            margin-bottom: 15px;
-            letter-spacing: 3px;
         }
-        .screen p {
-            color: #a78bfa;
-            font-size: 13px;
-            line-height: 1.6;
-            margin-bottom: 35px;
-            text-shadow: 0 0 10px rgba(167, 139, 250, 0.4);
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
         }
-        .main-btn {
-            padding: 18px 45px;
-            background: linear-gradient(45deg, #00f3ff, #ff0080);
-            border: none;
-            border-radius: 40px;
+
+        .btn {
+            background: var(--primary);
             color: white;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            box-shadow: 0 0 30px rgba(255, 0, 128, 0.8);
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .main-btn:active {
-            transform: scale(0.95);
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .blog-header {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        @media(min-width: 768px) {
+            .blog-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            border-radius: 12px;
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .blog-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .blog-card-img {
+            height: 180px;
+            background: #334155;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .blog-card:hover .blog-card-img img {
+            transform: scale(1.05);
+        }
+
+        .blog-card-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .blog-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .blog-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .blog-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .pagination button {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .blog-detail {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .blog-detail h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .blog-detail-date {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .blog-detail-body {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #cbd5e1;
+        }
+
+        footer {
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media(max-width: 768px) {
+            nav ul {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--card-bg);
+                border-bottom: 1px solid var(--border);
+                padding: 1.5rem;
+                text-align: center;
+            }
+            nav ul.show {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
         }
     </style>
 </head>
-                  <div id="game-container">
-        <div class="hud">
-            <div>SCORE: <span id="score">000000</span></div>
-            <div>CORE: <span id="speed">1.0X</span></div>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo" onclick="switchView('home')">
+                <span>🗿</span> WebVip
+            </div>
+            <button class="menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+            <nav>
+                <ul id="navMenu">
+                    <li><a onclick="switchView('home')" id="nav-home" class="active">Trang Chủ</a></li>
+                    <li><a onclick="switchView('blog')" id="nav-blog">Blog</a></li>
+                </ul>
+            </nav>
         </div>
+    </header>
 
-        <canvas id="gameCanvas"></canvas>
+    <main>
+        <!-- HOME SECTION -->
+        <section id="home-view" class="view-section active">
+            <div class="hero">
+                <h1>Chào Mừng Đến Với <span>Không Gian Đỉnh Cao</span> 🖕🏻🗿</h1>
+                <p>Nơi chia sẻ những bài viết thú vị, công nghệ hiện đại và trải nghiệm mượt mà trên cả Mobile lẫn PC.</p>
+                <button class="btn" onclick="switchView('blog')">Khám Phá Blog Ngay <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </section>
 
-        <div class="controls">
-            <div class="btn" id="leftBtn">◄</div>
-            <div class="btn" id="jumpBtn">▲</div>
-            <div class="btn" id="rightBtn">►</div>
-        </div>
+        <!-- BLOG LIST SECTION -->
+        <section id="blog-view" class="view-section">
+            <div class="blog-header">
+                <h2>Bài Viết Gần Đây</h2>
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm bài viết..." oninput="handleSearch()">
+                </div>
+            </div>
 
-        <div id="startScreen" class="screen">
-            <h1>CYBER OVERDRIVE</h1>
-            <p>Hệ thống cảnh báo: Vùng không gian bất ổn. Né tránh chướng ngại vật plasma màu đỏ hồng và thống trị thế giới ảo!</p>
-            <button class="main-btn" id="startBtn">KÍCH HOẠT 🚀</button>
-        </div>
+            <div class="blog-grid" id="blogGrid"></div>
 
-        <div id="gameOverScreen" class="screen" style="display: none;">
-            <h1>SYSTEM CRASH</h1>
-            <p>KẾT QUẢ ĐẠT ĐƯỢC<br><span id="finalScore" style="font-size: 28px; color: #00f3ff; text-shadow: 0 0 15px #00f3ff;">0</span></p>
-            <button class="main-btn" id="restartBtn">TÁI KHỞI ĐỘNG 🔄</button>
-        </div>
-    </div>
+            <div class="pagination" id="pagination"></div>
+        </section>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight - 130;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        let score = 0;
-        let gameSpeed = 5;
-        let isPlaying = false;
-        let obstacles = [];
-        let particles = [];
-        let gridOffset = 0;
-        
-        let lanes = [canvas.width * 0.25 - 25, canvas.width * 0.5 - 25, canvas.width * 0.75 - 25];
-        let currentLaneIndex = 1;
-
-        const player = {
-            x: lanes[currentLaneIndex],
-            y: canvas.height - 140,
-            width: 50,
-            height: 75,
-            color: '#00f3ff',
-            vy: 0,
-            jumpPower: -13,
-            gravity: 0.65,
-            grounded: true,
-            update() {
-                this.vy += this.gravity;
-                this.y += this.vy;
-                if (this.y > canvas.height - 140) {
-                    this.y = canvas.height - 140;
-                    this.vy = 0;
-                    this.grounded = true;
-                }
-                let targetX = lanes[currentLaneIndex];
-                this.x += (targetX - this.x) * 0.25;
-
-                // Tạo hiệu ứng hạt đuôi (trail) liên tục phía sau nhân vật
-                if (Math.random() < 0.6) {
-                    particles.push({
-                        x: this.x + Math.random() * this.width,
-                        y: this.y + this.height,
-                        vx: (Math.random() - 0.5) * 2,
-                        vy: Math.random() * 3 + 1,
-                        size: Math.random() * 4 + 2,
-                        color: '#00f3ff'
-                    });
-                }
+        <!-- BLOG DETAIL SECTION -->
+        <section id="detail-view" class="view-section">
+            <div class="blog-detail">
+                <button class="back-btn" onclick="switchView('blog')"><i class="fa-solid fa-arrow-left"></i> Quay lại Blog</button>
+                <h1 id="detailTitle">Tiêu đề bài viết</h1>
+                <span class="detail-date" id="detailDate">07/08/2026</span>
+                <div class="blog-detail-body" id="detailBody">
+                    Nội dung chi tiết bài viết...
+                </div>
+            </div>
+        </section>
+    </main>
+        <footer>
+        <p>&copy; 2026 Bản quyền thuộc về <strong>Xshibau</strong>. All rights reserved.</p>
+        </footer>
+          <script>
+        const defaultBlogs = [
+            {
+                id: 1,
+                title: "Làm Sao Để Code Siêu Đẹp Mà Không Cần Cố Gắng?",
+                summary: "Bí mật đằng sau những dòng code mượt mà, giao diện cực khủng không tối ưu trên mọi thiết bị.",
+                content: "Nội dung cực kỳ chi tiết bài số 1: Để code đẹp trước hết bạn cần một cái đầu lạnh và một con mắt thẩm mỹ thiên bẩm. Sử dụng CSS Flexbox, Grid kết hợp các biến màu sắc (Variables) sẽ giúp trang web của bạn lột xác hoàn toàn...",
+                date: "07/08/2026",
+                image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&auto=format&fit=crop&q=60"
             },
-            draw() {
-                ctx.save();
-                // Hiệu ứng phát sáng mạnh mẽ
-                ctx.shadowBlur = 25;
-                ctx.shadowColor = this.color;
-                
-                // Thân nhân vật phong cách robot tương lai
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Mắt/giáp phát sáng trung tâm
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(this.x + 10, this.y + 15, 10, 12);
-                ctx.fillRect(this.x + 30, this.y + 15, 10, 12);
-                
-                // Đường viền plasma sáng rực
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
-                ctx.restore();
+        ];
+
+        if (!localStorage.getItem('blogs')) {
+            localStorage.setItem('blogs', JSON.stringify(defaultBlogs));
+        }
+
+        let currentPage = 1;
+        const postsPerPage = 3;
+        let currentSearchQuery = "";
+
+        function switchView(viewId, paramId = null) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(el => el.classList.remove('active'));
+
+            if (viewId === 'home') {
+                document.getElementById('home-view').classList.add('active');
+                document.getElementById('nav-home').classList.add('active');
+            } else if (viewId === 'blog') {
+                document.getElementById('blog-view').classList.add('active');
+                document.getElementById('nav-blog').classList.add('active');
+                renderBlogList();
+            } else if (viewId === 'detail') {
+                document.getElementById('detail-view').classList.add('active');
+                renderBlogDetail(paramId);
             }
-        };
-        class Obstacle {
-            constructor() {
-                this.lane = Math.floor(Math.random() * 3);
-                this.width = 50;
-                this.height = 50;
-                this.x = lanes[this.lane];
-                this.y = -100;
-                this.color = '#ff0055';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('navMenu').classList.remove('show');
+        }
+
+        function getBlogs() {
+            return JSON.parse(localStorage.getItem('blogs')) || [];
+        }
+
+        function renderBlogList() {
+            const blogs = getBlogs();
+            const grid = document.getElementById('blogGrid');
+            const paginationEl = document.getElementById('pagination');
+
+            const filteredBlogs = blogs.filter(blog => 
+                blog.title.toLowerCase().includes(currentSearchQuery.toLowerCase()) ||
+                blog.summary.toLowerCase().includes(currentSearchQuery.toLowerCase())
+            );
+
+            const totalPages = Math.ceil(filteredBlogs.length / postsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * postsPerPage;
+            const end = start + postsPerPage;
+            const paginatedBlogs = filteredBlogs.slice(start, end);
+
+            if (paginatedBlogs.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">Không tìm thấy bài viết nào phù hợp! 🗿</p>`;
+                paginationEl.innerHTML = '';
+                return;
             }
-            update() {
-                this.y += gameSpeed;
-            }
-            draw() {
-                ctx.save();
-                ctx.shadowBlur = 25;
-                ctx.shadowColor = this.color;
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Lõi chướng ngại vật
-                ctx.fillStyle = '#ffff00';
-                ctx.fillRect(this.x + 12, this.y + 12, 26, 26);
-                ctx.restore();
+
+            grid.innerHTML = paginatedBlogs.map(blog => `
+                <div class="blog-card" onclick="switchView('detail', ${blog.id})">
+                    <div class="blog-card-img">
+                        <img src="${blog.image}" alt="${blog.title}">
+                    </div>
+                    <div class="blog-card-content">
+                        <div>
+                            <h3>${blog.title}</h3>
+                            <p>${blog.summary}</p>
+                        </div>
+                        <div class="blog-meta">
+                            <i class="fa-regular fa-calendar"></i> ${blog.date}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            if (filteredBlogs.length > postsPerPage) {
+                paginationEl.innerHTML = `
+                    <button onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}><i class="fa-solid fa-chevron-left"></i> Trước</button>
+                    <span>Trang ${currentPage} / ${totalPages}</span>
+                    <button onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>Sau <i class="fa-solid fa-chevron-right"></i></button>
+                `;
+            } else {
+                paginationEl.innerHTML = '';
             }
         }
 
-        function spawnObstacle() {
-            if (Math.random() < 0.025) {
-                obstacles.push(new Obstacle());
-            }
+        function handleSearch() {
+            const input = document.getElementById('searchInput');
+            currentSearchQuery = input.value;
+            currentPage = 1;
+            renderBlogList();
         }
 
-        function checkCollision(r1, r2) {
-            return r1.x < r2.x + r2.width &&
-                   r1.x + r1.width > r2.x &&
-                   r1.y < r2.y + r2.height &&
-                   r1.y + r1.height > r2.y;
+        function changePage(direction) {
+            currentPage += direction;
+            renderBlogList();
+            window.scrollTo({ top: 200, behavior: 'smooth' });
         }
 
-        function resetGame() {
-            score = 0;
-            gameSpeed = 5;
-            obstacles = [];
-            particles = [];
-            currentLaneIndex = 1;
-            player.x = lanes[1];
-            player.y = canvas.height - 140;
-            player.vy = 0;
+        function renderBlogDetail(id) {
+            const blogs = getBlogs();
+            const blog = blogs.find(b => b.id === id);
+            if (!blog) return;
+
+            document.getElementById('detailTitle').innerText = blog.title;
+            document.getElementById('detailDate').innerHTML = `<i class="fa-regular fa-calendar"></i> ${blog.date}`;
+            document.getElementById('detailBody').innerHTML = `
+                <img src="${blog.image}" alt="${blog.title}" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem;">
+                <p>${blog.content.replace(/\n/g, '<br>')}</p>
+            `;
         }
 
-        // Sự kiện tương tác cảm ứng cực nhạy trên Mobile
-        document.getElementById('leftBtn').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            if (currentLaneIndex > 0) currentLaneIndex--;
-        });
-        document.getElementById('rightBtn').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            if (currentLaneIndex < lanes.length - 1) currentLaneIndex++;
-        });
-        document.getElementById('jumpBtn').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            if (player.grounded) {
-                player.vy = player.jumpPower;
-                player.grounded = false;
-            }
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('navMenu').classList.toggle('show');
         });
 
-        document.getElementById('startBtn').addEventListener('click', () => {
-            document.getElementById('startScreen').style.display = 'none';
-            resetGame();
-            isPlaying = true;
-            animate();
-        });
-
-        document.getElementById('restartBtn').addEventListener('click', () => {
-            document.getElementById('gameOverScreen').style.display = 'none';
-            resetGame();
-            isPlaying = true;
-            animate();
-        });
-
-        function animate() {
-            if (!isPlaying) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Vẽ hiệu ứng lưới không gian phối cảnh 3D chạy dọc
-            gridOffset = (gridOffset + gameSpeed) % 40;
-            ctx.strokeStyle = 'rgba(0, 243, 255, 0.12)';
-            ctx.lineWidth = 1.5;
-            
-            for(let i = 0; i < canvas.width; i += 40) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-            }
-            for(let j = gridOffset; j < canvas.height; j += 40) {
-                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
-            }
-
-            // Cập nhật và vẽ hệ thống hạt (Particles)
-            for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.size *= 0.95;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-                if (p.size < 0.5) particles.splice(i, 1);
-            }
-
-            spawnObstacle();
-
-            // Cập nhật chướng ngại vật
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].update();
-                obstacles[i].draw();
-
-                if (checkCollision(player, obstacles[i])) {
-                    isPlaying = false;
-                    document.getElementById('finalScore').innerText = String(Math.floor(score)).padStart(6, '0');
-                    document.getElementById('gameOverScreen').style.display = 'flex';
-                }
-
-                if (obstacles[i].y > canvas.height) {
-                    obstacles.splice(i, 1);
-                    score += 15;
-                    gameSpeed += 0.04;
-                }
-            }
-
-            player.update();
-            player.draw();
-
-            document.getElementById('score').innerText = String(Math.floor(score)).padStart(6, '0');
-            document.getElementById('speed').innerText = (gameSpeed / 5).toFixed(1) + 'X';
-
-            requestAnimationFrame(animate);
-        }
+        switchView('home');
     </script>
 </body>
 </html>
