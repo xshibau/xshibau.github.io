@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber Neon Overdrive - Ultimate Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            background: #020205;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            touch-action: none;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            max-height: 850px;
+            background: radial-gradient(circle at center, #11052c 0%, #05020a 100%);
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.4), inset 0 0 30px rgba(255, 0, 128, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid rgba(0, 243, 255, 0.3);
+        }
+        canvas {
+            display: block;
+            flex-grow: 1;
+        }
+        .hud {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #00f3ff;
+            text-shadow: 0 0 10px #00f3ff, 0 0 20px rgba(0, 243, 255, 0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .controls {
+            height: 130px;
+            background: rgba(10, 5, 25, 0.6);
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 2px solid rgba(255, 0, 128, 0.4);
+            z-index: 10;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.8);
+        }
+        .btn {
+            width: 85px;
+            height: 75px;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(255, 0, 128, 0.1));
+            border: 2px solid #00f3ff;
+            border-radius: 20px;
+            color: #00f3ff;
+            font-size: 26px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.2);
+            transition: all 0.1s ease;
+        }
+        .btn:active {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.5), rgba(255, 0, 128, 0.5));
+            border-color: #ff0080;
+            color: #fff;
+            transform: scale(0.92);
+            box-shadow: 0 0 30px #ff0080;
+        }
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 2, 5, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            text-align: center;
+            padding: 30px;
+        }
+        .screen h1 {
+            font-size: 38px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00f3ff, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+        .screen p {
+            color: #a78bfa;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 35px;
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.4);
+        }
+        .main-btn {
+            padding: 18px 45px;
+            background: linear-gradient(45deg, #00f3ff, #ff0080);
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.8);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .main-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+                  <div id="game-container">
+        <div class="hud">
+            <div>SCORE: <span id="score">000000</span></div>
+            <div>CORE: <span id="speed">1.0X</span></div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="controls">
+            <div class="btn" id="leftBtn">◄</div>
+            <div class="btn" id="jumpBtn">▲</div>
+            <div class="btn" id="rightBtn">►</div>
+        </div>
+
+        <div id="startScreen" class="screen">
+            <h1>CYBER OVERDRIVE</h1>
+            <p>Hệ thống cảnh báo: Vùng không gian bất ổn. Né tránh chướng ngại vật plasma màu đỏ hồng và thống trị thế giới ảo!</p>
+            <button class="main-btn" id="startBtn">KÍCH HOẠT 🚀</button>
+        </div>
+
+        <div id="gameOverScreen" class="screen" style="display: none;">
+            <h1>SYSTEM CRASH</h1>
+            <p>KẾT QUẢ ĐẠT ĐƯỢC<br><span id="finalScore" style="font-size: 28px; color: #00f3ff; text-shadow: 0 0 15px #00f3ff;">0</span></p>
+            <button class="main-btn" id="restartBtn">TÁI KHỞI ĐỘNG 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight - 130;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let score = 0;
+        let gameSpeed = 5;
+        let isPlaying = false;
+        let obstacles = [];
+        let particles = [];
+        let gridOffset = 0;
+        
+        let lanes = [canvas.width * 0.25 - 25, canvas.width * 0.5 - 25, canvas.width * 0.75 - 25];
+        let currentLaneIndex = 1;
+
+        const player = {
+            x: lanes[currentLaneIndex],
+            y: canvas.height - 140,
+            width: 50,
+            height: 75,
+            color: '#00f3ff',
+            vy: 0,
+            jumpPower: -13,
+            gravity: 0.65,
+            grounded: true,
+            update() {
+                this.vy += this.gravity;
+                this.y += this.vy;
+                if (this.y > canvas.height - 140) {
+                    this.y = canvas.height - 140;
+                    this.vy = 0;
+                    this.grounded = true;
+                }
+                let targetX = lanes[currentLaneIndex];
+                this.x += (targetX - this.x) * 0.25;
+
+                // Tạo hiệu ứng hạt đuôi (trail) liên tục phía sau nhân vật
+                if (Math.random() < 0.6) {
+                    particles.push({
+                        x: this.x + Math.random() * this.width,
+                        y: this.y + this.height,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: Math.random() * 3 + 1,
+                        size: Math.random() * 4 + 2,
+                        color: '#00f3ff'
+                    });
+                }
+            },
+            draw() {
+                ctx.save();
+                // Hiệu ứng phát sáng mạnh mẽ
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = this.color;
+                
+                // Thân nhân vật phong cách robot tương lai
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Mắt/giáp phát sáng trung tâm
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(this.x + 10, this.y + 15, 10, 12);
+                ctx.fillRect(this.x + 30, this.y + 15, 10, 12);
+                
+                // Đường viền plasma sáng rực
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                ctx.restore();
+            }
+        };
+        class Obstacle {
+            constructor() {
+                this.lane = Math.floor(Math.random() * 3);
+                this.width = 50;
+                this.height = 50;
+                this.x = lanes[this.lane];
+                this.y = -100;
+                this.color = '#ff0055';
+            }
+            update() {
+                this.y += gameSpeed;
+            }
+            draw() {
+                ctx.save();
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = this.color;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Lõi chướng ngại vật
+                ctx.fillStyle = '#ffff00';
+                ctx.fillRect(this.x + 12, this.y + 12, 26, 26);
+                ctx.restore();
+            }
+        }
+
+        function spawnObstacle() {
+            if (Math.random() < 0.025) {
+                obstacles.push(new Obstacle());
+            }
+        }
+
+        function checkCollision(r1, r2) {
+            return r1.x < r2.x + r2.width &&
+                   r1.x + r1.width > r2.x &&
+                   r1.y < r2.y + r2.height &&
+                   r1.y + r1.height > r2.y;
+        }
+
+        function resetGame() {
+            score = 0;
+            gameSpeed = 5;
+            obstacles = [];
+            particles = [];
+            currentLaneIndex = 1;
+            player.x = lanes[1];
+            player.y = canvas.height - 140;
+            player.vy = 0;
+        }
+
+        // Sự kiện tương tác cảm ứng cực nhạy trên Mobile
+        document.getElementById('leftBtn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (currentLaneIndex > 0) currentLaneIndex--;
+        });
+        document.getElementById('rightBtn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (currentLaneIndex < lanes.length - 1) currentLaneIndex++;
+        });
+        document.getElementById('jumpBtn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (player.grounded) {
+                player.vy = player.jumpPower;
+                player.grounded = false;
+            }
+        });
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            document.getElementById('startScreen').style.display = 'none';
+            resetGame();
+            isPlaying = true;
+            animate();
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            resetGame();
+            isPlaying = true;
+            animate();
+        });
+
+        function animate() {
+            if (!isPlaying) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ hiệu ứng lưới không gian phối cảnh 3D chạy dọc
+            gridOffset = (gridOffset + gameSpeed) % 40;
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.12)';
+            ctx.lineWidth = 1.5;
+            
+            for(let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let j = gridOffset; j < canvas.height; j += 40) {
+                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+            }
+
+            // Cập nhật và vẽ hệ thống hạt (Particles)
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.size *= 0.95;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                if (p.size < 0.5) particles.splice(i, 1);
+            }
+
+            spawnObstacle();
+
+            // Cập nhật chướng ngại vật
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].update();
+                obstacles[i].draw();
+
+                if (checkCollision(player, obstacles[i])) {
+                    isPlaying = false;
+                    document.getElementById('finalScore').innerText = String(Math.floor(score)).padStart(6, '0');
+                    document.getElementById('gameOverScreen').style.display = 'flex';
+                }
+
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score += 15;
+                    gameSpeed += 0.04;
+                }
+            }
+
+            player.update();
+            player.draw();
+
+            document.getElementById('score').innerText = String(Math.floor(score)).padStart(6, '0');
+            document.getElementById('speed').innerText = (gameSpeed / 5).toFixed(1) + 'X';
+
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>
