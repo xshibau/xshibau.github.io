@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>President Simulator 2026 - Cyberpunk Command Center</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#080d1a',
+                            panel: '#0f172a',
+                            border: '#1e293b',
+                            accent: '#06b6d4',
+                            neonPink: '#ec4899',
+                            neonGreen: '#10b981',
+                            neonYellow: '#f59e0b',
+                            danger: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050811;
+            color: #e2e8f0;
+            user-select: none;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+        
+        /* Cyber Neon Effects */
+        .neon-border-cyan { box-shadow: 0 0 10px rgba(6, 182, 212, 0.3); border-color: rgba(6, 182, 212, 0.6); }
+        .neon-border-pink { box-shadow: 0 0 10px rgba(236, 72, 153, 0.3); border-color: rgba(236, 72, 153, 0.6); }
+        .neon-text-cyan { text-shadow: 0 0 8px rgba(6, 182, 212, 0.8); }
+        .neon-text-red { text-shadow: 0 0 8px rgba(239, 68, 68, 0.8); }
+
+        /* Ticker Animation */
+        @keyframes ticker {
+            0% { transform: translate3d(100%, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+        .ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
+        .ticker { display: inline-block; animation: ticker 35s linear infinite; }
+        .ticker:hover { animation-play-state: paused; }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col bg-cyber-bg text-gray-200">
+
+    <header class="bg-slate-950 border-b border-cyan-900/50 px-4 py-2 flex items-center justify-between shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-cyan-950 border border-cyan-500/50 flex items-center justify-center text-cyan-400 font-black text-xl shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                2026
+            </div>
+            <div>
+                <h1 class="text-base font-bold tracking-wider text-cyan-400 uppercase flex items-center gap-2">
+                    PRESIDENT SIMULATOR
+                    <span class="text-xs px-2 py-0.5 rounded bg-pink-950 text-pink-400 border border-pink-500/40">CYBERPUNK</span>
+                </h1>
+                <p class="text-xs text-slate-400 flex items-center gap-2">
+                    <span id="playerCountryFlag" class="text-sm">🇻🇳</span>
+                    <span id="playerCountryName" class="font-semibold text-slate-200">Việt Nam</span>
+                    <span class="text-slate-600">|</span>
+                    <span id="gameDate" class="text-cyan-300 font-mono">Tháng 01/2026</span>
+                    <span class="text-slate-600">|</span>
+                    <span id="termCountdown" class="text-amber-400 font-mono text-xs">Còn 24 tháng đến Bầu cử</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 md:gap-4">
+            <button onclick="nextTurn()" class="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white font-bold rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.4)] active:scale-95 transition-all text-xs md:text-sm flex items-center gap-2">
+                <i class="fa-solid font-black fa-forward text-yellow-300"></i>
+                <span>SANG THÁNG MỚI</span>
+            </button>
+            <button onclick="openModal('settingsModal')" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg transition">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="bg-cyan-950/40 border-b border-cyan-900/30 px-2 py-1 text-xs font-mono text-cyan-300 flex items-center shrink-0">
+        <span class="bg-red-900/80 text-red-200 px-2 py-0.5 rounded text-[10px] font-bold mr-2 tracking-widest shrink-0 animate-pulse">
+            TIN THẾ GIỚI
+        </span>
+        <div class="ticker-wrap flex-1">
+            <div id="newsTicker" class="ticker">
+                [Hệ thống] Trò chơi PRESIDENT SIMULATOR 2026 đã sẵn sàng. Hãy bảo vệ lãnh thổ và đưa quốc gia thành Cường quốc Thế giới!
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-2 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 shrink-0 text-xs">
+        <div class="bg-slate-950/60 p-2 rounded border border-slate-800/80">
+            <div class="text-slate-400 flex justify-between">Dân số <i class="fa-solid fa-users text-cyan-400"></i></div>
+            <div id="statPopulation" class="font-bold text-slate-100 text-sm font-mono mt-0.5">98.5 Tr người</div>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded border border-slate-800/80">
+            <div class="text-slate-400 flex justify-between">GDP Năm <i class="fa-solid fa-chart-line text-emerald-400"></i></div>
+            <div id="statGDP" class="font-bold text-emerald-400 text-sm font-mono mt-0.5">$430.5 Tỷ</div>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded border border-slate-800/80">
+            <div class="text-slate-400 flex justify-between">Ngân sách <i class="fa-solid fa-wallet text-amber-400"></i></div>
+            <div id="statBudget" class="font-bold text-amber-300 text-sm font-mono mt-0.5">$45.2 Tỷ</div>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded border border-slate-800/80">
+            <div class="text-slate-400 flex justify-between">Dân tâm <i class="fa-solid fa-heart text-pink-400"></i></div>
+            <div class="flex items-center gap-2 mt-0.5">
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="statApprovalBar" class="bg-pink-500 h-full w-2/3"></div>
+                </div>
+                <span id="statApproval" class="font-bold text-pink-400 font-mono">68%</span>
+            </div>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded border border-slate-800/80">
+            <div class="text-slate-400 flex justify-between">Q.Đội Trung Thành <i class="fa-solid fa-shield-halved text-indigo-400"></i></div>
+            <div class="flex items-center gap-2 mt-0.5">
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="statLoyaltyBar" class="bg-indigo-500 h-full w-4/5"></div>
+                </div>
+                <span id="statLoyalty" class="font-bold text-indigo-400 font-mono">82%</span>
+            </div>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded border border-slate-800/80">
+            <div class="text-slate-400 flex justify-between">Sức mạnh QĐ <i class="fa-solid fa-jet-fighter text-red-400"></i></div>
+            <div id="statMilitaryPower" class="font-bold text-red-400 text-sm font-mono mt-0.5">450,000 pts</div>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded border border-slate-800/80 col-span-2 sm:col-span-1">
+            <div class="text-slate-400 flex justify-between">Đầu đạn Hạt nhân <i class="fa-solid fa-radiation text-yellow-400"></i></div>
+            <div id="statNukes" class="font-bold text-yellow-400 text-sm font-mono mt-0.5">0 Đầu đạn</div>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        <!-- Navigation Tabs Sidebar (Horizontal on Mobile, Vertical on PC) -->
+        <nav class="bg-slate-950 border-b md:border-b-0 md:border-r border-slate-800 flex md:flex-col overflow-x-auto shrink-0 z-10 scrollbar-none">
+            <button onclick="switchTab('overviewTab')" id="btn-overviewTab" class="nav-tab active-tab flex items-center gap-2 px-4 py-3 text-xs font-semibold text-slate-400 hover:text-cyan-400 border-b-2 md:border-b-0 md:border-l-2 border-transparent">
+                <i class="fa-solid fa-chart-pie text-sm"></i> <span>TỔNG QUAN</span>
+            </button>
+            <button onclick="switchTab('economyTab')" id="btn-economyTab" class="nav-tab flex items-center gap-2 px-4 py-3 text-xs font-semibold text-slate-400 hover:text-cyan-400 border-b-2 md:border-b-0 md:border-l-2 border-transparent">
+                <i class="fa-solid fa-vault text-sm"></i> <span>KINH TẾ & THUẾ</span>
+            </button>
+            <button onclick="switchTab('militaryTab')" id="btn-militaryTab" class="nav-tab flex items-center gap-2 px-4 py-3 text-xs font-semibold text-slate-400 hover:text-cyan-400 border-b-2 md:border-b-0 md:border-l-2 border-transparent">
+                <i class="fa-solid fa-person-military-rifle text-sm"></i> <span>QUÂN SỰ & WAR</span>
+            </button>
+            <button onclick="switchTab('lawAiTab')" id="btn-lawAiTab" class="nav-tab flex items-center gap-2 px-4 py-3 text-xs font-semibold text-slate-400 hover:text-cyan-400 border-b-2 md:border-b-0 md:border-l-2 border-transparent">
+                <i class="fa-solid fa-gavel text-sm text-yellow-400"></i> <span>LUẬT SẮC LỆNH AI</span>
+            </button>
+            <button onclick="switchTab('aiAdvisorTab')" id="btn-aiAdvisorTab" class="nav-tab flex items-center gap-2 px-4 py-3 text-xs font-semibold text-slate-400 hover:text-cyan-400 border-b-2 md:border-b-0 md:border-l-2 border-transparent">
+                <i class="fa-solid fa-robot text-sm text-cyan-400"></i> <span>CỐ VẤN GEMINI</span>
+            </button>
+            <button onclick="switchTab('diplomacyTab')" id="btn-diplomacyTab" class="nav-tab flex items-center gap-2 px-4 py-3 text-xs font-semibold text-slate-400 hover:text-cyan-400 border-b-2 md:border-b-0 md:border-l-2 border-transparent">
+                <i class="fa-solid fa-earth-americas text-sm"></i> <span>NGOẠI GIAO & LHQ</span>
+            </button>
+            <button onclick="switchTab('intelCabinetTab')" id="btn-intelCabinetTab" class="nav-tab flex items-center gap-2 px-4 py-3 text-xs font-semibold text-slate-400 hover:text-cyan-400 border-b-2 md:border-b-0 md:border-l-2 border-transparent">
+                <i class="fa-solid fa-user-secret text-sm"></i> <span>NỘI CÁC & TÌNH BÁO</span>
+            </button>
+            <button onclick="switchTab('electionsTab')" id="btn-electionsTab" class="nav-tab flex items-center gap-2 px-4 py-3 text-xs font-semibold text-slate-400 hover:text-cyan-400 border-b-2 md:border-b-0 md:border-l-2 border-transparent">
+                <i class="fa-solid fa-check-to-slot text-sm text-pink-400"></i> <span>BẦU CỬ & CHÍNH TRỊ</span>
+            </button>
+        </nav>
+
+        <!-- Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 bg-slate-900/40">
+            
+            <div id="overviewTab" class="tab-content space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- National Profile Panel -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-lg">
+                        <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-flag"></i> HỒ SƠ QUỐC GIA
+                        </h2>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between border-b border-slate-800 py-1">
+                                <span class="text-slate-400">Lãnh đạo:</span>
+                                <span id="overviewPresidentName" class="font-bold text-white">Tổng thống Việt Nam</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 py-1">
+                                <span class="text-slate-400">Thể chế:</span>
+                                <span id="overviewGovType" class="text-cyan-300">Cộng hòa Dân chủ</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 py-1">
+                                <span class="text-slate-400">Tỷ lệ Tội phạm:</span>
+                                <span id="overviewCrimeRate" class="font-mono text-red-400">12.4%</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 py-1">
+                                <span class="text-slate-400">Lạm phát:</span>
+                                <span id="overviewInflation" class="font-mono text-amber-400">3.2%</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 py-1">
+                                <span class="text-slate-400">Thất nghiệp:</span>
+                                <span id="overviewUnemployment" class="font-mono text-slate-300">4.1%</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 py-1">
+                                <span class="text-slate-400">Thành viên UN P5 (VETO):</span>
+                                <span id="overviewUNP5" class="font-bold text-slate-400">KHÔNG</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resource Reserves Panel -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-lg">
+                        <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked"></i> KHO TÀI NGUYÊN CHIẾN LƯỢC
+                        </h2>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-slate-900 p-2.5 rounded border border-slate-800">
+                                <p class="text-slate-400 flex items-center justify-between">
+                                    Dầu mỏ <i class="fa-solid fa-oil-well text-amber-500"></i>
+                                </p>
+                                <p id="resOil" class="text-sm font-bold font-mono text-slate-200 mt-1">120.0M Thùng</p>
+                            </div>
+                            <div class="bg-slate-900 p-2.5 rounded border border-slate-800">
+                                <p class="text-slate-400 flex items-center justify-between">
+                                    Vi mạch Chip <i class="fa-solid fa-microchip text-cyan-400"></i>
+                                </p>
+                                <p id="resChips" class="text-sm font-bold font-mono text-slate-200 mt-1">45.0M Đơn vị</p>
+                            </div>
+                            <div class="bg-slate-900 p-2.5 rounded border border-slate-800">
+                                <p class="text-slate-400 flex items-center justify-between">
+                                    Lương thực <i class="fa-solid fa-wheat-awn text-emerald-400"></i>
+                                </p>
+                                <p id="resFood" class="text-sm font-bold font-mono text-slate-200 mt-1">350.0M Tấn</p>
+                            </div>
+                            <div class="bg-slate-900 p-2.5 rounded border border-slate-800">
+                                <p class="text-slate-400 flex items-center justify-between">
+                                    Đất hiếm <i class="fa-solid fa-gem text-purple-400"></i>
+                                </p>
+                                <p id="resRareEarth" class="text-sm font-bold font-mono text-slate-200 mt-1">15.2M Tấn</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Immediate Threat Log -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-lg">
+                        <h2 class="text-sm font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i> NGUY CƠ NỔI BẬT
+                        </h2>
+                        <div id="threatList" class="space-y-2 text-xs">
+                            <div class="p-2 bg-red-950/40 border border-red-900/50 rounded text-red-300">
+                                <i class="fa-solid fa-circle-exclamation mr-1"></i> Bạo động nguy cơ bùng phát nếu Dân tâm rơi xuống <30%.
+                            </div>
+                            <div class="p-2 bg-amber-950/40 border border-amber-900/50 rounded text-amber-300">
+                                <i class="fa-solid fa-triangle-exclamation mr-1"></i> Lạm phát ổn định ở mức an toàn.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Activity Event Log -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> BÁO CÁO NHẬT KÝ THÁNG GẦN NHẤT
+                    </h2>
+                    <div id="eventLog" class="h-48 overflow-y-auto space-y-1.5 text-xs font-mono bg-slate-900/80 p-3 rounded border border-slate-800">
+                        <p class="text-cyan-400">[01/2026] Nhiệm kỳ Tổng thống chính thức bắt đầu. Chúc Ngài thành công cai trị!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="economyTab" class="tab-content hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Tax Controls -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders"></i> THIẾT LẬP MỨC THUẾ HÀNG THÁNG
+                        </h2>
+                        <div class="space-y-4 text-xs">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Thuế Thu nhập Cá nhân (TNCN)</span>
+                                    <span id="taxPersonalVal" class="font-bold font-mono text-emerald-400">15%</span>
+                                </div>
+                                <input type="range" id="taxPersonal" min="0" max="60" value="15" oninput="updateTaxDisplay()" class="w-full accent-emerald-500">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Thuế Doanh nghiệp</span>
+                                    <span id="taxCorporateVal" class="font-bold font-mono text-emerald-400">20%</span>
+                                </div>
+                                <input type="range" id="taxCorporate" min="0" max="60" value="20" oninput="updateTaxDisplay()" class="w-full accent-emerald-500">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Thuế Giá trị Gia tăng (VAT)</span>
+                                    <span id="taxVatVal" class="font-bold font-mono text-emerald-400">10%</span>
+                                </div>
+                                <input type="range" id="taxVat" min="0" max="40" value="10" oninput="updateTaxDisplay()" class="w-full accent-emerald-500">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Thuế Nhập khẩu</span>
+                                    <span id="taxImportVal" class="font-bold font-mono text-emerald-400">5%</span>
+                                </div>
+                                <input type="range" id="taxImport" min="0" max="50" value="5" oninput="updateTaxDisplay()" class="w-full accent-emerald-500">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Lãi suất Ngân hàng Trung ương</span>
+                                    <span id="interestRateVal" class="font-bold font-mono text-amber-400">4.5%</span>
+                                </div>
+                                <input type="range" id="interestRate" min="0" max="25" step="0.5" value="4.5" oninput="updateTaxDisplay()" class="w-full accent-amber-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trade Market -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-right-left"></i> SÀN GIAO DỊCH TÀI NGUYÊN QUỐC TẾ
+                        </h2>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-slate-900 rounded border border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <p class="font-bold text-slate-200">Dầu mỏ ($80 / Thùng)</p>
+                                    <p class="text-slate-500 text-[11px]">Cần thiết cho Quân sự & Công nghiệp</p>
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick="tradeResource('oil', 10, 'buy')" class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 rounded font-bold">Mua 10M</button>
+                                    <button onclick="tradeResource('oil', 10, 'sell')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-300">Bán 10M</button>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded border border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <p class="font-bold text-slate-200">Vi mạch Chip ($150 / Đơn vị)</p>
+                                    <p class="text-slate-500 text-[11px]">Tăng trưởng GDP & Vũ khí cao cấp</p>
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick="tradeResource('chips', 5, 'buy')" class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 rounded font-bold">Mua 5M</button>
+                                    <button onclick="tradeResource('chips', 5, 'sell')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-300">Bán 5M</button>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded border border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <p class="font-bold text-slate-200">Lương thực ($30 / Tấn)</p>
+                                    <p class="text-slate-500 text-[11px]">Giảm nguy cơ Bạo động & Tăng Dân tâm</p>
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick="tradeResource('food', 20, 'buy')" class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 rounded font-bold">Mua 20M</button>
+                                    <button onclick="tradeResource('food', 20, 'sell')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-300">Bán 20M</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="militaryTab" class="tab-content hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Recruitment Panel -->
+                    <div class="md:col-span-2 bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <h2 class="text-sm font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                            <span><i class="fa-solid fa-person-military-rifle"></i> MUA SẮM & TUYỂN QUÂN</span>
+                            <span class="text-xs font-normal text-slate-400">Chi phí duy trì quân sự: <b id="militaryUpkeep" class="text-amber-400">$1.2 Tỷ/tháng</b></span>
+                        </h2>
+                        <div id="militaryUnitList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <!-- JS Generated military units -->
+                        </div>
+                    </div>
+
+                    <!-- War & Nuclear Operations -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-skull-crossbones"></i> HÀNH ĐỘNG CHIẾN TRANH
+                            </h2>
+                            <div class="space-y-3 text-xs">
+                                <div>
+                                    <label class="block text-slate-400 mb-1">Mục tiêu Quốc gia:</label>
+                                    <select id="warTargetSelect" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white">
+                                        <!-- JS options -->
+                                    </select>
+                                </div>
+                                <button onclick="executeMilitaryAction('ground')" class="w-full py-2 bg-red-900/80 hover:bg-red-800 border border-red-700 rounded font-bold text-red-200">
+                                    <i class="fa-solid fa-person-military-pointing mr-1"></i> ĐẤNH BỘ (GROUND SIEGE)
+                                </button>
+                                <button onclick="executeMilitaryAction('airstrike')" class="w-full py-2 bg-orange-900/80 hover:bg-orange-800 border border-orange-700 rounded font-bold text-orange-200">
+                                    <i class="fa-solid fa-plane-slash mr-1"></i> KHÔNG KÍCH TẬP KÍCH
+                                </button>
+                                <button onclick="executeMilitaryAction('blockade')" class="w-full py-2 bg-blue-900/80 hover:bg-blue-800 border border-blue-700 rounded font-bold text-blue-200">
+                                    <i class="fa-solid fa-anchor-lock mr-1"></i> PHONG TỎA HÀNG HẢI
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-slate-800">
+                            <h3 class="text-xs font-bold text-yellow-400 uppercase mb-2 flex items-center gap-1">
+                                <i class="fa-solid fa-radiation text-yellow-400"></i> PHÓNG TÊN LỬA HẠT NHÂN ICBM
+                            </h3>
+                            <button onclick="executeNuclearStrike()" class="w-full py-2.5 bg-gradient-to-r from-red-700 to-yellow-600 hover:from-red-600 hover:to-yellow-500 font-black rounded text-white shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                                OANH TẠC HẠT NHÂN ĐỐI PHƯƠNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="lawAiTab" class="tab-content hidden space-y-4">
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-sm font-bold text-yellow-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-scroll"></i> BAN HÀNH SẮC LỆNH / BỘ LUẬT TỰ DO
+                        </h2>
+                        <span class="text-xs text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-800">
+                            Trạng thái AI: <span id="aiStatusText" class="text-emerald-400 font-bold">Fallback Engine Nội bộ</span>
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">
+                        Soạn thảo bất kỳ sắc lệnh hoặc đạo luật nào bằng tiếng Việt tự do. Hệ thống Gemini AI (hoặc Smart Fallback Engine) sẽ tự động phân tích và tính toán tác động trực tiếp lên Kinh tế, Tội phạm, Dân tâm và Quan hệ Quốc tế.
+                    </p>
+                    <textarea id="lawInputText" rows="4" placeholder="Ví dụ: Ban hành sắc lệnh giảm thuế 5% cho doanh nghiệp công nghệ vi mạch bán dẫn và miễn viện phí toàn dân..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:border-cyan-500 outline-none mb-3 font-sans"></textarea>
+                    
+                    <button onclick="evaluateAndEnactLaw()" class="px-6 py-2.5 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-slate-950 font-black rounded-lg text-xs shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> PHÂN TÍCH & KÝ SẮC LỆNH
+                    </button>
+                </div>
+
+                <!-- Last Decree Result Card -->
+                <div id="lawResultCard" class="hidden bg-slate-950 border border-cyan-800/60 rounded-xl p-4">
+                    <h3 class="text-xs font-bold text-cyan-400 uppercase mb-2">ĐÁNH GIÁ TÁC ĐỘNG CỦA GEMINI AI:</h3>
+                    <p id="lawAiSummary" class="text-xs text-slate-300 italic mb-3 bg-slate-900 p-2.5 rounded border border-slate-800"></p>
+                    <div id="lawImpactTags" class="flex flex-wrap gap-2 text-xs">
+                        <!-- Dynamic Impact Badges -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="aiAdvisorTab" class="tab-content hidden space-y-4">
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col h-[520px]">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                        <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-brain"></i> TRỢ LÝ CỐ VẤN TỔNG THỐNG (GEMINI BOT)
+                        </h2>
+                        <span class="text-xs text-slate-400">Trực ban 24/7</span>
+                    </div>
+
+                    <!-- Chat Message Area -->
+                    <div id="advisorChatBox" class="flex-1 overflow-y-auto space-y-3 p-2 bg-slate-900/60 rounded border border-slate-800 text-xs mb-3">
+                        <div class="bg-cyan-950/60 border border-cyan-800/40 p-3 rounded-lg text-cyan-200">
+                            <b>[Cố vấn Trưởng]:</b> Thưa Ngài Tổng thống, tôi là Trợ lý AI chiến lược. Ngài cần tôi tham mưu về Kinh tế, Bầu cử, hay Đội ngũ Quân sự ngay lúc này?
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="flex gap-2">
+                        <input type="text" id="advisorInput" placeholder="Hỏi cố vấn chiến lược... (Ví dụ: Làm sao để tăng Dân tâm trước bầu cử?)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 outline-none focus:border-cyan-500" onkeypress="if(event.key==='Enter') sendAdvisorMessage()">
+                        <button onclick="sendAdvisorMessage()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold rounded-lg text-xs">
+                            GỬI HỎI
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="diplomacyTab" class="tab-content hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Global Nations Table -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-globe"></i> QUAN HỆ QUỐC TẾ (60+ NƯỚC)
+                        </h2>
+                        <div class="h-80 overflow-y-auto space-y-2 text-xs">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-900 text-slate-400 sticky top-0">
+                                    <tr>
+                                        <th class="p-2">Quốc gia</th>
+                                        <th class="p-2">Thái độ</th>
+                                        <th class="p-2">Sức mạnh QĐ</th>
+                                        <th class="p-2">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="diplomacyTableBody" class="divide-y divide-slate-800">
+                                    <!-- JS Generated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- UN Security Council -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-building-columns"></i> HỘI ĐỒNG BẢO AN LIÊN HỢP QUỐC
+                        </h2>
+                        <div class="space-y-3 text-xs">
+                            <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                                <p class="font-bold text-slate-200">Thành viên P5 có quyền PHỦ QUYẾT (VETO):</p>
+                                <p class="text-slate-400 mt-1">🇺🇸 Mỹ, 🇷🇺 Nga, 🇨🇳 Trung Quốc, 🇬🇧 Anh, 🇫🇷 Pháp</p>
+                            </div>
+                            <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                                <p class="font-bold text-amber-300">Nghị quyết UN hiện tại:</p>
+                                <p id="unResolutionText" class="text-slate-300 mt-1">Áp đặt cấm vận thương mại lên các quốc gia sở hữu trên 50 đầu đạn hạt nhân.</p>
+                                <div class="flex gap-2 mt-3">
+                                    <button onclick="voteUNResolution(true)" class="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-600 rounded font-bold">BỎ PHIẾU THUẬN</button>
+                                    <button onclick="voteUNResolution(false)" class="flex-1 py-1.5 bg-red-800 hover:bg-red-700 rounded font-bold">BỎ PHIẾU CHỐNG</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="intelCabinetTab" class="tab-content hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Cabinet Management -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <h2 class="text-sm font-bold text-purple-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-user-tie"></i> BỔ NHIỆM CHÍNH PHỦ NỘI CÁC
+                        </h2>
+                        <div class="space-y-3 text-xs">
+                            <div class="bg-slate-900 p-2.5 rounded border border-slate-800 flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-slate-200">Bộ trưởng Quốc phòng</p>
+                                    <p class="text-slate-400 text-[11px]">+10% Sức mạnh QĐ & Giảm Upkeep</p>
+                                </div>
+                                <button onclick="hireCabinetMember('defense')" class="px-3 py-1 bg-purple-800 hover:bg-purple-700 rounded font-bold">Bổ nhiệm ($50M)</button>
+                            </div>
+                            <div class="bg-slate-900 p-2.5 rounded border border-slate-800 flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-slate-200">Bộ trưởng Tài chính</p>
+                                    <p class="text-slate-400 text-[11px]">+5% Doanh thu Thuế & Giảm Lạm phát</p>
+                                </div>
+                                <button onclick="hireCabinetMember('finance')" class="px-3 py-1 bg-purple-800 hover:bg-purple-700 rounded font-bold">Bổ nhiệm ($50M)</button>
+                            </div>
+                            <div class="bg-slate-900 p-2.5 rounded border border-slate-800 flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-slate-200">Giám đốc Cơ quan Tình báo</p>
+                                    <p class="text-slate-400 text-[11px]">Tăng tỷ lệ thành công Tấn công mạng & Ám sát</p>
+                                </div>
+                                <button onclick="hireCabinetMember('intel')" class="px-3 py-1 bg-purple-800 hover:bg-purple-700 rounded font-bold">Bổ nhiệm ($50M)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Covert Intelligence Operations -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <h2 class="text-sm font-bold text-pink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-user-ninja"></i> TÌNH BÁO & HOẠT ĐỘNG MẬT
+                        </h2>
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="block text-slate-400 mb-1">Mục tiêu Tình báo:</label>
+                                <select id="intelTargetSelect" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white"></select>
+                            </div>
+                            <button onclick="executeIntelOp('cyber')" class="w-full py-2 bg-slate-900 hover:bg-slate-800 border border-pink-900/60 rounded font-bold text-pink-300">
+                                <i class="fa-solid fa-laptop-code mr-1"></i> TẤN CÔNG MẠNG HẠ TẦNG QUỐC GIA
+                            </button>
+                            <button onclick="executeIntelOp('assassinate')" class="w-full py-2 bg-slate-900 hover:bg-slate-800 border border-pink-900/60 rounded font-bold text-pink-300">
+                                <i class="fa-solid fa-crosshair mr-1"></i> ÁM SÁT LÃNH ĐẠO ĐỐI PHƯƠNG
+                            </button>
+                            <button onclick="executeIntelOp('coup')" class="w-full py-2 bg-slate-900 hover:bg-slate-800 border border-pink-900/60 rounded font-bold text-pink-300">
+                                <i class="fa-solid fa-masks-theater mr-1"></i> KÍCH ĐỘNG ĐẢO CHÍNH NGẦM
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="electionsTab" class="tab-content hidden space-y-4">
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                    <h2 class="text-sm font-bold text-pink-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-check-to-slot"></i> TÌNH HÌNH CHÍNH TRỊ NỘI ĐỊA & BẦU CỬ
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                            <p class="font-bold text-slate-200 mb-2">Đếm ngược Nhiệm kỳ:</p>
+                            <div class="text-2xl font-black text-pink-400 font-mono mb-2" id="electionCountdownBig">24 Tháng</div>
+                            <p class="text-slate-400">Điều kiện đắc cử: Dân tâm tối thiểu <b>50%</b> vào tháng bầu cử.</p>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-800 space-y-2">
+                            <p class="font-bold text-slate-200">Chiến dịch Vận động Chính trị:</p>
+                            <button onclick="runCampaign('media')" class="w-full py-2 bg-slate-800 hover:bg-slate-700 rounded font-bold text-cyan-300">
+                                Bơm ngân sách Truyền thông ($100M) -> +5% Dân tâm
+                            </button>
+                            <button onclick="runCampaign('cheat')" class="w-full py-2 bg-slate-800 hover:bg-slate-700 rounded font-bold text-amber-300">
+                                Gian lận Bầu cử Mật ($300M) -> +15% Dân tâm (Rủi ro bạo động)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-950 border border-cyan-800/80 rounded-2xl w-full max-w-md p-5 shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-cyan-400 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> CÀI ĐẶT & LƯU GAME
+                </h3>
+                <button onclick="closeModal('settingsModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <!-- Gemini API Key Input -->
+                <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                    <label class="block font-bold text-slate-200 mb-1">Mã Gemini API Key:</label>
+                    <input type="password" id="geminiApiKeyInput" placeholder="Dán Gemini API Key vào đây..." class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-white text-xs outline-none focus:border-cyan-500 mb-2">
+                    <p class="text-[11px] text-slate-400">Nếu để trống, game sẽ dùng thuật toán AI Fallback Engine nội bộ.</p>
+                </div>
+
+                <!-- Save / Load Actions -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="saveGameLocalStorage()" class="py-2.5 bg-emerald-700 hover:bg-emerald-600 rounded font-bold text-white">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> Lưu vào Trình duyệt
+                    </button>
+                    <button onclick="loadGameLocalStorage()" class="py-2.5 bg-cyan-700 hover:bg-cyan-600 rounded font-bold text-white">
+                        <i class="fa-solid fa-folder-open mr-1"></i> Tải từ Trình duyệt
+                    </button>
+                    <button onclick="exportSaveJSON()" class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded font-bold text-slate-200">
+                        <i class="fa-solid fa-file-export mr-1"></i> Xuất File JSON
+                    </button>
+                    <label class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded font-bold text-slate-200 text-center cursor-pointer">
+                        <i class="fa-solid fa-file-import mr-1"></i> Nhập File JSON
+                        <input type="file" id="importJsonInput" accept=".json" class="hidden" onchange="importSaveJSON(event)">
+                    </label>
+                </div>
+
+                <button onclick="resetNewGame()" class="w-full py-2 bg-red-950 hover:bg-red-900 text-red-300 font-bold rounded border border-red-800/80">
+                    BẮT ĐẦU VÁN MỚI
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const NATIONS = [
+            { id: 'vn', name: 'Việt Nam', flag: '🇻🇳', pop: 98.5, gdp: 430.5, budget: 45.2, mil: 450000, nukes: 0, p5: false, attitude: 'Đồng minh' },
+            { id: 'us', name: 'Mỹ', flag: '🇺🇸', pop: 335.0, gdp: 26800.0, budget: 4800.0, mil: 2200000, nukes: 5200, p5: true, attitude: 'Trung lập' },
+            { id: 'cn', name: 'Trung Quốc', flag: '🇨🇳', pop: 1411.0, gdp: 17700.0, budget: 3200.0, mil: 2500000, nukes: 410, p5: true, attitude: 'Đối đầu' },
+            { id: 'ru', name: 'Nga', flag: '🇷🇺', pop: 143.4, gdp: 2200.0, budget: 410.0, mil: 1800000, nukes: 5880, p5: true, attitude: 'Thân thiện' },
+            { id: 'jp', name: 'Nhật Bản', flag: '🇯🇵', pop: 124.5, gdp: 4200.0, budget: 890.0, mil: 300000, nukes: 0, p5: false, attitude: 'Thân thiện' },
+            { id: 'de', name: 'Đức', flag: '🇩🇪', pop: 84.3, gdp: 4000.0, budget: 920.0, mil: 220000, nukes: 0, p5: false, attitude: 'Thân thiện' },
+            { id: 'uk', name: 'Anh', flag: '🇬🇧', pop: 67.0, gdp: 3100.0, budget: 750.0, mil: 280000, nukes: 225, p5: true, attitude: 'Trung lập' },
+            { id: 'fr', name: 'Pháp', flag: '🇫🇷', pop: 68.0, gdp: 2800.0, budget: 710.0, mil: 290000, nukes: 290, p5: true, attitude: 'Trung lập' },
+            { id: 'in', name: 'Ấn Độ', flag: '🇮🇳', pop: 1428.0, gdp: 3700.0, budget: 620.0, mil: 2100000, nukes: 160, p5: false, attitude: 'Thân thiện' },
+            { id: 'kp', name: 'Triều Tiên', flag: '🇰🇵', pop: 26.0, gdp: 40.0, budget: 12.0, mil: 1200000, nukes: 50, p5: false, attitude: 'Căng thẳng' },
+            { id: 'kr', name: 'Hàn Quốc', flag: '🇰🇷', pop: 51.7, gdp: 1700.0, budget: 450.0, mil: 550000, nukes: 0, p5: false, attitude: 'Thân thiện' },
+            { id: 'il', name: 'Israel', flag: '🇮🇱', pop: 9.5, gdp: 520.0, budget: 110.0, mil: 170000, nukes: 90, p5: false, attitude: 'Trung lập' }
+        ];
+
+        const MILITARY_UNITS = [
+            { id: 'infantry', name: 'Sư đoàn Bộ binh', cost: 1.5, upkeep: 0.1, power: 10000 },
+            { id: 'specops', name: 'Lực lượng Đặc nhiệm', cost: 3.0, upkeep: 0.3, power: 25000 },
+            { id: 'tanks', name: 'Lữ đoàn Xe tăng T-90M', cost: 5.0, upkeep: 0.5, power: 45000 },
+            { id: 'stealth', name: 'Tiêm kích Stealth Su-57 / F-35', cost: 12.0, upkeep: 1.2, power: 90000 },
+            { id: 'ironDome', name: 'Vòm sắt Phòng thủ S-400', cost: 15.0, upkeep: 1.0, power: 80000 },
+            { id: 'icbm', name: 'Tên lửa Hạt nhân ICBM', cost: 50.0, upkeep: 5.0, power: 500000 }
+        ];
+
+        let gameState = {
+            month: 1,
+            year: 2026,
+            termRemaining: 24,
+            country: 'vn',
+            pop: 98.5,
+            gdp: 430.5,
+            budget: 45.2,
+            approval: 68,
+            loyalty: 82,
+            crimeRate: 12.4,
+            inflation: 3.2,
+            unemployment: 4.1,
+            milPower: 450000,
+            nukes: 0,
+            taxes: { personal: 15, corporate: 20, vat: 10, import: 5, interest: 4.5 },
+            resources: { oil: 120.0, chips: 45.0, food: 350.0, rareEarth: 15.2 },
+            unitsOwned: { infantry: 10, specops: 4, tanks: 2, stealth: 1, ironDome: 1, icbm: 0 },
+            cabinet: { defense: false, finance: false, intel: false },
+            apiKey: ''
+        };
+
+        window.onload = function() {
+            renderMilitaryUnits();
+            renderDiplomacyTable();
+            populateCountrySelects();
+            updateUI();
+            logEvent("Trò chơi sẵn sàng. Chào mừng Ngài Tổng thống!");
+        };
+
+        function updateUI() {
+            document.getElementById('gameDate').innerText = `Tháng ${gameState.month < 10 ? '0' + gameState.month : gameState.month}/${gameState.year}`;
+            document.getElementById('termCountdown').innerText = `Còn ${gameState.termRemaining} tháng đến Bầu cử`;
+            document.getElementById('electionCountdownBig').innerText = `${gameState.termRemaining} Tháng`;
+            
+            document.getElementById('statPopulation').innerText = `${gameState.pop.toFixed(1)} Tr người`;
+            document.getElementById('statGDP').innerText = `$${gameState.gdp.toFixed(1)} Tỷ`;
+            document.getElementById('statBudget').innerText = `$${gameState.budget.toFixed(1)} Tỷ`;
+            document.getElementById('statApproval').innerText = `${Math.round(gameState.approval)}%`;
+            document.getElementById('statApprovalBar').style.width = `${Math.min(100, Math.max(0, gameState.approval))}%`;
+            document.getElementById('statLoyalty').innerText = `${Math.round(gameState.loyalty)}%`;
+            document.getElementById('statLoyaltyBar').style.width = `${Math.min(100, Math.max(0, gameState.loyalty))}%`;
+            document.getElementById('statMilitaryPower').innerText = `${gameState.milPower.toLocaleString()} pts`;
+            document.getElementById('statNukes').innerText = `${gameState.unitsOwned.icbm} Đầu đạn`;
+
+            // Economy Overview
+            document.getElementById('overviewCrimeRate').innerText = `${gameState.crimeRate.toFixed(1)}%`;
+            document.getElementById('overviewInflation').innerText = `${gameState.inflation.toFixed(1)}%`;
+            document.getElementById('overviewUnemployment').innerText = `${gameState.unemployment.toFixed(1)}%`;
+
+            // Resources
+            document.getElementById('resOil').innerText = `${gameState.resources.oil.toFixed(1)}M Thùng`;
+            document.getElementById('resChips').innerText = `${gameState.resources.chips.toFixed(1)}M Đơn vị`;
+            document.getElementById('resFood').innerText = `${gameState.resources.food.toFixed(1)}M Tấn`;
+            document.getElementById('resRareEarth').innerText = `${gameState.resources.rareEarth.toFixed(1)}M Tấn`;
+
+            // Recalculate Upkeep
+            let totalUpkeep = 0;
+            MILITARY_UNITS.forEach(u => {
+                totalUpkeep += (gameState.unitsOwned[u.id] || 0) * u.upkeep;
+            });
+            document.getElementById('militaryUpkeep').innerText = `$${totalUpkeep.toFixed(1)} Tỷ/tháng`;
+        }
+
+        function nextTurn() {
+            gameState.month++;
+            if (gameState.month > 12) {
+                gameState.month = 1;
+                gameState.year++;
+            }
+            gameState.termRemaining--;
+
+            // Revenue & Expenditure Calculations
+            const taxRevenue = (gameState.gdp * (gameState.taxes.personal + gameState.taxes.corporate) / 200);
+            gameState.budget += taxRevenue / 12;
+
+            // Military Upkeep Deduction
+            let upkeep = 0;
+            MILITARY_UNITS.forEach(u => upkeep += (gameState.unitsOwned[u.id] || 0) * u.upkeep);
+            gameState.budget -= upkeep / 12;
+
+            // Natural GDP Growth
+            gameState.gdp += (gameState.gdp * 0.004);
+
+            logEvent(`[Tháng ${gameState.month}/${gameState.year}] Ngân sách thu thuế: +$${(taxRevenue/12).toFixed(2)}B, Chi phí quân sự: -$${(upkeep/12).toFixed(2)}B.`);
+
+            // Check Election Condition
+            if (gameState.termRemaining <= 0) {
+                triggerElection();
+            }
+
+            updateUI();
+        }
+
+        function triggerElection() {
+            if (gameState.approval >= 50) {
+                alert("CHÚC MỪNG! Ngài đã đắc cử thêm một nhiệm kỳ 2 năm (24 tháng) thành công rực rỡ!");
+                gameState.termRemaining = 24;
+            } else {
+                alert("GAME OVER! Tỷ lệ Dân tâm dưới 50%. Ngài đã thất bại trong cuộc Bầu cử và phải rời khỏi ghế Tổng thống!");
+                resetNewGame();
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active-tab', 'text-cyan-400', 'border-cyan-500'));
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active-tab', 'text-cyan-400', 'border-cyan-500');
+            }
+        }
+
+        function logEvent(msg) {
+            const logBox = document.getElementById('eventLog');
+            const p = document.createElement('p');
+            p.innerText = msg;
+            logBox.prepend(p);
+            
+            document.getElementById('newsTicker').innerText = msg;
+        }
+
+        function updateTaxDisplay() {
+            gameState.taxes.personal = parseFloat(document.getElementById('taxPersonal').value);
+            gameState.taxes.corporate = parseFloat(document.getElementById('taxCorporate').value);
+            gameState.taxes.vat = parseFloat(document.getElementById('taxVat').value);
+            gameState.taxes.import = parseFloat(document.getElementById('taxImport').value);
+            gameState.taxes.interest = parseFloat(document.getElementById('interestRate').value);
+
+            document.getElementById('taxPersonalVal').innerText = `${gameState.taxes.personal}%`;
+            document.getElementById('taxCorporateVal').innerText = `${gameState.taxes.corporate}%`;
+            document.getElementById('taxVatVal').innerText = `${gameState.taxes.vat}%`;
+            document.getElementById('taxImportVal').innerText = `${gameState.taxes.import}%`;
+            document.getElementById('interestRateVal').innerText = `${gameState.taxes.interest}%`;
+        }
+
+        function renderMilitaryUnits() {
+            const container = document.getElementById('militaryUnitList');
+            container.innerHTML = MILITARY_UNITS.map(unit => `
+                <div class="p-3 bg-slate-900 rounded border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-slate-100">${unit.name}</p>
+                        <p class="text-slate-400 text-[11px]">Giá: $${unit.cost}B | Sức mạnh: +${unit.power.toLocaleString()}</p>
+                    </div>
+                    <button onclick="buyMilitaryUnit('${unit.id}')" class="px-3 py-1.5 bg-red-800 hover:bg-red-700 font-bold rounded text-white">Mua</button>
+                </div>
+            `).join('');
+        }
+
+        function buyMilitaryUnit(unitId) {
+            const unit = MILITARY_UNITS.find(u => u.id === unitId);
+            if (gameState.budget >= unit.cost) {
+                gameState.budget -= unit.cost;
+                gameState.unitsOwned[unitId] = (gameState.unitsOwned[unitId] || 0) + 1;
+                gameState.milPower += unit.power;
+                logEvent(`Đã mua thêm 1 đơn vị ${unit.name}. Sức mạnh gia tăng +${unit.power.toLocaleString()} pts.`);
+                updateUI();
+            } else {
+                alert("Ngân sách không đủ để mua đơn vị quân sự này!");
+            }
+        }
+
+        function tradeResource(res, amount, type) {
+            const prices = { oil: 80, chips: 150, food: 30, rareEarth: 200 };
+            const cost = (amount * prices[res]) / 1000; // In Billions
+
+            if (type === 'buy') {
+                if (gameState.budget >= cost) {
+                    gameState.budget -= cost;
+                    gameState.resources[res] += amount;
+                    logEvent(`Đã mua ${amount}M đơn vị ${res} với giá $${cost.toFixed(2)}B.`);
+                } else alert("Không đủ tiền ngân sách!");
+            } else {
+                if (gameState.resources[res] >= amount) {
+                    gameState.resources[res] -= amount;
+                    gameState.budget += cost;
+                    logEvent(`Đã bán ${amount}M đơn vị ${res} thu về $${cost.toFixed(2)}B.`);
+                } else alert("Kho tài nguyên không đủ!");
+            }
+            updateUI();
+        }
+
+        async function evaluateAndEnactLaw() {
+            const text = document.getElementById('lawInputText').value.trim();
+            if (!text) return alert("Vui lòng nhập nội dung luật!");
+
+            logEvent(`Đang phân tích và ban hành Sắc lệnh mới...`);
+            
+            // Internal Fallback AI Rules Engine
+            let approvalChange = 0;
+            let crimeChange = 0;
+            let gdpChange = 0;
+
+            if (text.includes("giảm thuế") || text.includes("miễn thuế")) { approvalChange += 5; gdpChange += 10; }
+            if (text.includes("tăng thuế")) { approvalChange -= 8; }
+            if (text.includes("viện phí") || text.includes("an sinh")) { approvalChange += 10; }
+            if (text.includes("cảnh sát") || text.includes("trừng trị")) { crimeChange -= 3; }
+
+            gameState.approval = Math.min(100, Math.max(0, gameState.approval + approvalChange));
+            gameState.crimeRate = Math.max(0, gameState.crimeRate + crimeChange);
+            gameState.gdp += gdpChange;
+
+            document.getElementById('lawResultCard').classList.remove('hidden');
+            document.getElementById('lawAiSummary').innerText = `Sắc lệnh: "${text}" đã được đăng công báo toàn quốc. Dân chúng có những phản ứng ngay lập tức đối với sắc lệnh này.`;
+            document.getElementById('lawImpactTags').innerHTML = `
+                <span class="px-2 py-1 bg-pink-950 text-pink-300 rounded border border-pink-800">Dân tâm: ${approvalChange >= 0 ? '+' : ''}${approvalChange}%</span>
+                <span class="px-2 py-1 bg-emerald-950 text-emerald-300 rounded border border-emerald-800">GDP: +$${gdpChange}B</span>
+            `;
+
+            document.getElementById('lawInputText').value = '';
+            updateUI();
+        }
+
+        function sendAdvisorMessage() {
+            const input = document.getElementById('advisorInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBox = document.getElementById('advisorChatBox');
+            chatBox.innerHTML += `<div class="bg-slate-800 p-2.5 rounded-lg text-slate-200"><b>Ngài Tổng thống:</b> ${msg}</div>`;
+
+            // Fallback Response Logic
+            setTimeout(() => {
+                let response = "Thưa Ngài, chiến lược tốt nhất lúc này là cân bằng Ngân sách và duy trì Dân tâm trên 50% để bảo đảm đắc cử nhiệm kỳ tới.";
+                if (msg.includes("bầu cử")) response = "Để chuẩn bị bầu cử, Ngài nên bơm ngân sách Truyền thông hoặc ban hành sắc lệnh Giảm thuế để lấy lòng cử tri!";
+                if (msg.includes("quân sự") || msg.includes("chiến tranh")) response = "Lực lượng quốc phòng của chúng ta cần được bổ sung thêm Tiêm kích Stealth và Vòm sắt S-400 trước khi tham chiến!";
+                
+                chatBox.innerHTML += `<div class="bg-cyan-950/60 border border-cyan-800/40 p-2.5 rounded-lg text-cyan-200"><b>[Cố vấn Trưởng]:</b> ${response}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 600);
+
+            input.value = '';
+        }
+
+        function renderDiplomacyTable() {
+            const tbody = document.getElementById('diplomacyTableBody');
+            tbody.innerHTML = NATIONS.map(n => `
+                <tr class="hover:bg-slate-900/50">
+                    <td class="p-2 flex items-center gap-2"><span>${n.flag}</span> <span class="font-bold">${n.name}</span></td>
+                    <td class="p-2 text-cyan-300">${n.attitude}</td>
+                    <td class="p-2 font-mono">${(n.mil/1000).toFixed(0)}k</td>
+                    <td class="p-2">
+                        <button onclick="interactNation('${n.id}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-[11px]">Đàm phán</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function populateCountrySelects() {
+            const targets = NATIONS.filter(n => n.id !== 'vn');
+            const optionsHtml = targets.map(n => `<option value="${n.id}">${n.flag} ${n.name}</option>`).join('');
+            document.getElementById('warTargetSelect').innerHTML = optionsHtml;
+            document.getElementById('intelTargetSelect').innerHTML = optionsHtml;
+        }
+
+        function executeMilitaryAction(type) {
+            const targetId = document.getElementById('warTargetSelect').value;
+            const target = NATIONS.find(n => n.id === targetId);
+            logEvent(`Đã triển khai hành động chiến tranh [${type.toUpperCase()}] lên ${target.name}!`);
+            alert(`Lực lượng quân sự đã mở cuộc tập kích đối với ${target.name}.`);
+        }
+
+        function executeNuclearStrike() {
+            if (gameState.unitsOwned.icbm <= 0) return alert("Bạn chưa sở hữu Đầu đạn Hạt nhân ICBM nào!");
+            if (confirm("CẢNH BÁO NGUY HIỂM: Phóng Tên lửa Hạt nhân có thể dẫn đến Chiến tranh Hạt nhân Toàn cầu. Bạn có chắc chắn không?")) {
+                gameState.unitsOwned.icbm--;
+                alert("TÊN LỬA HẠT NHÂN ĐÃ ĐƯỢC PHÓNG! Mục tiêu đã bị tiêu diệt hoàn toàn.");
+                logEvent("TẬP KÍCH HẠT NHÂN TÀN PHỐI ĐÃ ĐƯỢC KÍCH HOẠT!");
+                updateUI();
+            }
+        }
+
+        function runCampaign(type) {
+            if (type === 'media' && gameState.budget >= 0.1) {
+                gameState.budget -= 0.1;
+                gameState.approval = Math.min(100, gameState.approval + 5);
+                logEvent("Chiến dịch Truyền thông thành công. Dân tâm +5%.");
+            } else if (type === 'cheat' && gameState.budget >= 0.3) {
+                gameState.budget -= 0.3;
+                gameState.approval = Math.min(100, gameState.approval + 15);
+                logEvent("Gian lận bầu cử thành công! Dân tâm +15%.");
+            } else alert("Ngân sách không đủ!");
+            updateUI();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function saveGameLocalStorage() {
+            localStorage.setItem('PRESIDENT_SIM_2026', JSON.stringify(gameState));
+            alert("Đã lưu tiến trình game vào LocalStorage!");
+        }
+
+        function loadGameLocalStorage() {
+            const saved = localStorage.getItem('PRESIDENT_SIM_2026');
+            if (saved) {
+                gameState = JSON.parse(saved);
+                updateUI();
+                alert("Tải game thành công!");
+            } else alert("Không tìm thấy bản lưu nào!");
+        }
+
+        function exportSaveJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gameState));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `President_Simulator_Save_${Date.now()}.json`);
+            dlAnchor.click();
+        }
+
+        function importSaveJSON(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                gameState = JSON.parse(e.target.result);
+                updateUI();
+                alert("Nhập File Save thành công!");
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        function resetNewGame() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
