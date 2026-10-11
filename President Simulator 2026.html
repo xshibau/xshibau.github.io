@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRESIDENT SIMULATOR 2026: GLOBAL HEGEMONY</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0a0e17',
+                            card: '#121824',
+                            accent: '#3b82f6',
+                            danger: '#ef4444',
+                            warning: '#f59e0b',
+                            success: '#10b981',
+                            neon: '#00f0ff'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #06090e;
+            color: #e2e8f0;
+            user-select: none;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d131f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+        }
+        .glow-red {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+        .neon-border {
+            border: 1px solid rgba(0, 240, 255, 0.3);
+        }
+        .modal-blur {
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- MAIN GAME WRAPPER -->
+    <div id="app" class="flex-1 flex flex-col max-w-7xl w-full mx-auto p-2 sm:p-4">
+
+        <!-- HEADER BANNER -->
+        <header class="bg-brand-card rounded-2xl p-3 sm:p-4 mb-4 border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 shadow-2xl">
+            <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+                <div class="flex items-center space-x-3">
+                    <span id="player-flag" class="text-3xl sm:text-4xl">🇻🇳</span>
+                    <div>
+                        <h1 id="player-country-name" class="font-display font-black text-lg sm:text-xl text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400 uppercase tracking-wider">Việt Nam</h1>
+                        <p class="text-xs text-slate-400 flex items-center gap-1">
+                            <i class="fa-solid font-bold fa-user-shield text-blue-400"></i> Tổng Thống: <span id="player-title-name" class="text-white font-semibold">Ngài Tổng Thống</span>
+                        </p>
+                    </div>
+                </div>
+                <button onclick="openApiModal()" class="md:hidden text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-700 text-cyan-400 flex items-center gap-1">
+                    <i class="fa-solid fa-key"></i> API
+                </button>
+            </div>
+
+            <!-- Global Status Bar -->
+            <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 sm:gap-6 w-full md:w-auto bg-slate-900/80 p-2.5 rounded-xl border border-slate-800/80 text-xs sm:text-sm">
+                <div class="text-center">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Thời Gian</span>
+                    <span id="game-time-display" class="font-display font-bold text-amber-400">Tháng 1 / Năm 1</span>
+                </div>
+                <div class="h-6 w-px bg-slate-800"></div>
+                <div class="text-center">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Nhiệm Kỳ (2 Năm)</span>
+                    <span id="term-progress-display" class="font-display font-bold text-cyan-400">1 / 24 Tháng</span>
+                </div>
+                <div class="h-6 w-px bg-slate-800"></div>
+                <div class="text-center">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Tình Trạng LHQ</span>
+                    <span id="un-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Hòa Bình</span>
+                </div>
+                <button onclick="openApiModal()" class="hidden md:flex text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 text-cyan-400 items-center gap-1.5 transition">
+                    <i class="fa-solid fa-key"></i> Gemini API Key
+                </button>
+                <button id="next-turn-btn" onclick="nextTurn()" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold px-4 py-2 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+                    <span>SANG THÁNG MỚI</span> <i class="fa-solid fa-forward"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- CORE STATS GRID -->
+        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4 mb-4">
+            <!-- Approval Rate -->
+            <div class="bg-brand-card p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-1">
+                    <span>ĐỘ HÀI LÒNG DÂN</span>
+                    <i class="fa-solid fa-heart-pulse text-red-400"></i>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="stat-approval" class="font-display font-black text-xl sm:text-2xl text-emerald-400">65%</span>
+                    <span id="approval-change" class="text-[10px] text-emerald-400">+0%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div id="stat-approval-bar" class="bg-emerald-500 h-full rounded-full" style="width: 65%"></div>
+                </div>
+            </div>
+
+            <!-- Treasury / Budget -->
+            <div class="bg-brand-card p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-1">
+                    <span>NGÂN SÁCH (USD)</span>
+                    <i class="fa-solid fa-vault text-amber-400"></i>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="stat-budget" class="font-display font-black text-lg sm:text-xl text-amber-400">$120B</span>
+                    <span id="budget-change" class="text-[10px] text-emerald-400">+$2B</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1">Thuế: <span id="stat-tax-rate" class="text-white font-bold">15%</span> | Thu nhập/tháng</p>
+            </div>
+
+            <!-- Crime Rate -->
+            <div class="bg-brand-card p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-1">
+                    <span>TỘI PHẠM</span>
+                    <i class="fa-solid fa-handcuffs text-purple-400"></i>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="stat-crime" class="font-display font-black text-xl sm:text-2xl text-purple-400">18%</span>
+                    <span id="crime-change" class="text-[10px] text-emerald-400">-0%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div id="stat-crime-bar" class="bg-purple-500 h-full rounded-full" style="width: 18%"></div>
+                </div>
+            </div>
+
+            <!-- GDP / Economy -->
+            <div class="bg-brand-card p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-1">
+                    <span>GDP (KINH TẾ)</span>
+                    <i class="fa-solid fa-chart-line text-blue-400"></i>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="stat-gdp" class="font-display font-black text-lg sm:text-xl text-blue-400">$430B</span>
+                    <span id="gdp-growth" class="text-[10px] text-emerald-400">+5.2%</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1">Dân số: <span id="stat-population" class="text-white font-bold">98M</span></p>
+            </div>
+
+            <!-- Military Power -->
+            <div class="bg-brand-card p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-1">
+                    <span>SỨC MẠNH QUÂN SỰ</span>
+                    <i class="fa-solid fa-jet-fighter text-red-400"></i>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="stat-military-power" class="font-display font-black text-xl sm:text-2xl text-red-400">45,000</span>
+                    <span class="text-[10px] text-slate-400">Điểm</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1">Hạt nhân: <span id="stat-nuke-count" class="text-red-400 font-bold">0</span> quả</p>
+            </div>
+
+            <!-- Global Reputation -->
+            <div class="bg-brand-card p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-1">
+                    <span>UY TÍN QUỐC TẾ</span>
+                    <i class="fa-solid fa-globe text-cyan-400"></i>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="stat-reputation" class="font-display font-black text-xl sm:text-2xl text-cyan-400">80/100</span>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div id="stat-reputation-bar" class="bg-cyan-400 h-full rounded-full" style="width: 80%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NAVIGATION TABS -->
+        <nav class="flex overflow-x-auto space-x-2 border-b border-slate-800 pb-2 mb-4 no-scrollbar">
+            <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active bg-slate-800 text-cyan-400 border-cyan-500 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm whitespace-nowrap flex items-center gap-2 border transition">
+                <i class="fa-solid fa-sliders"></i> Tổng Quan Quốc Gia
+            </button>
+            <button onclick="switchTab('laws')" id="tab-laws" class="tab-btn text-slate-400 border-transparent font-medium px-4 py-2.5 rounded-xl text-xs sm:text-sm whitespace-nowrap flex items-center gap-2 border hover:bg-slate-800/50 transition">
+                <i class="fa-solid fa-scale-balanced"></i> Thuế & Đạo Luật (AI)
+            </button>
+            <button onclick="switchTab('military')" id="tab-military" class="tab-btn text-slate-400 border-transparent font-medium px-4 py-2.5 rounded-xl text-xs sm:text-sm whitespace-nowrap flex items-center gap-2 border hover:bg-slate-800/50 transition">
+                <i class="fa-solid fa-person-military-rifle"></i> Quân Sự & Tuyên Chiến
+            </button>
+            <button onclick="switchTab('un')" id="tab-un" class="tab-btn text-slate-400 border-transparent font-medium px-4 py-2.5 rounded-xl text-xs sm:text-sm whitespace-nowrap flex items-center gap-2 border hover:bg-slate-800/50 transition">
+                <i class="fa-solid fa-building-columns"></i> Ngoại Giao & LHQ
+            </button>
+            <button onclick="switchTab('logs')" id="tab-logs" class="tab-btn text-slate-400 border-transparent font-medium px-4 py-2.5 rounded-xl text-xs sm:text-sm whitespace-nowrap flex items-center gap-2 border hover:bg-slate-800/50 transition">
+                <i class="fa-solid fa-clock-rotate-left"></i> Nhật Ký & Sự Kiện
+            </button>
+        </nav>
+
+        <!-- TAB 1: OVERVIEW & NATION MANAGEMENT -->
+        <div id="content-overview" class="tab-content flex-1">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <!-- Main News & Live Events Panel -->
+                <div class="lg:col-span-2 bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-display font-bold text-lg text-white flex items-center gap-2">
+                                <i class="fa-solid fa-newspaper text-cyan-400"></i> BẢN TIN QUỐC GIA & BÁO CÁO
+                            </h2>
+                            <span class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-full animate-pulse flex items-center gap-1">
+                                <i class="fa-solid fa-circle text-[8px]"></i> TRỰC TIẾP
+                            </span>
+                        </div>
+                        <div id="news-feed" class="space-y-3 max-h-[320px] overflow-y-auto pr-2">
+                            <!-- Dynamic News Cards insertion -->
+                        </div>
+                    </div>
+                    <!-- Presidential Advisor Quote -->
+                    <div class="mt-4 p-3 bg-slate-900/90 rounded-xl border border-slate-800/80 flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-600/30 border border-blue-500/40 flex items-center justify-center shrink-0 text-blue-400 font-bold">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-300">Cố Vấn Trưởng Tổng Thống:</h4>
+                            <p id="advisor-tip" class="text-xs text-slate-400 mt-0.5">"Thưa Ngài, tỷ lệ ủng hộ của dân chúng đang ở mức ổn định. Hãy cân nhắc điều chỉnh thuế hợp lý để giữ vững đà phát triển kinh tế."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Election Status & National Indicators -->
+                <div class="bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <h2 class="font-display font-bold text-lg text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-check-to-slot text-amber-400"></i> BẦU CỦ SẮP TỚI
+                        </h2>
+                        
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 mb-4 text-center">
+                            <p class="text-xs text-slate-400 uppercase font-semibold">Dự Báo Kết Quả Bầu Cử</p>
+                            <div class="my-2">
+                                <span id="election-prediction" class="font-display font-black text-3xl text-emerald-400">TÁI ĐẮC CỬ</span>
+                            </div>
+                            <p id="election-prediction-desc" class="text-xs text-slate-400">Dân chúng rất hài lòng với các chính sách hiện tại của Ngài.</p>
+                        </div>
+
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                                <span class="text-slate-400">Số Tháng Còn Lại Nhiệm Kỳ:</span>
+                                <span id="term-months-left" class="font-bold text-white">23 Tháng</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                                <span class="text-slate-400">Chỉ Số Tối Thiểu Để Thắng:</span>
+                                <span class="font-bold text-amber-400">50% Ủng Hộ</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                                <span class="text-slate-400">Tình Trạng An Ninh:</span>
+                                <span id="security-level-badge" class="font-bold text-emerald-400">An Toàn</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="triggerEmergencySpeech()" class="w-full mt-4 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bullhorn"></i> Phát Biểu Trước Quốc Dân
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: TAXATION & AI CUSTOM LAWS -->
+        <div id="content-laws" class="tab-content hidden flex-1">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <!-- Tax Rate Control -->
+                <div class="bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800">
+                    <h2 class="font-display font-bold text-lg text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-percent text-amber-400"></i> ĐIỀU CHỈNH THUẾ QUỐC GIA
+                    </h2>
+                    <p class="text-xs text-slate-400 mb-6">Bạn có thể điều chỉnh mức thuế từ 0% đến 100%. Thuế cao tăng ngân sách nhưng sẽ khiến dân chúng bất mãn cực độ!</p>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                            <span class="text-xs text-slate-400 block mb-1">MỨC THUẾ HIỆN TẠI</span>
+                            <span id="tax-slider-val" class="font-display font-black text-4xl text-amber-400">15%</span>
+                        </div>
+
+                        <input type="range" id="tax-slider" min="0" max="100" value="15" oninput="updateTaxDisplay(this.value)" class="w-full accent-amber-500 cursor-pointer h-2 bg-slate-800 rounded-lg">
+
+                        <div class="flex justify-between text-xs text-slate-500 font-bold">
+                            <span>0% (Miễn thuế)</span>
+                            <span>50% (Rất cao)</span>
+                            <span>100% (Bóc hốt)</span>
+                        </div>
+
+                        <button onclick="applyTaxRate()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Ban Hành Mức Thuế Mới
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AI Custom Law Enactment Panel -->
+                <div class="lg:col-span-2 bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="font-display font-bold text-lg text-white flex items-center gap-2">
+                                <i class="fa-solid fa-robot text-cyan-400"></i> BAN HÀNH ĐẠO LUẬT TÙY CHỈNH (AI GEMINI)
+                            </h2>
+                            <span class="text-[10px] bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded font-mono">POWERED BY GEMINI / INTERNAL AI</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">Gõ bất kỳ đạo luật nào bạn muốn ban hành (VD: "Cấm ra đường sau 10h tối", "Tăng trợ cấp cho người nghèo", "Cấm livestream", "Nâng lương giáo viên"). AI sẽ phân tích tác động trực tiếp lên Tội phạm, Dân tâm và Kinh tế!</p>
+
+                        <div class="space-y-3">
+                            <textarea id="custom-law-input" rows="3" placeholder="Nhập nội dung đạo luật tùy chỉnh của bạn tại đây..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition resize-none"></textarea>
+                            
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                <span class="text-slate-500 font-semibold">Gợi ý nhanh:</span>
+                                <button onclick="setLawPreset('Cấm người dân đi ra đường sau 10 giờ đêm để giảm tội phạm')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">Giờ giới nghiêm 22h</button>
+                                <button onclick="setLawPreset('Miễn phí toàn bộ giáo dục và y tế cho người dân')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">Miễn Y tế & Giáo dục</button>
+                                <button onclick="setLawPreset('Tăng gấp đôi ngân sách cảnh sát và trinh sát hình sự')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">Tăng ngân sách Cảnh sát</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button id="submit-law-btn" onclick="enactCustomLaw()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-gavel"></i> PHÂN TÍCH & BAN HÀNH ĐẠO LUẬT
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Enacted Laws History -->
+            <div class="mt-4 bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800">
+                <h3 class="font-display font-bold text-md text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-scroll text-slate-400"></i> CÁC ĐẠO LUẬT ĐANG CÓ HIỆU LỰC
+                </h3>
+                <div id="enacted-laws-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Dynamic Laws insertion -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: MILITARY & WARfare -->
+        <div id="content-military" class="tab-content hidden flex-1">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <!-- Military Recruitment & Armaments -->
+                <div class="lg:col-span-2 bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800">
+                    <h2 class="font-display font-bold text-lg text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-red-500"></i> MUA SẮM QUÂN TRANG & VŨ KHÍ
+                    </h2>
+                    <p class="text-xs text-slate-400 mb-4">Nâng cấp sức mạnh quân đội để bảo vệ lãnh thổ hoặc chuẩn bị cho các cuộc chinh phạt mở rộng bờ cõi.</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Tanks -->
+                        <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-shield text-amber-500"></i> Xe Tăng Sư Đoàn
+                                </h4>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Sở hữu: <span id="count-tanks" class="text-amber-400 font-bold">150</span> chiếc</p>
+                                <p class="text-[11px] text-slate-500">Giá: $1.0B | +500 Sức mạnh</p>
+                            </div>
+                            <button onclick="buyMilitaryUnit('tanks', 1.0, 500)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-2 rounded-lg border border-slate-700 text-xs font-bold transition">Mua +10</button>
+                        </div>
+
+                        <!-- Fighter Jets -->
+                        <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-jet-fighter text-blue-400"></i> Tiêm Kích Chiến Đấu
+                                </h4>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Sở hữu: <span id="count-jets" class="text-blue-400 font-bold">60</span> chiếc</p>
+                                <p class="text-[11px] text-slate-500">Giá: $2.5B | +1,200 Sức mạnh</p>
+                            </div>
+                            <button onclick="buyMilitaryUnit('jets', 2.5, 1200)" class="bg-slate-800 hover:bg-slate-700 text-blue-400 px-3 py-2 rounded-lg border border-slate-700 text-xs font-bold transition">Mua +5</button>
+                        </div>
+
+                        <!-- Warships -->
+                        <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-ship text-cyan-400"></i> Hạm Đội Tàu Chiến
+                                </h4>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Sở hữu: <span id="count-ships" class="text-cyan-400 font-bold">12</span> chiếc</p>
+                                <p class="text-[11px] text-slate-500">Giá: $5.0B | +3,000 Sức mạnh</p>
+                            </div>
+                            <button onclick="buyMilitaryUnit('ships', 5.0, 3000)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-3 py-2 rounded-lg border border-slate-700 text-xs font-bold transition">Mua +1</button>
+                        </div>
+
+                        <!-- Nuclear Missiles -->
+                        <div class="bg-slate-900 p-3.5 rounded-xl border border-red-900/40 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-sm font-bold text-red-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-radiation text-red-500 animate-spin"></i> Tên Lửa Hạt Nhân
+                                </h4>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Sở hữu: <span id="count-nukes" class="text-red-400 font-bold">0</span> đầu đạn</p>
+                                <p class="text-[11px] text-slate-500">Giá: $20.0B | Răn đe tuyệt đối</p>
+                            </div>
+                            <button onclick="buyMilitaryUnit('nukes', 20.0, 10000)" class="bg-red-950/60 hover:bg-red-900/80 text-red-400 px-3 py-2 rounded-lg border border-red-800 text-xs font-bold transition">Chế Tạo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Declare War & Invasion Console -->
+                <div class="bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <h2 class="font-display font-bold text-lg text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-crosshairs text-red-500"></i> TÂM ĐIỂM CHIẾN TRANH
+                        </h2>
+                        <p class="text-xs text-slate-400 mb-4">Chọn một quốc gia để thực hiện hành động quân sự hoặc phát động chiến tranh.</p>
+
+                        <div class="space-y-3">
+                            <label class="text-xs text-slate-400 font-semibold block">Chọn Mục Tiêu Tuyên Chiến:</label>
+                            <select id="war-target-select" onchange="updateWarTargetInfo()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                                <!-- Dynamic Countries -->
+                            </select>
+
+                            <div id="target-country-card" class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs space-y-1.5">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Sức mạnh quân sự:</span>
+                                    <span id="target-military-power" class="font-bold text-red-400">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Khả năng thắng:</span>
+                                    <span id="target-win-chance" class="font-bold text-emerald-400">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 mt-4">
+                        <button onclick="declareWar()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-skull text-sm"></i> TUYÊN CHIẾN & TẤN CÔNG
+                        </button>
+                        <button onclick="launchNuke()" class="w-full bg-gradient-to-r from-red-900 to-black hover:from-red-800 hover:to-slate-900 text-red-400 border border-red-800 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-radiation"></i> PHÓNG VŨ KHÍ HẠT NHÂN
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: UNITED NATIONS & DIPLOMACY -->
+        <div id="content-un" class="tab-content hidden flex-1">
+            <div class="bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-display font-bold text-lg text-white flex items-center gap-2">
+                        <i class="fa-solid fa-building-columns text-cyan-400"></i> HỘI ĐỒNG BẢO AN LIÊN HỢP QUỐC (UN)
+                    </h2>
+                    <span class="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full font-bold">LHQ TRỤ SỞ NEW YORK</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 block mb-1">Quyền Phủ Quyết (VETO)</span>
+                        <span id="un-veto-power" class="font-bold text-sm text-amber-400">Không Có</span>
+                        <p class="text-[11px] text-slate-500 mt-1">Dành cho Mỹ, Nga, Trung Quốc, Anh, Pháp.</p>
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 block mb-1">Mức Độ Cấm Vận Của LHQ</span>
+                        <span id="un-sanction-level" class="font-bold text-sm text-emerald-400">Không Có (0%)</span>
+                        <p class="text-[11px] text-slate-500 mt-1">Cấm vận làm giảm ngân sách thu thuế hàng tháng.</p>
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 block mb-1">Viện Trợ Quốc Tế</span>
+                        <button onclick="requestUNAid()" class="w-full mt-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 rounded-lg text-xs transition">Xin Trợ Cấp Ngân Sách</button>
+                    </div>
+                </div>
+
+                <!-- Dynamic UN Resolutions Feed -->
+                <h3 class="font-display font-bold text-sm text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-gavel text-amber-400"></i> NGHỊ QUYẾT & LÊN ÁN MỚI NHẤT
+                </h3>
+                <div id="un-resolutions-list" class="space-y-2 max-h-[250px] overflow-y-auto">
+                    <!-- Dynamic UN Logs -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: EVENT LOGS -->
+        <div id="content-logs" class="tab-content hidden flex-1">
+            <div class="bg-brand-card p-4 sm:p-5 rounded-2xl border border-slate-800">
+                <h2 class="font-display font-bold text-lg text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> LỊCH SỬ NHIỆM KỲ & TỔNG KẾT
+                </h2>
+                <div id="full-game-logs" class="space-y-2 font-mono text-xs max-h-[400px] overflow-y-auto bg-slate-950 p-4 rounded-xl border border-slate-900">
+                    <div class="text-slate-500">[Năm 1 - Tháng 1] Tuyên xưng nhậm chức Tổng thống thành công. Cầu chúc quốc thái dân an!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="mt-4 text-center text-xs text-slate-600 py-2 border-t border-slate-800/60">
+            PRESIDENT SIMULATOR 2026: GLOBAL HEGEMONY &copy; 2026. Made with HTML5/JS & Gemini AI Architecture.
+        </footer>
+    </div>
+
+    <!-- MODAL 1: COUNTRY SELECTION (START GAME) -->
+    <div id="start-modal" class="fixed inset-0 z-50 bg-black/90 modal-blur flex items-center justify-center p-4">
+        <div class="bg-brand-card max-w-2xl w-full rounded-2xl border border-slate-700 p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="text-center mb-6">
+                <h1 class="font-display font-black text-2xl sm:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400 uppercase tracking-widest">
+                    PRESIDENT SIMULATOR 2026
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-400 mt-1">Chọn quốc gia bạn muốn khởi tạo sự nghiệp chính trị và xưng bá thế giới!</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-300 mb-1">Tên Của Ngài Tổng Thống:</label>
+                <input type="text" id="setup-president-name" value="Ngài Tổng Thống" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <label class="block text-xs font-bold text-slate-300 mb-2">Chọn Quốc Gia Khởi Đầu:</label>
+            <div id="country-select-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <!-- Country Cards inserted via JavaScript -->
+            </div>
+
+            <button onclick="confirmCountrySelection()" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black py-3 rounded-xl shadow-lg transition text-sm tracking-wider uppercase">
+                BẮT ĐẦU NHIỆM KỲ 2 NĂM
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: GEMINI API KEY INPUT -->
+    <div id="api-modal" class="fixed inset-0 z-50 bg-black/80 modal-blur hidden flex items-center justify-center p-4">
+        <div class="bg-brand-card max-w-md w-full rounded-2xl border border-slate-700 p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-display font-bold text-lg text-white flex items-center gap-2">
+                    <i class="fa-solid fa-key text-cyan-400"></i> CẤU HÌNH GEMINI API KEY
+                </h3>
+                <button onclick="closeApiModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <p class="text-xs text-slate-400 mb-4">
+                Nhập Google Gemini API Key để kích hoạt khả năng AI đọc luật chính xác 100%. Nếu không nhập, game vẫn hoạt động trơn tru bằng Thuật toán AI Nội bộ.
+            </p>
+
+            <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-cyan-500 mb-4 font-mono">
+
+            <div class="flex gap-2">
+                <button onclick="saveApiKey()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Lưu API Key</button>
+                <button onclick="closeApiModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ELECTION RESULT & GAME OVER / WIN -->
+    <div id="election-modal" class="fixed inset-0 z-50 bg-black/90 modal-blur hidden flex items-center justify-center p-4">
+        <div class="bg-brand-card max-w-md w-full rounded-2xl border border-slate-700 p-6 shadow-2xl text-center">
+            <div id="election-icon" class="text-5xl mb-3">🗳️</div>
+            <h2 id="election-modal-title" class="font-display font-black text-2xl text-white mb-2">KẾT QUẢ BẦU CỦ</h2>
+            <p id="election-modal-desc" class="text-xs sm:text-sm text-slate-300 mb-6">Dân chúng đã bỏ phiếu phản đối chính sách của bạn...</p>
+            
+            <button id="election-modal-btn" onclick="restartGame()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 rounded-xl text-sm shadow-lg">
+                CHƠI LẠI TỪ ĐẦU
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* ==================== GLOBAL GAME STATE ==================== */
+        const COUNTRIES = [
+            { id: 'VN', name: 'Việt Nam', flag: '🇻🇳', population: 98, budget: 120, gdp: 430, crime: 14, approval: 75, military: 45000, veto: false, tanks: 120, jets: 50, ships: 15, nukes: 0 },
+            { id: 'US', name: 'Mỹ (USA)', flag: '🇺🇸', population: 335, budget: 1200, gdp: 25000, crime: 28, approval: 52, military: 180000, veto: true, tanks: 1200, jets: 800, ships: 90, nukes: 10 },
+            { id: 'CN', name: 'Trung Quốc', flag: '🇨🇳', population: 1410, budget: 950, gdp: 18000, crime: 12, approval: 68, military: 190000, veto: true, tanks: 1500, jets: 700, ships: 110, nukes: 8 },
+            { id: 'RU', name: 'Nga', flag: '🇷🇺', population: 144, budget: 400, gdp: 2200, crime: 25, approval: 60, military: 160000, veto: true, tanks: 2000, jets: 600, ships: 40, nukes: 12 },
+            { id: 'JP', name: 'Nhật Bản', flag: '🇯🇵', population: 125, budget: 500, gdp: 4200, crime: 5, approval: 58, military: 65000, veto: false, tanks: 300, jets: 250, ships: 35, nukes: 0 },
+            { id: 'DE', name: 'Đức', flag: '🇩🇪', population: 84, budget: 450, gdp: 4000, crime: 10, approval: 55, military: 55000, veto: false, tanks: 250, jets: 180, ships: 20, nukes: 0 },
+            { id: 'UK', name: 'Anh Quốc', flag: '🇬🇧', population: 67, budget: 400, gdp: 3100, crime: 18, approval: 50, military: 70000, veto: true, tanks: 200, jets: 200, ships: 25, nukes: 4 },
+            { id: 'FR', name: 'Pháp', flag: '🇫🇷', population: 68, budget: 380, gdp: 2800, crime: 16, approval: 48, military: 75000, veto: true, tanks: 220, jets: 210, ships: 22, nukes: 4 }
+        ];
+
+        let gameState = {
+            presidentName: 'Ngài Tổng Thống',
+            selectedCountry: null,
+            month: 1,
+            year: 1,
+            termTurn: 1, // 1 to 24
+            taxRate: 15,
+            approval: 65,
+            budget: 120,
+            gdp: 430,
+            crime: 15,
+            population: 98,
+            militaryPower: 45000,
+            reputation: 80,
+            tanks: 120,
+            jets: 50,
+            ships: 15,
+            nukes: 0,
+            unSanctions: 0,
+            enactedLaws: [],
+            logs: [],
+            geminiApiKey: ''
+        };
+
+        let selectedCountryTemp = COUNTRIES[0];
+
+        /* ==================== INIT GAME & MODALS ==================== */
+        window.onload = function() {
+            renderCountrySelectionGrid();
+            updateWarTargetOptions();
+        };
+
+        function renderCountrySelectionGrid() {
+            const container = document.getElementById('country-select-grid');
+            container.innerHTML = '';
+
+            COUNTRIES.forEach(c => {
+                const isSelected = selectedCountryTemp.id === c.id;
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border cursor-pointer transition flex items-center justify-between ${isSelected ? 'bg-cyan-950/40 border-cyan-500 glow-effect' : 'bg-slate-900 border-slate-800 hover:border-slate-700'}`;
+                card.onclick = () => {
+                    selectedCountryTemp = c;
+                    renderCountrySelectionGrid();
+                };
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-3xl">${c.flag}</span>
+                        <div>
+                            <h4 class="font-bold text-sm text-white">${c.name}</h4>
+                            <p class="text-[11px] text-slate-400">GDP: $${c.gdp}B | Quân sự: ${c.military.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    ${isSelected ? '<i class="fa-solid fa-circle-check text-cyan-400 text-lg"></i>' : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function confirmCountrySelection() {
+            const inputName = document.getElementById('setup-president-name').value.trim();
+            if (inputName) gameState.presidentName = inputName;
+
+            gameState.selectedCountry = { ...selectedCountryTemp };
+            gameState.approval = selectedCountryTemp.approval;
+            gameState.budget = selectedCountryTemp.budget;
+            gameState.gdp = selectedCountryTemp.gdp;
+            gameState.crime = selectedCountryTemp.crime;
+            gameState.population = selectedCountryTemp.population;
+            gameState.militaryPower = selectedCountryTemp.military;
+            gameState.tanks = selectedCountryTemp.tanks;
+            gameState.jets = selectedCountryTemp.jets;
+            gameState.ships = selectedCountryTemp.ships;
+            gameState.nukes = selectedCountryTemp.nukes;
+
+            document.getElementById('start-modal').classList.add('hidden');
+            
+            addLog(`Tuyên xưng nhậm chức Tổng Thống quốc gia ${gameState.selectedCountry.name}. Bắt đầu nhiệm kỳ!`);
+            addNews(`TỔNG THỐNG MỚI: ${gameState.presidentName} đã chính thức tuyên thệ nhậm chức tại ${gameState.selectedCountry.name}!`, 'success');
+            
+            updateUI();
+            updateWarTargetOptions();
+        }
+
+        /* ==================== NAVIGATION TABS ==================== */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-slate-800', 'text-cyan-400', 'border-cyan-500', 'font-bold');
+                btn.classList.add('text-slate-400', 'border-transparent', 'font-medium');
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.add('active', 'bg-slate-800', 'text-cyan-400', 'border-cyan-500', 'font-bold');
+        }
+
+        /* ==================== CORE TURN & TICK ENGINE ==================== */
+        function nextTurn() {
+            gameState.termTurn += 1;
+            gameState.month += 1;
+            if (gameState.month > 12) {
+                gameState.month = 1;
+                gameState.year += 1;
+            }
+
+            // Monthly Economic & Social Calculations
+            const taxRevenue = (gameState.gdp * (gameState.taxRate / 100)) / 12;
+            const UNPenalty = (taxRevenue * gameState.unSanctions) / 100;
+            const netRevenue = taxRevenue - UNPenalty;
+            gameState.budget += netRevenue;
+
+            // Passive Approval / Crime Adjustments based on Tax
+            if (gameState.taxRate > 40) {
+                gameState.approval = Math.max(0, gameState.approval - 3);
+                gameState.crime = Math.min(100, gameState.crime + 1.5);
+            } else if (gameState.taxRate < 10) {
+                gameState.approval = Math.min(100, gameState.approval + 1);
+            }
+
+            // Random Events Trigger
+            triggerRandomMonthlyEvents();
+
+            addLog(`Tháng ${gameState.month}/Năm ${gameState.year}: Thuế mang lại +$${netRevenue.toFixed(1)}B vào Ngân sách.`);
+
+            // Check Election Condition (2 Years = 24 Turns)
+            if (gameState.termTurn > 24) {
+                runElectionProcess();
+                return;
+            }
+
+            updateUI();
+        }
+
+        function triggerRandomMonthlyEvents() {
+            const rand = Math.random();
+            if (rand < 0.25) {
+                const events = [
+                    { title: "LẠM PHÁT BĂNG TĂNG", desc: "Giá hàng hóa leo thang khiến dân chúng xôn xao.", appDelta: -4, crimeDelta: 1 },
+                    { title: "BỘI THU NÔNG NGHIỆP", desc: "Xuất khẩu nông sản tăng vọt mang lại lợi nhuận cao.", appDelta: 3, budgetDelta: 5 },
+                    { title: "TRIỆT PHÁ BĂNG ĐẢNG", desc: "Cảnh sát bắt giữ thành công trùm ma túy quốc tế.", crimeDelta: -3, appDelta: 2 },
+                    { title: "ĐẦU TƯ TỪ NƯỚC NGOÀI", desc: "Các tập đoàn công nghệ rót vốn $10B vào đất nước.", budgetDelta: 10, gdpDelta: 15 }
+                ];
+
+                const ev = events[Math.floor(Math.random() * events.length)];
+                if (ev.appDelta) gameState.approval = Math.min(100, Math.max(0, gameState.approval + ev.appDelta));
+                if (ev.crimeDelta) gameState.crime = Math.min(100, Math.max(0, gameState.crime + ev.crimeDelta));
+                if (ev.budgetDelta) gameState.budget += ev.budgetDelta;
+                if (ev.gdpDelta) gameState.gdp += ev.gdpDelta;
+
+                addNews(`SỰ KIỆN: ${ev.title} - ${ev.desc}`, 'warning');
+            }
+        }
+
+        /* ==================== ELECTION ENGINE ==================== */
+        function runElectionProcess() {
+            const modal = document.getElementById('election-modal');
+            const title = document.getElementById('election-modal-title');
+            const desc = document.getElementById('election-modal-desc');
+            const btn = document.getElementById('election-modal-btn');
+            const icon = document.getElementById('election-icon');
+
+            modal.classList.remove('hidden');
+
+            if (gameState.approval >= 50 && gameState.crime < 40) {
+                icon.innerText = "🏆";
+                title.innerText = "TÁI ĐẮC CỬ TỔNG THỐNG!";
+                desc.innerText = `Chúc mừng Ngài ${gameState.presidentName}! Dân chúng đã bỏ phiếu ủng hộ ${gameState.approval.toFixed(1)}% bầu Ngài tiếp tục giữ chiếc ghế Tổng thống thêm nhiệm kỳ 2 năm tiếp theo!`;
+                btn.innerText = "BẮT ĐẦU NHIỆM KỲ MỚI (2 NĂM TIẾP THEO)";
+                btn.onclick = () => {
+                    gameState.termTurn = 1;
+                    modal.classList.add('hidden');
+                    addLog(`Tái đắc cử Tổng Thống thành công! Nhiệm kỳ mới bắt đầu.`);
+                    updateUI();
+                };
+            } else {
+                icon.innerText = "💀";
+                title.innerText = "BỊ ĐÁ KHỎI GHẾ TỔNG THỐNG!";
+                desc.innerText = `Do điều hành yếu kém (Tỷ lệ ủng hộ chỉ đạt ${gameState.approval.toFixed(1)}% hoặc Tội phạm quá cao ${gameState.crime.toFixed(1)}%), người dân đã đồng loạt bầu cho đối thủ! Bạn đã thất bại và bị phế bế khỏi chính trường!`;
+                btn.innerText = "CHƠI LẠI TỪ ĐẦU (RESTART)";
+                btn.onclick = () => restartGame();
+            }
+        }
+
+        function restartGame() {
+            location.reload();
+        }
+
+        /* ==================== TAX & GEMINI CUSTOM LAW ENGINE ==================== */
+        function updateTaxDisplay(val) {
+            document.getElementById('tax-slider-val').innerText = `${val}%`;
+        }
+
+        function applyTaxRate() {
+            const val = parseInt(document.getElementById('tax-slider').value);
+            gameState.taxRate = val;
+            addNews(`THUẾ MỚI: Tổng thống ban hành điều chỉnh mức thuế quốc gia thành ${val}%.`, 'warning');
+            addLog(`Ban hành mức thuế mới: ${val}%.`);
+            updateUI();
+        }
+
+        function setLawPreset(text) {
+            document.getElementById('custom-law-input').value = text;
+        }
+
+        async function enactCustomLaw() {
+            const lawText = document.getElementById('custom-law-input').value.trim();
+            if (!lawText) return;
+
+            const btn = document.getElementById('submit-law-btn');
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i> AI ĐANG PHÂN TÍCH ĐẠO LUẬT...`;
+            btn.disabled = true;
+
+            let result = null;
+
+            // Try Gemini API call if key exists
+            if (gameState.geminiApiKey) {
+                result = await analyzeLawWithGeminiAPI(lawText);
+            }
+
+            // Fallback to internal AI Logic if Gemini fails or no key
+            if (!result) {
+                result = internalLawAnalyzerAI(lawText);
+            }
+
+            // Apply law effects
+            gameState.approval = Math.min(100, Math.max(0, gameState.approval + result.approvalDelta));
+            gameState.crime = Math.min(100, Math.max(0, gameState.crime + result.crimeDelta));
+            gameState.budget += result.budgetDelta;
+
+            gameState.enactedLaws.push({
+                title: lawText,
+                effect: result.summary,
+                approvalDelta: result.approvalDelta,
+                crimeDelta: result.crimeDelta
+            });
+
+            addNews(`LUẬT MỚI BAN HÀNH: "${lawText}" -> Tác động: ${result.summary}`, 'success');
+            addLog(`Ban hành luật: "${lawText}". Tác động: ${result.summary}`);
+
+            document.getElementById('custom-law-input').value = '';
+            btn.innerHTML = `<i class="fa-solid fa-gavel"></i> PHÂN TÍCH & BAN HÀNH ĐẠO LUẬT`;
+            btn.disabled = false;
+
+            updateUI();
+            renderLawsHistory();
+        }
+
+        /* Fallback Internal Smart AI Logic */
+        function internalLawAnalyzerAI(text) {
+            const lower = text.toLowerCase();
+            let approvalDelta = 0;
+            let crimeDelta = 0;
+            let budgetDelta = 0;
+            let summary = "";
+
+            if (lower.includes("cấm") || lower.includes("giới nghiêm")) {
+                crimeDelta -= 4;
+                approvalDelta -= 3;
+                summary = "Tội phạm giảm (-4%), nhưng dân chúng không thích bị gò bó (-3% Ủng hộ).";
+            } else if (lower.includes("miễn phí") || lower.includes("trợ cấp") || lower.includes("nâng lương")) {
+                approvalDelta += 6;
+                budgetDelta -= 15;
+                summary = "Dân chúng cực kỳ phấn khởi (+6% Ủng hộ), tốn -$15B Ngân sách.";
+            } else if (lower.includes("cảnh sát") || lower.includes("an ninh") || lower.includes("bắt")) {
+                crimeDelta -= 6;
+                budgetDelta -= 5;
+                summary = "Tăng cường an ninh triệt để (-6% Tội phạm), ngân sách -$5B.";
+            } else if (lower.includes("tăng thuế") || lower.includes("phạt")) {
+                approvalDelta -= 5;
+                budgetDelta += 10;
+                summary = "Tăng thu ngân sách +$10B, dân bất mãn (-5% Ủng hộ).";
+            } else {
+                approvalDelta += Math.floor(Math.random() * 5) - 2;
+                crimeDelta += Math.floor(Math.random() * 5) - 2;
+                summary = "Đạo luật được đưa vào áp dụng với ảnh hưởng vừa phải.";
+            }
+
+            return { approvalDelta, crimeDelta, budgetDelta, summary };
+        }
+
+        /* Gemini API Call Integration */
+        async function analyzeLawWithGeminiAPI(lawText) {
+            try {
+                const prompt = `Bạn là hệ thống AI mô phỏng kinh tế xã hội game Tổng Thống. Hãy phân tích đạo luật sau: "${lawText}".
+                Trả về kết quả dưới dạng duy nhất một chuỗi JSON chuẩn có cấu trúc:
+                {
+                  "approvalDelta": (số nguyên từ -15 đến 15),
+                  "crimeDelta": (số nguyên từ -15 đến 15),
+                  "budgetDelta": (số nguyên từ -30 đến 30),
+                  "summary": "(tóm tắt 1 câu tác động)"
+                }`;
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${gameState.geminiApiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                const data = await response.json();
+                const jsonText = data.candidates[0].content.parts[0].text;
+                return JSON.parse(jsonText);
+            } catch (err) {
+                console.error("Gemini API Error, fallback to internal AI:", err);
+                return null;
+            }
+        }
+
+        function renderLawsHistory() {
+            const list = document.getElementById('enacted-laws-list');
+            list.innerHTML = '';
+
+            if (gameState.enactedLaws.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-500 italic">Chưa có đạo luật tùy chỉnh nào được ban hành.</p>`;
+                return;
+            }
+
+            gameState.enactedLaws.slice().reverse().forEach(law => {
+                const item = document.createElement('div');
+                item.className = "bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs";
+                item.innerHTML = `
+                    <h5 class="font-bold text-cyan-400">"${law.title}"</h5>
+                    <p class="text-slate-400 mt-1">${law.effect}</p>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        /* ==================== MILITARY & WARFARE ENGINE ==================== */
+        function buyMilitaryUnit(type, cost, power) {
+            if (gameState.budget < cost) {
+                alert("Ngân sách không đủ để mua sắm vũ khí này!");
+                return;
+            }
+
+            gameState.budget -= cost;
+            gameState.militaryPower += power;
+
+            if (type === 'tanks') gameState.tanks += 10;
+            if (type === 'jets') gameState.jets += 5;
+            if (type === 'ships') gameState.ships += 1;
+            if (type === 'nukes') {
+                gameState.nukes += 1;
+                addUNResolution(`CẢNH BÁO: Quốc gia ${gameState.selectedCountry.name} vừa thử nghiệm thành công Đầu đạn Hạt nhân!`);
+            }
+
+            addLog(`Mua sắm trang bị quân sự (${type}). Sức mạnh quân sự: +${power}`);
+            updateUI();
+        }
+
+        function updateWarTargetOptions() {
+            const select = document.getElementById('war-target-select');
+            select.innerHTML = '';
+
+            COUNTRIES.filter(c => c.id !== gameState.selectedCountry?.id).forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = `${c.flag} ${c.name} (Sức mạnh: ${c.military.toLocaleString()})`;
+                select.appendChild(opt);
+            });
+
+            updateWarTargetInfo();
+        }
+
+        function updateWarTargetInfo() {
+            const targetId = document.getElementById('war-target-select').value;
+            const target = COUNTRIES.find(c => c.id === targetId);
+            if (!target) return;
+
+            document.getElementById('target-military-power').innerText = target.military.toLocaleString();
+            
+            const winChance = Math.min(99, Math.max(1, Math.round((gameState.militaryPower / (gameState.militaryPower + target.military)) * 100)));
+            document.getElementById('target-win-chance').innerText = `${winChance}%`;
+        }
+
+        function declareWar() {
+            const targetId = document.getElementById('war-target-select').value;
+            const target = COUNTRIES.find(c => c.id === targetId);
+            if (!target) return;
+
+            const winChance = (gameState.militaryPower / (gameState.militaryPower + target.military));
+            const roll = Math.random();
+
+            if (roll < winChance) {
+                const loot = Math.round(target.budget * 0.5);
+                gameState.budget += loot;
+                gameState.approval = Math.min(100, gameState.approval + 10);
+                addNews(`CHIẾN THẮNG RỰC RỠ: Quân đội ta đã đánh bại ${target.name}! Tịch thu $${loot}B ngân sách!`, 'success');
+                addLog(`Tuyên chiến và chiến thắng ${target.name}. Tịch thu $${loot}B.`);
+            } else {
+                gameState.militaryPower = Math.round(gameState.militaryPower * 0.7);
+                gameState.approval = Math.max(0, gameState.approval - 20);
+                addNews(`THẤT BẠI QUÂN SỰ: Cuộc tấn công vào ${target.name} bị bẻ gãy! Thương vong nặng nề!`, 'danger');
+                addLog(`Tuyên chiến và thất bại trước ${target.name}. Mất 30% quân lực.`);
+            }
+
+            // UN Reaction
+            if (!gameState.selectedCountry.veto) {
+                gameState.unSanctions += 20;
+                addUNResolution(`LHQ lên án cuộc xâm lược của ${gameState.selectedCountry.name} và áp đặt trừng phạt cấm vận 20%!`);
+            } else {
+                addUNResolution(`${gameState.selectedCountry.name} đã dùng quyền VETO để phủ quyết lệnh trừng phạt của LHQ!`);
+            }
+
+            updateUI();
+        }
+
+        function launchNuke() {
+            if (gameState.nukes <= 0) {
+                alert("Bạn không có Tên lửa Hạt nhân nào!");
+                return;
+            }
+
+            const targetId = document.getElementById('war-target-select').value;
+            const target = COUNTRIES.find(c => c.id === targetId);
+
+            gameState.nukes -= 1;
+            gameState.reputation = Math.max(0, gameState.reputation - 50);
+            gameState.approval = Math.max(0, gameState.approval - 30);
+
+            addNews(`THẢM HỌA HẠT NHÂN: Tên lửa hạt nhân đã giội xuống ${target.name}! Thế giới chấn động!`, 'danger');
+            addUNResolution(`KHẨN CẤP: LHQ kết án ${gameState.selectedCountry.name} phạm tội hủy diệt hàng loạt! Toàn cầu cấm vận tuyệt đối!`);
+            
+            gameState.unSanctions = 50;
+            updateUI();
+        }
+
+        /* ==================== UN & DIPLOMACY ENGINE ==================== */
+        function requestUNAid() {
+            if (gameState.unSanctions > 0) {
+                alert("Bạn đang bị LHQ trừng phạt, không thể xin viện trợ!");
+                return;
+            }
+
+            gameState.budget += 15;
+            addNews(`VIỆN TRỢ: LHQ giải ngân $15B hỗ trợ phát triển cho quốc gia.`, 'success');
+            addLog(`Nhận $15B viện trợ từ Liên Hợp Quốc.`);
+            updateUI();
+        }
+
+        function addUNResolution(text) {
+            const list = document.getElementById('un-resolutions-list');
+            const item = document.createElement('div');
+            item.className = "bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-xs text-amber-400 flex items-start gap-2";
+            item.innerHTML = `<i class="fa-solid fa-triangle-exclamation mt-0.5"></i> <span>${text}</span>`;
+            list.prepend(item);
+        }
+
+        /* ==================== UI HELPERS & LOGS ==================== */
+        function updateUI() {
+            document.getElementById('player-flag').innerText = gameState.selectedCountry.flag;
+            document.getElementById('player-country-name').innerText = gameState.selectedCountry.name;
+            document.getElementById('player-title-name').innerText = gameState.presidentName;
+
+            document.getElementById('game-time-display').innerText = `Tháng ${gameState.month} / Năm ${gameState.year}`;
+            document.getElementById('term-progress-display').innerText = `${gameState.termTurn} / 24 Tháng`;
+
+            // Stats
+            document.getElementById('stat-approval').innerText = `${Math.round(gameState.approval)}%`;
+            document.getElementById('stat-approval-bar').style.width = `${Math.round(gameState.approval)}%`;
+            document.getElementById('stat-budget').innerText = `$${gameState.budget.toFixed(1)}B`;
+            document.getElementById('stat-tax-rate').innerText = `${gameState.taxRate}%`;
+
+            document.getElementById('stat-crime').innerText = `${Math.round(gameState.crime)}%`;
+            document.getElementById('stat-crime-bar').style.width = `${Math.round(gameState.crime)}%`;
+
+            document.getElementById('stat-gdp').innerText = `$${gameState.gdp.toFixed(0)}B`;
+            document.getElementById('stat-population').innerText = `${gameState.population}M`;
+            document.getElementById('stat-military-power').innerText = gameState.militaryPower.toLocaleString();
+            document.getElementById('stat-nuke-count').innerText = gameState.nukes;
+
+            document.getElementById('stat-reputation').innerText = `${gameState.reputation}/100`;
+            document.getElementById('stat-reputation-bar').style.width = `${gameState.reputation}%`;
+
+            // Military Counts
+            document.getElementById('count-tanks').innerText = gameState.tanks;
+            document.getElementById('count-jets').innerText = gameState.jets;
+            document.getElementById('count-ships').innerText = gameState.ships;
+            document.getElementById('count-nukes').innerText = gameState.nukes;
+
+            // Term Left
+            document.getElementById('term-months-left').innerText = `${25 - gameState.termTurn} Tháng`;
+
+            // UN
+            document.getElementById('un-veto-power').innerText = gameState.selectedCountry.veto ? "Có (Thành Viên Thường Trực)" : "Không Có";
+            document.getElementById('un-sanction-level').innerText = `${gameState.unSanctions}%`;
+
+            // Election Prediction
+            const predEl = document.getElementById('election-prediction');
+            const predDesc = document.getElementById('election-prediction-desc');
+            if (gameState.approval >= 50 && gameState.crime < 40) {
+                predEl.innerText = "TÁI ĐẮC CỬ";
+                predEl.className = "font-display font-black text-3xl text-emerald-400";
+                predDesc.innerText = "Dân chúng ủng hộ và hài lòng với triều đại của Ngài.";
+            } else {
+                predEl.innerText = "SẮP BỊ ĐÁ (NGUY CƠ THẤT BẠI)";
+                predEl.className = "font-display font-black text-2xl text-red-500 animate-pulse";
+                predDesc.innerText = "Dân chúng cực kỳ bất mãn! Hãy cải thiện chỉ số ngay lập tức!";
+            }
+        }
+
+        function addNews(text, type = 'info') {
+            const container = document.getElementById('news-feed');
+            const card = document.createElement('div');
+            
+            let borderClass = 'border-slate-800 text-slate-300';
+            if (type === 'success') borderClass = 'border-emerald-500/40 bg-emerald-950/20 text-emerald-300';
+            if (type === 'warning') borderClass = 'border-amber-500/40 bg-amber-950/20 text-amber-300';
+            if (type === 'danger') borderClass = 'border-red-500/40 bg-red-950/20 text-red-300';
+
+            card.className = `p-3 rounded-xl border text-xs leading-relaxed ${borderClass}`;
+            card.innerHTML = `<span class="font-bold">[Tháng ${gameState.month}/Năm ${gameState.year}]</span> ${text}`;
+            container.prepend(card);
+        }
+
+        function addLog(text) {
+            gameState.logs.push(`[Năm ${gameState.year} - Tháng ${gameState.month}] ${text}`);
+            const logContainer = document.getElementById('full-game-logs');
+            const entry = document.createElement('div');
+            entry.innerText = `[Năm ${gameState.year} - Tháng ${gameState.month}] ${text}`;
+            logContainer.prepend(entry);
+        }
+
+        function triggerEmergencySpeech() {
+            gameState.approval = Math.min(100, gameState.approval + 4);
+            addNews(`PHÁT BIỂU TỔNG THỐNG: Ngài ${gameState.presidentName} vừa có bài phát biểu truyền cảm hứng trên truyền hình quốc gia! (+4% Ủng hộ)`, 'success');
+            addLog(`Phát biểu truyền hình quốc gia, tăng 4% tỷ lệ ủng hộ.`);
+            updateUI();
+        }
+
+        /* API Modal Handlers */
+        function openApiModal() {
+            document.getElementById('api-modal').classList.remove('hidden');
+        }
+        function closeApiModal() {
+            document.getElementById('api-modal').classList.add('hidden');
+        }
+        function saveApiKey() {
+            const key = document.getElementById('gemini-key-input').value.trim();
+            gameState.geminiApiKey = key;
+            alert(key ? "Đã lưu Gemini API Key thành công!" : "Đã hủy API Key, game chuyển sang xài AI Nội bộ.");
+            closeApiModal();
+        }
+    </script>
+</body>
+</html>
