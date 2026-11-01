@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Storm Chaser 3D - Ultimate Modular Builder & Tornado Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap');
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+
+        .hud-glass {
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hud-glass-dense {
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        @keyframes flashAnim {
+            0% { opacity: 0; }
+            10% { opacity: 0.95; }
+            15% { opacity: 0.2; }
+            20% { opacity: 1; }
+            30% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+        .lightning-flash {
+            position: absolute;
+            inset: 0;
+            background-color: #e0f2fe;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 30;
+        }
+        .do-flash { animation: flashAnim 0.35s ease-out; }
+
+        /* Force Landscape orientation hint on vertical screens */
+        @media screen and (orientation: portrait) {
+            #portraitRotateHint {
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+<body class="w-screen h-screen relative flex flex-col justify-between overflow-hidden select-none">
+
+    <!-- PORTRAIT ORIENTATION HINT FOR MOBILE -->
+    <div id="portraitRotateHint" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl hidden flex-col items-center justify-center p-6 text-center">
+        <i class="fa-solid fa-mobile-screen-button text-amber-400 text-5xl mb-4 animate-bounce rotate-90"></i>
+        <h3 class="font-orbitron font-bold text-lg text-slate-100">XOAY NGANG MÀN HÌNH ĐỂ CHƠI</h3>
+        <p class="text-xs text-slate-400 mt-2 max-w-xs">Tựa game được thiết kế tối ưu cho trải nghiệm màn hình ngang (Landscape mode).</p>
+    </div>
+
+    <!-- CANVAS 3D SCENE CONTAINER -->
+    <div id="canvasContainer" class="absolute inset-0 z-0 w-full h-full"></div>
+    <div id="lightningOverlay" class="lightning-flash"></div>
+
+    <!-- HUD OVERLAY (TOP LANDSCAPE BAR) -->
+    <header class="relative z-10 p-2 sm:p-4 flex justify-between items-start pointer-events-none">
+        <!-- Vehicle Status & Health -->
+        <div class="hud-glass rounded-xl p-2 sm:p-3 w-44 sm:w-64 pointer-events-auto border-l-2 border-cyan-400">
+            <div class="flex items-center justify-between mb-1">
+                <span class="font-orbitron text-xs text-cyan-300 font-bold uppercase truncate" id="vehicleName">Sedan Độ Cụm</span>
+                <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-800/80 text-amber-300 shrink-0" id="vehicleWeight">1.2 TẤN</span>
+            </div>
+            
+            <div class="w-full bg-slate-900/80 rounded-full h-1.5 overflow-hidden border border-slate-700/50 my-1">
+                <div id="hpBar" class="bg-gradient-to-r from-emerald-400 to-green-500 h-full transition-all duration-100" style="width: 100%"></div>
+            </div>
+
+            <div class="flex justify-between items-center text-[10px] text-slate-300 mt-1">
+                <span>Neo: <strong id="anchorStatusText" class="text-slate-400">KHÔNG CÓ</strong></span>
+                <span class="font-orbitron text-cyan-400 font-bold" id="speedDisplay">0 km/h</span>
+            </div>
+        </div>
+
+        <!-- Storm Status & Garage/Builder Trigger -->
+        <div class="hud-glass rounded-xl p-2 sm:p-3 pointer-events-auto flex items-center gap-2 sm:gap-3 border-r-2 border-amber-400">
+            <div class="text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                    <span class="text-[9px] text-slate-400 font-bold uppercase">BÃỠ:</span>
+                    <span class="font-orbitron font-black text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40" id="stormEfBadge">EF-1</span>
+                </div>
+                <div class="font-orbitron text-base sm:text-2xl font-black text-emerald-400 leading-tight" id="cashDisplay">$0</div>
+            </div>
+
+            <button id="garageBtn" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-orbitron font-black px-3 py-2 rounded-lg text-xs shadow-lg active:scale-95 flex items-center gap-1.5 transition-all">
+                <i class="fa-solid fa-car-tunnel"></i>
+                <span class="hidden sm:inline">GARAGE & CHẾ XE</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- WARNING BANNER -->
+    <div id="warningBanner" class="relative z-10 self-center pointer-events-none transition-all duration-300 opacity-0 -mt-2">
+        <div class="bg-red-950/90 border border-red-500/60 text-red-200 px-4 py-1.5 rounded-full backdrop-blur-md flex items-center gap-2 shadow-red-900/40 shadow-xl animate-pulse">
+            <i class="fa-solid fa-triangle-exclamation text-red-400 text-sm"></i>
+            <span class="font-orbitron text-[11px] font-bold tracking-wider uppercase" id="warningText">ĐÃ VÀO VÙNG NGUY HIỂM BÃỠ!</span>
+        </div>
+    </div>
+
+    <!-- RADAR & ANCHOR CONTROLS (BOTTOM BAR) -->
+    <div class="relative z-10 px-3 py-2 flex justify-between items-end pointer-events-none">
+        <div class="hud-glass rounded-xl p-2 pointer-events-auto flex items-center gap-2">
+            <button id="anchorToggleBtn" class="hidden px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-500 text-white font-orbitron font-black text-xs shadow-lg transition-all active:scale-95 flex items-center gap-1.5">
+                <i class="fa-solid fa-anchor"></i> <span id="anchorBtnLabel">THẢ NEO (SPACE)</span>
+            </button>
+            <button id="soundToggleBtn" class="w-8 h-8 rounded-lg bg-slate-800/80 flex items-center justify-center text-slate-300">
+                <i class="fa-solid fa-volume-high text-xs" id="soundIcon"></i>
+            </button>
+        </div>
+
+        <div class="hud-glass rounded-xl p-2 pointer-events-auto flex items-center gap-2">
+            <div class="text-right">
+                <div class="text-[9px] text-slate-400 font-bold uppercase">Khoảng Cách Bão</div>
+                <div class="font-orbitron text-sm sm:text-base font-bold text-amber-400" id="distDisplay">-- m</div>
+            </div>
+            <div class="w-7 h-7 rounded-full border border-cyan-500/40 bg-cyan-950/40 flex items-center justify-center relative overflow-hidden">
+                <div class="w-full h-0.5 bg-cyan-400/60 absolute animate-spin"></div>
+                <i class="fa-solid fa-radar text-cyan-400 text-[10px]"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOUCH CONTROLS LANDSCAPE OPTIMIZED -->
+    <div class="relative z-10 px-3 pb-3 flex justify-between items-end pointer-events-none mb-1">
+        <div class="flex gap-2 pointer-events-auto">
+            <button id="btnSteerLeft" class="w-12 h-12 rounded-xl hud-glass active:bg-cyan-600/40 flex items-center justify-center text-cyan-300 text-lg shadow-lg active:scale-95">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <button id="btnSteerRight" class="w-12 h-12 rounded-xl hud-glass active:bg-cyan-600/40 flex items-center justify-center text-cyan-300 text-lg shadow-lg active:scale-95">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <div class="flex gap-2 pointer-events-auto items-end">
+            <button id="btnBrake" class="w-12 h-12 rounded-xl hud-glass active:bg-red-600/50 flex flex-col items-center justify-center text-red-400 shadow-lg active:scale-95">
+                <i class="fa-solid fa-backward text-xs"></i>
+                <span class="text-[7px] font-bold">LÙI</span>
+            </button>
+            <button id="btnGas" class="w-14 h-14 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 active:from-cyan-500 flex flex-col items-center justify-center text-white shadow-cyan-600/40 shadow-xl active:scale-95">
+                <i class="fa-solid fa-bolt text-base"></i>
+                <span class="text-[8px] font-orbitron font-bold">GA</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL GARAGE & MODULAR VEHICLE DESIGNER -->
+    <div id="garageModal" class="fixed inset-0 z-50 hud-glass-dense flex items-center justify-center p-2 sm:p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Header Garage -->
+            <div class="p-3 sm:p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-orbitron font-bold text-base sm:text-lg text-slate-100">GARAGE & MODULAR CAR DESIGNER</h2>
+                        <p class="text-[11px] text-slate-400">Mua xe nguyên chiếc hoặc tự lắp ráp module chi tiết</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <div class="text-[9px] text-slate-400">Ngân Sách</div>
+                        <div class="font-orbitron text-base font-bold text-emerald-400" id="garCash">$0</div>
+                    </div>
+                    <button id="closeGarBtn" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="flex border-b border-slate-800 bg-slate-950/50 px-4 pt-2 gap-2">
+                <button id="tabPresetsBtn" class="px-4 py-2 font-orbitron font-bold text-xs rounded-t-xl bg-amber-600 text-slate-950">XE NGUYÊN CHIẾC</button>
+                <button id="tabModularBtn" class="px-4 py-2 font-orbitron font-bold text-xs rounded-t-xl bg-slate-800 text-slate-400 hover:text-slate-200">TỰ LẮP MODULE CHẾ XE</button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-3 sm:p-5 overflow-y-auto flex-1">
+                <!-- PANEL 1: PRESET VEHICLES -->
+                <div id="presetsPanel" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Preset 1 -->
+                    <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-orbitron font-bold text-sm text-cyan-400">Sedan Cơ Bản 90s</h4>
+                            <p class="text-xs text-slate-400 mt-1">Xe nhẹ 1.1 Tấn, giá rẻ để khởi nghiệp săn bão nhỏ.</p>
+                            <span class="inline-block mt-2 text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Chịu bão: Max EF-1</span>
+                        </div>
+                        <button id="buySedanPresetBtn" class="mt-4 w-full py-2 rounded-xl font-orbitron font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-slate-950">SỞ HỮU (MIỄN PHÍ)</button>
+                    </div>
+
+                    <!-- Preset 2 -->
+                    <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-orbitron font-bold text-sm text-amber-400">Pickup 4x4 Heavy Duty</h4>
+                            <p class="text-xs text-slate-400 mt-1">Xe bán tải gầm cao 2.8 Tấn, trang bị giáp cản trước.</p>
+                            <span class="inline-block mt-2 text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Chịu bão: Max EF-3</span>
+                        </div>
+                        <button id="buyTruckPresetBtn" class="mt-4 w-full py-2 rounded-xl font-orbitron font-bold text-xs bg-amber-600 hover:bg-amber-500 text-slate-950">MUA $2,200</button>
+                    </div>
+
+                    <!-- Preset 3 -->
+                    <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-orbitron font-bold text-sm text-red-400">TIV Interceptor Tank</h4>
+                            <p class="text-xs text-slate-400 mt-1">Siêu xe tăng bọc thép 6.5 Tấn trang bị mỏ neo thủy lực găm đất.</p>
+                            <span class="inline-block mt-2 text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Chịu bão: Max EF-5</span>
+                        </div>
+                        <button id="buyTivPresetBtn" class="mt-4 w-full py-2 rounded-xl font-orbitron font-bold text-xs bg-red-600 hover:bg-red-500 text-white">MUA $6,500</button>
+                    </div>
+                </div>
+
+                <!-- PANEL 2: MODULAR DESIGNER (PARTS GRID) -->
+                <div id="modularPanel" class="hidden grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Slot 1: Chassis -->
+                    <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                                <i class="fa-solid fa-truck-monster"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-orbitron font-bold text-xs text-slate-200">Khung Gầm Bán Tải 4x4</h5>
+                                <p class="text-[10px] text-slate-400">+1.5 Tấn trọng lượng</p>
+                            </div>
+                        </div>
+                        <button id="modChassisBtn" class="px-3 py-1.5 rounded-lg font-orbitron font-bold text-[11px] bg-amber-600 text-slate-950">$1,500</button>
+                    </div>
+
+                    <!-- Slot 2: Engine -->
+                    <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+                                <i class="fa-solid fa-gauge-high"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-orbitron font-bold text-xs text-slate-200">Động Cơ Twin Turbo</h5>
+                                <p class="text-[10px] text-slate-400">+60% Tốc độ & Lực kéo</p>
+                            </div>
+                        </div>
+                        <button id="modEngineBtn" class="px-3 py-1.5 rounded-lg font-orbitron font-bold text-[11px] bg-amber-600 text-slate-950">$800</button>
+                    </div>
+
+                    <!-- Slot 3: Heavy Armor Plates -->
+                    <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-orbitron font-bold text-xs text-slate-200">Tấm Giáp Thép Hạng Nặng</h5>
+                                <p class="text-[10px] text-slate-400">+2.0 Tấn | Đổi Visual Thân Xe</p>
+                            </div>
+                        </div>
+                        <button id="modArmorBtn" class="px-3 py-1.5 rounded-lg font-orbitron font-bold text-[11px] bg-amber-600 text-slate-950">$2,800</button>
+                    </div>
+
+                    <!-- Slot 4: Hydraulic Anchors -->
+                    <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                                <i class="fa-solid fa-anchor"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-orbitron font-bold text-xs text-slate-200">Mỏ Neo Thủy Lực Ground Spike</h5>
+                                <p class="text-[10px] text-slate-400">Cho phép bấm SPACE găm đất chống bão EF5!</p>
+                            </div>
+                        </div>
+                        <button id="modAnchorBtn" class="px-3 py-1.5 rounded-lg font-orbitron font-bold text-[11px] bg-amber-600 text-slate-950">$4,500</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAMEOVER MODAL -->
+    <div id="gameOverModal" class="fixed inset-0 z-50 hud-glass-dense flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-slate-900 border border-red-500/50 rounded-2xl w-full max-w-md p-5 text-center shadow-2xl">
+            <div class="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 text-2xl mx-auto mb-2 animate-bounce">
+                <i class="fa-solid fa-tornado"></i>
+            </div>
+            <h2 class="font-orbitron font-black text-lg text-red-400 mb-1">XE ĐÃ BỊ THỔI BAY & NỔ TUNG!</h2>
+            <p class="text-xs text-slate-300 mb-4" id="gameOverReason">Sức gió lốc xoáy vượt quá trọng lượng xe!</p>
+            <button id="respawnBtn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 text-white font-orbitron font-bold text-xs uppercase shadow-lg">
+                Sửa Xe & Tiếp Tục Săn Bão
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- CẤU HÌNH PHỤ TÙNG CHẾ TẠO (CUSTOM PARTS STATE) ---
+        const carUpgrades = {
+            chassis: false, // False: Sedan, True: Truck Chassis
+            engine: false,  // Turbo Engine
+            armor: false,   // Heavy Side Armor Visual
+            anchor: false   // Ground Anchor Spikes Visual
+        };
+
+        const EF_LEVELS = [
+            { level: 0, name: "EF-0", radius: 55, windSpeed: 90, color: "#cbd5e1" },
+            { level: 1, name: "EF-1", radius: 75, windSpeed: 130, color: "#38bdf8" },
+            { level: 2, name: "EF-2", radius: 105, windSpeed: 175, color: "#4ade80" },
+            { level: 3, name: "EF-3", radius: 140, windSpeed: 230, color: "#facc15" },
+            { level: 4, name: "EF-4", radius: 180, windSpeed: 290, color: "#fb923c" },
+            { level: 5, name: "EF-5 (SIÊU BÃỠ)", radius: 230, windSpeed: 360, color: "#f43f5e" }
+        ];
+
+        // --- GAME STATE ---
+        let scene, camera, renderer;
+        let playerCarGroup, carBodyMesh, armorPlatesGroup, anchorPillars = [];
+        let tornadoGroup, skyVortexGroup, tornadoParticles = [];
+        let debrisObjects = [], dataCrates3D = [];
+
+        let playerCash = 600;
+        let collectedData = 0;
+        let currentHp = 100;
+        let maxHp = 100;
+        let vehicleWeight = 1100; // kg
+        let isAnchored = false;
+        let isLifted = false;
+        let isDestroyed = false;
+        let liftRotation = { x: 0, y: 0, z: 0 };
+
+        // Position & Controls
+        let carPos = new THREE.Vector3(0, 0, 0);
+        let carSpeed = 0;
+        let carRotY = 0;
+
+        let tornadoPos = new THREE.Vector3(150, 0, -280);
+        let currentEf = EF_LEVELS[1];
+        let stormAngle = 0;
+
+        const keys = { gas: false, brake: false, left: false, right: false };
+
+        // Audio System
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSound(type) {
+            if (!soundEnabled || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+
+                if (type === 'cash') {
+                    osc.frequency.setValueAtTime(700, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.08);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+                } else if (type === 'anchor') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(160, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                }
+            } catch(e){}
+        }
+
+        // --- INIT THREE.JS WORLD 3D ---
+        function init3D() {
+            const container = document.getElementById('canvasContainer');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x030712);
+            scene.fog = new THREE.FogExp2(0x0b1329, 0.003);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Lightings
+            const ambient = new THREE.AmbientLight(0x38bdf8, 1.0);
+            scene.add(ambient);
+
+            const sun = new THREE.DirectionalLight(0xfef08a, 0.6);
+            sun.position.set(120, 200, 80);
+            sun.castShadow = true;
+            scene.add(sun);
+
+            // Ground World (Mặt Đất Rộng 3D)
+            const groundGeo = new THREE.PlaneGeometry(1800, 1800, 32, 32);
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.95 });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            const grid = new THREE.GridHelper(1800, 90, 0x0284c7, 0x1e293b);
+            grid.position.y = 0.05;
+            scene.add(grid);
+
+            // Build Car, Tornado, Debris
+            rebuildPlayerCar3D();
+            createTornado3D();
+            spawnDebris3D();
+            spawnDataCrates();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // --- XÂY DỰNG MÔ HÌNH XE 3D BIẾN ĐỔI VISUAL TRỰC TIẾP THEO PHỤ TÙNG ĐỘ ---
+        function rebuildPlayerCar3D() {
+            if (playerCarGroup) scene.remove(playerCarGroup);
+            playerCarGroup = new THREE.Group();
+            anchorPillars = [];
+
+            // Tính toán trọng lượng & HP xe theo đồ
+            vehicleWeight = 1100 + (carUpgrades.chassis ? 1500 : 0) + (carUpgrades.armor ? 2000 : 0);
+            maxHp = 100 + (carUpgrades.armor ? 300 : 0);
+            currentHp = maxHp;
+
+            const baseColor = carUpgrades.armor ? 0xd97706 : (carUpgrades.chassis ? 0x0284c7 : 0xe11d48);
+
+            // 1. Thân Xe
+            const width = carUpgrades.chassis ? 2.4 : 2.0;
+            const length = carUpgrades.chassis ? 4.6 : 3.8;
+            const bodyGeo = new THREE.BoxGeometry(width, 0.9, length);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.4 });
+            carBodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+            carBodyMesh.position.y = 0.7;
+            carBodyMesh.castShadow = true;
+            playerCarGroup.add(carBodyMesh);
+
+            // Cabin Kính
+            const cabinGeo = new THREE.BoxGeometry(width * 0.85, 0.75, length * 0.5);
+            const cabinMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+            const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+            cabin.position.set(0, 1.4, -0.2);
+            playerCarGroup.add(cabin);
+
+            // 2. NÂNG CẤP VISUAL: GIÁP BỌC THÉP TẤM (SIDE ARMOR PLATES)
+            if (carUpgrades.armor) {
+                armorPlatesGroup = new THREE.Group();
+                const plateGeo = new THREE.BoxGeometry(0.15, 0.7, length * 0.9);
+                const plateMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8 });
+                
+                const leftPlate = new THREE.Mesh(plateGeo, plateMat);
+                leftPlate.position.set(-width / 2 - 0.08, 0.7, 0);
+                const rightPlate = new THREE.Mesh(plateGeo, plateMat);
+                rightPlate.position.set(width / 2 + 0.08, 0.7, 0);
+
+                armorPlatesGroup.add(leftPlate);
+                armorPlatesGroup.add(rightPlate);
+                playerCarGroup.add(armorPlatesGroup);
+            }
+
+            // 3. NÂNG CẤP VISUAL: MỎ NEO THỦY LỰC (GROUND ANCHORS)
+            if (carUpgrades.anchor) {
+                for (let i = 0; i < 4; i++) {
+                    const spikeGeo = new THREE.CylinderGeometry(0.1, 0.1, 1.2, 8);
+                    const spikeMat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+                    const spike = new THREE.Mesh(spikeGeo, spikeMat);
+                    const px = (i % 2 === 0 ? 1 : -1) * (width / 2 + 0.2);
+                    const pz = (i < 2 ? 1 : -1) * (length / 2 - 0.4);
+                    spike.position.set(px, 1.0, pz);
+                    playerCarGroup.add(spike);
+                    anchorPillars.push(spike);
+                }
+            }
+
+            // 4. Bánh Xe Terrain
+            const wheelRadius = carUpgrades.chassis ? 0.55 : 0.4;
+            const wX = width / 2 + 0.1;
+            const wZ = length / 3;
+
+            createWheel(playerCarGroup, -wX, wheelRadius, wZ, wheelRadius);
+            createWheel(playerCarGroup, wX, wheelRadius, wZ, wheelRadius);
+            createWheel(playerCarGroup, -wX, wheelRadius, -wZ, wheelRadius);
+            createWheel(playerCarGroup, wX, wheelRadius, -wZ, wheelRadius);
+
+            scene.add(playerCarGroup);
+        }
+
+        function createWheel(group, x, y, z, r) {
+            const geo = new THREE.CylinderGeometry(r, r, 0.35, 12);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+            const w = new THREE.Mesh(geo, mat);
+            w.rotation.z = Math.PI / 2;
+            w.position.set(x, y, z);
+            w.castShadow = true;
+            group.add(w);
+        }
+
+        // --- CƠN BÃỠ LỐC XOÁY KHỔNG LỒ 3D + VÒNG MÂY ĐEN SKY VORTEX ---
+        function createTornado3D() {
+            tornadoGroup = new THREE.Group();
+            tornadoParticles = [];
+
+            // 1. Phễu xoáy hạt 3D cực to
+            const count = 550;
+            const geo = new THREE.DodecahedronGeometry(0.7, 0);
+
+            for (let i = 0; i < count; i++) {
+                const ratio = i / count;
+                const height = ratio * 160;
+                const radius = 8 + Math.pow(ratio, 1.5) * 85;
+
+                const mat = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHSL(0.55, 0.4, 0.15 + ratio * 0.45),
+                    transparent: true,
+                    opacity: 0.65
+                });
+
+                const p = new THREE.Mesh(geo, mat);
+                const angle = Math.random() * Math.PI * 2;
+                p.position.set(Math.cos(angle) * radius, height, Math.sin(angle) * radius);
+
+                p.userData = {
+                    angle: angle,
+                    radius: radius,
+                    speed: 0.035 + (1 - ratio) * 0.05
+                };
+
+                tornadoGroup.add(p);
+                tornadoParticles.push(p);
+            }
+
+            // 2. Sky Vortex (Xoáy mây đen u tối trên bầu trời)
+            skyVortexGroup = new THREE.Group();
+            for (let j = 0; j < 60; j++) {
+                const cloudGeo = new THREE.SphereGeometry(12 + Math.random() * 8, 8, 8);
+                const cloudMat = new THREE.MeshBasicMaterial({ color: 0x0f172a, transparent: true, opacity: 0.7 });
+                const cloud = new THREE.Mesh(cloudGeo, cloudMat);
+                const a = (j / 60) * Math.PI * 2;
+                const r = 40 + Math.random() * 90;
+                cloud.position.set(Math.cos(a) * r, 155, Math.sin(a) * r);
+                skyVortexGroup.add(cloud);
+            }
+            tornadoGroup.add(skyVortexGroup);
+
+            tornadoGroup.position.copy(tornadoPos);
+            scene.add(tornadoGroup);
+        }
+
+        // --- MẢNH VỠ CÂY CỐI & THÙNG PHUY BỊ HÚT XOÁY ---
+        function spawnDebris3D() {
+            debrisObjects.forEach(d => scene.remove(d.mesh));
+            debrisObjects = [];
+
+            for (let i = 0; i < 50; i++) {
+                const geo = i % 2 === 0 ? new THREE.CylinderGeometry(0.7, 0.7, 1.8, 8) : new THREE.BoxGeometry(1.5, 1.5, 1.5);
+                const mat = new THREE.MeshStandardMaterial({ color: i % 2 === 0 ? 0x0284c7 : 0x78350f });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set((Math.random() - 0.5) * 900, 1, (Math.random() - 0.5) * 900);
+                scene.add(mesh);
+
+                debrisObjects.push({
+                    mesh: mesh,
+                    basePos: mesh.position.clone(),
+                    isCaught: false,
+                    rotSpeed: Math.random() * 0.1
+                });
+            }
+        }
+
+        function spawnDataCrates() {
+            dataCrates3D.forEach(c => scene.remove(c.mesh));
+            dataCrates3D = [];
+
+            for (let i = 0; i < 12; i++) {
+                const geo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+                const mat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, emissive: 0x0891b2 });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set((Math.random() - 0.5) * 800, 0.8, (Math.random() - 0.5) * 800);
+                scene.add(mesh);
+
+                dataCrates3D.push({ mesh: mesh, collected: false });
+            }
+        }
+
+        function respawnTornadoRandom() {
+            const randEf = Math.floor(Math.random() * EF_LEVELS.length);
+            currentEf = EF_LEVELS[randEf];
+            tornadoPos.set(carPos.x + (Math.random() - 0.5) * 400 + 160, 0, carPos.z + (Math.random() - 0.5) * 400 - 160);
+            tornadoGroup.position.copy(tornadoPos);
+        }
+
+        // --- ANIMATION MAIN LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (!isDestroyed) {
+                // 1. Vật lý xe bị hút bổng trên trời (Lift Off)
+                if (isLifted) {
+                    carPos.y += 0.45;
+                    carPos.x += (tornadoPos.x - carPos.x) * 0.035;
+                    carPos.z += (tornadoPos.z - carPos.z) * 0.035;
+
+                    playerCarGroup.rotation.x += liftRotation.x;
+                    playerCarGroup.rotation.y += liftRotation.y;
+                    playerCarGroup.rotation.z += liftRotation.z;
+
+                    currentHp -= 0.8;
+                    if (carPos.y > 65 || currentHp <= 0) {
+                        triggerGameOver(`Bão ${currentEf.name} đã cuốn bay xe ${vehicleWeight}kg lên bầu trời và làm nổ tung!`);
+                    }
+                } 
+                else {
+                    // 2. Chuyển động xe tự do 360 độ
+                    const maxSpd = carUpgrades.engine ? 1.3 : 0.85;
+                    const accel = carUpgrades.engine ? 0.04 : 0.025;
+
+                    if (!isAnchored) {
+                        if (keys.gas) carSpeed = Math.min(maxSpd, carSpeed + accel);
+                        else if (keys.brake) carSpeed = Math.max(-maxSpd * 0.5, carSpeed - accel * 1.2);
+                        else carSpeed *= 0.95;
+
+                        if (Math.abs(carSpeed) > 0.01) {
+                            const dir = carSpeed > 0 ? 1 : -1;
+                            if (keys.left) carRotY += 0.038 * dir;
+                            if (keys.right) carRotY -= 0.038 * dir;
+                        }
+                    } else {
+                        carSpeed *= 0.65;
+                    }
+
+                    carPos.x += Math.sin(carRotY) * carSpeed;
+                    carPos.z += Math.cos(carRotY) * carSpeed;
+                    carPos.y = 0;
+
+                    playerCarGroup.position.copy(carPos);
+                    playerCarGroup.rotation.set(0, carRotY, 0);
+
+                    // Găm mỏ neo thủy lực visual xuống đất
+                    if (carUpgrades.anchor) {
+                        anchorPillars.forEach(p => p.position.y = isAnchored ? 0.3 : 1.0);
+                    }
+                }
+
+                // 3. Di chuyển lốc xoáy ép sát xe
+                const dirToCar = new THREE.Vector3().subVectors(carPos, tornadoPos).normalize();
+                tornadoPos.addScaledVector(dirToCar, currentEf.windSpeed * 0.0011);
+                tornadoGroup.position.copy(tornadoPos);
+
+                // 4. KIỂM TRA ĐIỀU KIỆN BỊ BÃỠ HÚT LÊN TRỜI
+                const distToTornado = carPos.distanceTo(tornadoPos);
+
+                if (distToTornado < currentEf.radius) {
+                    if (!isAnchored && !isLifted) {
+                        const pullStr = (1 - distToTornado / currentEf.radius) * (currentEf.windSpeed * 0.0022);
+                        carPos.addScaledVector(dirToCar, pullStr);
+                    }
+
+                    // Điều kiện bị nhấc bổng: Trọng lượng xe yếu hoặc bão quá cao mà không thả neo
+                    if (distToTornado < currentEf.radius * 0.45 && !isLifted) {
+                        const maxEfCanResist = carUpgrades.armor ? 3 : (carUpgrades.chassis ? 2 : 1);
+                        if ((currentEf.level > maxEfCanResist && !isAnchored) || (currentEf.level === 5 && !isAnchored)) {
+                            isLifted = true;
+                            liftRotation = { x: Math.random() * 0.12, y: 0.15, z: Math.random() * 0.12 };
+                        }
+                    }
+
+                    // Tích lũy tiền cày săn bão
+                    if (distToTornado < currentEf.radius * 0.75) {
+                        playerCash += (currentEf.level + 1) * 0.35;
+                        collectedData += 0.01;
+                        if (Math.random() < 0.05) playSound('cash');
+                    }
+                }
+
+                if (distToTornado > 650) respawnTornadoRandom();
+            }
+
+            // 5. Update xoáy Vòi Rồng & Sky Vortex
+            stormAngle += 0.04;
+            if (skyVortexGroup) skyVortexGroup.rotation.y = stormAngle * 0.5;
+
+            tornadoParticles.forEach(p => {
+                p.userData.angle += p.userData.speed;
+                const r = p.userData.radius;
+                p.position.x = Math.cos(p.userData.angle) * r;
+                p.position.z = Math.sin(p.userData.angle) * r;
+            });
+
+            // 6. Update Mảnh vỡ bị hút
+            debrisObjects.forEach(d => {
+                const dist = d.mesh.position.distanceTo(tornadoPos);
+                if (dist < currentEf.radius) d.isCaught = true;
+
+                if (d.isCaught) {
+                    d.mesh.position.y += 0.28;
+                    const a = stormAngle * 2 + d.basePos.x;
+                    const r = Math.min(dist, currentEf.radius * 0.6);
+                    d.mesh.position.x = tornadoPos.x + Math.cos(a) * r;
+                    d.mesh.position.z = tornadoPos.z + Math.sin(a) * r;
+                    d.mesh.rotation.x += d.rotSpeed;
+        // Modular Upgrades State
+        const carUpgrades = {
+            chassis: false,
+            engine: false,
+            armor: false,
+            anchor: false
+        };
+
+        let windParticlesGroup;
+
+        // --- ENHANCED VISIBLE TORNADO 3D FUNNEL & DUST CURRENTS ---
+        function createTornado3D() {
+            tornadoGroup = new THREE.Group();
+            tornadoParticles = [];
+
+            // 1. DENSE VOLUMETRIC TORNADO FUNNEL
+            const count = 750;
+            const geo = new THREE.DodecahedronGeometry(0.8, 0);
+
+            for (let i = 0; i < count; i++) {
+                const ratio = i / count;
+                const height = ratio * 180;
+                const radius = 6 + Math.pow(ratio, 1.4) * 95;
+
+                const mat = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHSL(0.55, 0.35, 0.12 + ratio * 0.5),
+                    transparent: true,
+                    opacity: 0.75 - ratio * 0.2
+                });
+
+                const p = new THREE.Mesh(geo, mat);
+                const angle = Math.random() * Math.PI * 2;
+                p.position.set(Math.cos(angle) * radius, height, Math.sin(angle) * radius);
+
+                p.userData = {
+                    angle: angle,
+                    radius: radius,
+                    speed: 0.045 + (1 - ratio) * 0.06
+                };
+
+                tornadoGroup.add(p);
+                tornadoParticles.push(p);
+            }
+
+            // 2. SKY VORTEX DARK CLOUDS
+            skyVortexGroup = new THREE.Group();
+            for (let j = 0; j < 70; j++) {
+                const cloudGeo = new THREE.SphereGeometry(14 + Math.random() * 10, 8, 8);
+                const cloudMat = new THREE.MeshBasicMaterial({ color: 0x070d19, transparent: true, opacity: 0.8 });
+                const cloud = new THREE.Mesh(cloudGeo, cloudMat);
+                const a = (j / 70) * Math.PI * 2;
+                const r = 30 + Math.random() * 110;
+                cloud.position.set(Math.cos(a) * r, 175, Math.sin(a) * r);
+                skyVortexGroup.add(cloud);
+            }
+            tornadoGroup.add(skyVortexGroup);
+
+            // 3. VISIBLE WIND CURRENTS ACROSS MAP
+            windParticlesGroup = new THREE.Group();
+            const wGeo = new THREE.BoxGeometry(3, 0.05, 0.1);
+            const wMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.35 });
+
+            for (let k = 0; k < 120; k++) {
+                const wp = new THREE.Mesh(wGeo, wMat);
+                wp.position.set((Math.random() - 0.5) * 1200, 0.5 + Math.random() * 4, (Math.random() - 0.5) * 1200);
+                windParticlesGroup.add(wp);
+            }
+            scene.add(windParticlesGroup);
+
+            tornadoGroup.position.copy(tornadoPos);
+            scene.add(tornadoGroup);
+        }
+
+        // Tab Switching for Garage
+        document.getElementById('tabPresetsBtn').addEventListener('click', () => {
+            document.getElementById('presetsPanel').classList.remove('hidden');
+            document.getElementById('presetsPanel').classList.add('grid');
+            document.getElementById('modularPanel').classList.add('hidden');
+            document.getElementById('modularPanel').classList.remove('grid');
+            document.getElementById('tabPresetsBtn').className = "px-4 py-2 font-orbitron font-bold text-xs rounded-t-xl bg-amber-600 text-slate-950";
+            document.getElementById('tabModularBtn').className = "px-4 py-2 font-orbitron font-bold text-xs rounded-t-xl bg-slate-800 text-slate-400 hover:text-slate-200";
+        });
+
+        document.getElementById('tabModularBtn').addEventListener('click', () => {
+            document.getElementById('modularPanel').classList.remove('hidden');
+            document.getElementById('modularPanel').classList.add('grid');
+            document.getElementById('presetsPanel').classList.add('hidden');
+            document.getElementById('presetsPanel').classList.remove('grid');
+            document.getElementById('tabModularBtn').className = "px-4 py-2 font-orbitron font-bold text-xs rounded-t-xl bg-amber-600 text-slate-950";
+            document.getElementById('tabPresetsBtn').className = "px-4 py-2 font-orbitron font-bold text-xs rounded-t-xl bg-slate-800 text-slate-400 hover:text-slate-200";
+        });
+
+        // Garage Modal Trigger
+        const garModal = document.getElementById('garageModal');
+        document.getElementById('garageBtn').addEventListener('click', () => {
+            document.getElementById('garCash').innerText = `$${Math.floor(playerCash).toLocaleString()}`;
+            garModal.classList.remove('opacity-0', 'pointer-events-none');
+        });
+        document.getElementById('closeGarBtn').addEventListener('click', () => {
+            garModal.classList.add('opacity-0', 'pointer-events-none');
+        });
+
+        // Preset Purchase Handlers
+        document.getElementById('buySedanPresetBtn').addEventListener('click', () => {
+            carUpgrades.chassis = false; carUpgrades.armor = false; carUpgrades.anchor = false; carUpgrades.engine = false;
+            rebuildPlayerCar3D();
+            garModal.classList.add('opacity-0', 'pointer-events-none');
+        });
+
+        document.getElementById('buyTruckPresetBtn').addEventListener('click', () => {
+            if (playerCash >= 2200) {
+                playerCash -= 2200;
+                carUpgrades.chassis = true; carUpgrades.engine = true;
+                rebuildPlayerCar3D();
+                garModal.classList.add('opacity-0', 'pointer-events-none');
+            }
+        });
+
+        document.getElementById('buyTivPresetBtn').addEventListener('click', () => {
+            if (playerCash >= 6500) {
+                playerCash -= 6500;
+                carUpgrades.chassis = true; carUpgrades.engine = true; carUpgrades.armor = true; carUpgrades.anchor = true;
+                rebuildPlayerCar3D();
+                garModal.classList.add('opacity-0', 'pointer-events-none');
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') keys.gas = false;
+            if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') keys.brake = false;
+            if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') keys.left = false;
+            if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') keys.right = false;
+        });
+
+        const bindTouch = (id, keyName) => {
+            const btn = document.getElementById(id);
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); initAudio(); keys[keyName] = true; });
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+            btn.addEventListener('mousedown', () => { initAudio(); keys[keyName] = true; });
+            btn.addEventListener('mouseup', () => { keys[keyName] = false; });
+        };
+
+        bindTouch('btnGas', 'gas');
+        bindTouch('btnBrake', 'brake');
+        bindTouch('btnSteerLeft', 'left');
+        bindTouch('btnSteerRight', 'right');
+
+        document.getElementById('anchorToggleBtn').addEventListener('click', () => {
+            if (carUpgrades.anchor) {
+                isAnchored = !isAnchored;
+                playSound('anchor');
+            }
+        });
+
+        // WORKBENCH MODAL LOGIC
+        const wbModal = document.getElementById('workbenchModal');
+        document.getElementById('workbenchBtn').addEventListener('click', () => {
+            document.getElementById('wbCash').innerText = `$${Math.floor(playerCash).toLocaleString()}`;
+            wbModal.classList.remove('opacity-0', 'pointer-events-none');
+        });
+        document.getElementById('closeWbBtn').addEventListener('click', () => {
+            wbModal.classList.add('opacity-0', 'pointer-events-none');
+        });
+
+        // BUY & UPGRADE PARTS LOGIC
+        document.getElementById('buyChassisBtn').addEventListener('click', () => {
+            if (!carUpgrades.chassis && playerCash >= 1500) {
+                playerCash -= 1500;
+                carUpgrades.chassis = true;
+                document.getElementById('partStatusChassis').innerText = "Đã Độ Khung Bán Tải";
+                document.getElementById('partStatusChassis').className = "text-[10px] font-bold text-emerald-400";
+                document.getElementById('buyChassisBtn').innerText = "ĐÃ SỞ HỮU";
+                document.getElementById('buyChassisBtn').disabled = true;
+                document.getElementById('buyChassisBtn').className = "px-4 py-2 rounded-xl font-orbitron font-bold text-xs uppercase bg-slate-800 text-slate-500 cursor-not-allowed";
+                rebuildPlayerCar3D();
+            }
+        });
+
+        document.getElementById('buyEngineBtn').addEventListener('click', () => {
+            if (!carUpgrades.engine && playerCash >= 800) {
+                playerCash -= 800;
+                carUpgrades.engine = true;
+                document.getElementById('partStatusEngine').innerText = "Đã Nâng Twin Turbo";
+                document.getElementById('partStatusEngine').className = "text-[10px] font-bold text-emerald-400";
+                document.getElementById('buyEngineBtn').innerText = "ĐÃ SỞ HỮU";
+                document.getElementById('buyEngineBtn').disabled = true;
+                document.getElementById('buyEngineBtn').className = "px-4 py-2 rounded-xl font-orbitron font-bold text-xs uppercase bg-slate-800 text-slate-500 cursor-not-allowed";
+            }
+        });
+
+        document.getElementById('buyArmorBtn').addEventListener('click', () => {
+            if (!carUpgrades.armor && playerCash >= 2800) {
+                playerCash -= 2800;
+                carUpgrades.armor = true;
+                document.getElementById('partStatusArmor').innerText = "Đã Bọc Giáp Thép 3D";
+                document.getElementById('partStatusArmor').className = "text-[10px] font-bold text-emerald-400";
+                document.getElementById('buyArmorBtn').innerText = "ĐÃ SỞ HỮU";
+                document.getElementById('buyArmorBtn').disabled = true;
+                document.getElementById('buyArmorBtn').className = "px-4 py-2 rounded-xl font-orbitron font-bold text-xs uppercase bg-slate-800 text-slate-500 cursor-not-allowed";
+                rebuildPlayerCar3D();
+            }
+        });
+
+        document.getElementById('buyAnchorBtn').addEventListener('click', () => {
+            if (!carUpgrades.anchor && playerCash >= 4500) {
+                playerCash -= 4500;
+                carUpgrades.anchor = true;
+                document.getElementById('partStatusAnchor').innerText = "Đã Lắp Neo Thủy Lực";
+                document.getElementById('partStatusAnchor').className = "text-[10px] font-bold text-emerald-400";
+                document.getElementById('buyAnchorBtn').innerText = "ĐÃ SỞ HỮU";
+                document.getElementById('buyAnchorBtn').disabled = true;
+                document.getElementById('buyAnchorBtn').className = "px-4 py-2 rounded-xl font-orbitron font-bold text-xs uppercase bg-slate-800 text-slate-500 cursor-not-allowed";
+                rebuildPlayerCar3D();
+            }
+        });
+
+        document.getElementById('respawnBtn').addEventListener('click', () => {
+            document.getElementById('gameOverModal').classList.add('opacity-0', 'pointer-events-none');
+            resetGame();
+        });
+
+        document.getElementById('soundToggleBtn').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').className = soundEnabled ? 'fa-solid fa-volume-high text-xs' : 'fa-solid fa-volume-xmark text-xs';
+        });
+
+        // START GAME
+        window.onload = () => {
+            init3D();
+            resetGame();
+            animate();
+        };
+    </script>
+</body>
+</html>
