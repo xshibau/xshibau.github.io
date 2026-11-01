@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Tornado Hunter - Săn Lốc Xoáy</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+            background-color: #050508;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(10, 15, 26, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .glass-btn {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 110, 255, 0.4));
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            transition: all 0.15s ease;
+        }
+
+        .glass-btn:active, .glass-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.5), rgba(0, 110, 255, 0.8));
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+        }
+
+        .glass-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .radar-sweep {
+            animation: radar-scan 4s linear infinite;
+        }
+        @keyframes radar-scan {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Touch Controls styling */
+        .touch-btn {
+            background: rgba(10, 20, 35, 0.6);
+            border: 2px solid rgba(0, 240, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00f0ff;
+            user-select: none;
+        }
+        .touch-btn:active {
+            background: rgba(0, 240, 255, 0.4);
+            color: #fff;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.4); border-radius: 2px; }
+    </style>
+</head>
+<body class="w-screen h-screen relative bg-black text-white overflow-hidden">
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container" class="absolute inset-0 w-full h-full z-0"></div>
+
+    <!-- Screen Flash on Damage -->
+    <div id="damage-overlay" class="pointer-events-none absolute inset-0 bg-red-600/40 opacity-0 z-10 transition-opacity duration-150"></div>
+
+    <!-- HUD DURING GAMEPLAY -->
+    <div id="game-hud" class="absolute inset-0 z-20 pointer-events-none hidden flex flex-col justify-between p-2 md:p-4">
+        
+        <!-- Top Telemetry Bar -->
+        <div class="flex justify-between items-start w-full gap-2">
+            <!-- Left Data & Cash -->
+            <div class="glass-panel p-2 md:p-3 rounded-lg text-xs md:text-sm min-w-[130px] md:min-w-[180px]">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-cyan-400 font-bold"><i class="fa-solid fa-microchip"></i> Dữ liệu</span>
+                    <span id="hud-data-text" class="font-orbitron text-cyan-300 font-bold">0 GB</span>
+                </div>
+                <div class="w-full bg-gray-900 rounded-full h-1.5 mb-2 overflow-hidden border border-cyan-900">
+                    <div id="hud-data-bar" class="bg-cyan-400 h-full w-0"></div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span class="text-emerald-400 font-bold"><i class="fa-solid fa-sack-dollar"></i> Tiền</span>
+                    <span id="hud-cash-text" class="font-orbitron text-emerald-400 font-bold">$0</span>
+                </div>
+            </div>
+
+            <!-- Radar Center -->
+            <div class="glass-panel p-1 rounded-full relative w-14 h-14 md:w-20 md:h-20 flex items-center justify-center border border-cyan-500/40">
+                <div class="absolute inset-0 rounded-full border border-cyan-500/20"></div>
+                <div class="absolute w-full h-full rounded-full border-t border-cyan-400 radar-sweep opacity-50"></div>
+                <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full z-10"></div>
+                <div id="radar-tornado-dot" class="w-2.5 h-2.5 bg-red-500 rounded-full absolute z-10 transition-all duration-150"></div>
+            </div>
+
+            <!-- Right Health & Distance -->
+            <div class="glass-panel p-2 md:p-3 rounded-lg text-xs md:text-sm min-w-[140px] md:min-w-[190px]">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-red-400 font-bold"><i class="fa-solid fa-tornado"></i> Bão</span>
+                    <span id="hud-tornado-dist" class="font-orbitron text-red-300 font-bold">0 m</span>
+                </div>
+                <div class="w-full bg-gray-900 rounded-full h-1.5 mb-2 overflow-hidden border border-red-900">
+                    <div id="hud-suction-bar" class="bg-red-500 h-full w-0"></div>
+                </div>
+
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-emerald-400 font-bold"><i class="fa-solid fa-shield-halved"></i> Giáp</span>
+                    <span id="hud-health-text" class="font-orbitron text-emerald-300 font-bold">100%</span>
+                </div>
+                <div class="w-full bg-gray-900 rounded-full h-1.5 overflow-hidden border border-emerald-900">
+                    <div id="hud-health-bar" class="bg-emerald-500 h-full w-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warning Toast -->
+        <div class="self-center">
+            <div id="warning-banner" class="hidden glass-panel border-red-500 bg-red-950/80 text-red-300 font-orbitron px-4 py-1.5 rounded-full font-bold text-xs md:text-sm tracking-wider animate-pulse flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-yellow-400"></i>
+                <span>CẢNH BÁO: LỰC HÚT CỰC ĐẠI!</span>
+            </div>
+        </div>
+
+        <!-- Bottom Controls & Speedometer -->
+        <div class="flex justify-between items-end w-full">
+            <!-- Left status / Anchor -->
+            <div class="glass-panel p-2 md:p-3 rounded-lg flex items-center gap-2">
+                <div id="anchor-indicator" class="flex flex-col items-center justify-center p-2 rounded border border-gray-700 bg-gray-900/60">
+                    <i class="fa-solid fa-anchor text-lg text-gray-500" id="anchor-icon"></i>
+                    <span class="text-[9px] font-orbitron mt-0.5 text-gray-400">NEO ĐẤT</span>
+                </div>
+                <div class="hidden sm:block text-[11px] text-gray-300 space-y-0.5">
+                    <p><kbd class="px-1 bg-gray-800 rounded">WASD</kbd> : Lái xe</p>
+                    <p><kbd class="px-1 bg-gray-800 rounded">SPACE</kbd> : Neo/Phanh</p>
+                    <p><kbd class="px-1 bg-gray-800 rounded">R</kbd> : Lật xe</p>
+                </div>
+            </div>
+
+            <!-- Speedometer -->
+            <div class="glass-panel p-2 md:p-3 rounded-lg flex items-center gap-3">
+                <div class="text-right">
+                    <div class="text-[9px] text-cyan-400 font-bold uppercase">Tốc độ</div>
+                    <div class="font-orbitron text-xl md:text-3xl font-black text-white" id="hud-speed">0</div>
+                    <div class="text-[8px] text-gray-400 font-bold">KM/H</div>
+                </div>
+                <div class="h-8 w-0.5 bg-cyan-500/30"></div>
+                <div>
+                    <div class="text-[9px] text-yellow-400 font-bold uppercase">Sức gió</div>
+                    <div class="font-orbitron text-lg md:text-xl font-bold text-yellow-400" id="hud-wind">0</div>
+                    <div class="text-[8px] text-gray-400 font-bold">KM/H</div>
+                </div>
+                <button id="btn-pause" class="pointer-events-auto ml-1 glass-btn p-2 rounded-lg text-cyan-300">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Touch Overlay (Controls) -->
+        <div class="md:hidden pointer-events-auto absolute inset-x-0 bottom-16 px-4 flex justify-between items-end z-30">
+            <!-- D-Pad Left/Right & Up/Down -->
+            <div class="grid grid-cols-3 gap-2 w-36 h-36">
+                <div></div>
+                <button id="touch-up" class="touch-btn text-xl"><i class="fa-solid fa-caret-up"></i></button>
+                <div></div>
+                <button id="touch-left" class="touch-btn text-xl"><i class="fa-solid fa-caret-left"></i></button>
+                <button id="touch-down" class="touch-btn text-xl"><i class="fa-solid fa-caret-down"></i></button>
+                <button id="touch-right" class="touch-btn text-xl"><i class="fa-solid fa-caret-right"></i></button>
+            </div>
+
+            <!-- Mobile Action Buttons -->
+            <div class="flex flex-col gap-3">
+                <button id="touch-reset" class="touch-btn w-12 h-12 text-sm"><i class="fa-solid fa-rotate-left"></i></button>
+                <button id="touch-anchor" class="touch-btn w-14 h-14 text-xl"><i class="fa-solid fa-anchor"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MAIN MENU & SHOP (RESPONSIVE OVERLAY) -->
+    <div id="main-menu" class="absolute inset-0 z-30 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-md">
+        <div class="glass-panel max-w-4xl w-full max-h-[95vh] rounded-xl sm:rounded-2xl p-3 sm:p-6 flex flex-col justify-between overflow-y-auto border border-cyan-500/30">
+            
+            <!-- Header -->
+            <div class="text-center mb-3">
+                <h1 class="font-orbitron text-2xl sm:text-4xl md:text-5xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-200 to-blue-500">
+                    TORNADO HUNTER 3D
+                </h1>
+                <p class="text-gray-400 text-xs sm:text-sm font-semibold">
+                    SĂN SIÊU BÃO - XE CÀNG CÙI CÀNG DỄ BAY!
+                </p>
+            </div>
+
+            <!-- Vehicles Selection Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                
+                <!-- Vehicle 0 -->
+                <div class="vehicle-card border-2 border-cyan-500/40 bg-gray-900/60 rounded-lg p-3 flex flex-col justify-between transition cursor-pointer" data-car="0">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-orbitron font-bold text-sm sm:text-base text-yellow-400">Bạch Thủ Cùi</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 bg-yellow-500/20 text-yellow-300 rounded border border-yellow-500/40">Miễn Phí</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-2">Xe sedan cũ rỉ sét. Cực nhẹ, gió nhẹ quật cái là bốc đầu cuộn tròn lên mây!</p>
+                        
+                        <div class="space-y-1 text-[10px]">
+                            <div class="flex justify-between text-gray-400"><span>Trọng lượng:</span> <span class="text-white">800 kg (Nhẹ)</span></div>
+                            <div class="w-full bg-gray-800 h-1 rounded"><div class="bg-red-500 h-full w-[25%]"></div></div>
+                            <div class="flex justify-between text-gray-400"><span>Kháng Hút:</span> <span class="text-white">Rất Yếu</span></div>
+                            <div class="w-full bg-gray-800 h-1 rounded"><div class="bg-red-500 h-full w-[15%]"></div></div>
+                        </div>
+                    </div>
+                    <button class="btn-select-car w-full mt-3 py-1.5 glass-btn rounded font-orbitron font-bold text-xs text-cyan-300">
+                        CHỌN XE NÀY
+                    </button>
+                </div>
+
+                <!-- Vehicle 1 -->
+                <div class="vehicle-card border-2 border-gray-700 bg-gray-900/60 rounded-lg p-3 flex flex-col justify-between transition cursor-pointer" data-car="1">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-orbitron font-bold text-sm sm:text-base text-cyan-300">Storm SUV</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/40">$2,500</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-2">SUV gia cố thêm khung thép. Trọng lượng trung bình, bám đường khá tốt.</p>
+                        
+                        <div class="space-y-1 text-[10px]">
+                            <div class="flex justify-between text-gray-400"><span>Trọng lượng:</span> <span class="text-white">2,800 kg</span></div>
+                            <div class="w-full bg-gray-800 h-1 rounded"><div class="bg-cyan-400 h-full w-[60%]"></div></div>
+                            <div class="flex justify-between text-gray-400"><span>Kháng Hút:</span> <span class="text-white">Khá</span></div>
+                            <div class="w-full bg-gray-800 h-1 rounded"><div class="bg-cyan-400 h-full w-[60%]"></div></div>
+                        </div>
+                    </div>
+                    <button class="btn-select-car w-full mt-3 py-1.5 glass-btn rounded font-orbitron font-bold text-xs text-cyan-300">
+                        MUA / CHỌN
+                    </button>
+                </div>
+
+                <!-- Vehicle 2 -->
+                <div class="vehicle-card border-2 border-gray-700 bg-gray-900/60 rounded-lg p-3 flex flex-col justify-between transition cursor-pointer" data-car="2">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-orbitron font-bold text-sm sm:text-base text-purple-300">Interceptor TIV-2</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/40">$8,000</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-2">Quái vật bọc thép siêu nặng trang bị Neo Thủy Lực cắm chặt mặt đất.</p>
+                        
+                        <div class="space-y-1 text-[10px]">
+                            <div class="flex justify-between text-gray-400"><span>Trọng lượng:</span> <span class="text-white">7,500 kg (Siêu Nặng)</span></div>
+                            <div class="w-full bg-gray-800 h-1 rounded"><div class="bg-purple-400 h-full w-[95%]"></div></div>
+                            <div class="flex justify-between text-gray-400"><span>Kháng Hút:</span> <span class="text-white">Tuyệt Đối (Có Neo)</span></div>
+                            <div class="w-full bg-gray-800 h-1 rounded"><div class="bg-purple-400 h-full w-[100%]"></div></div>
+                        </div>
+                    </div>
+                    <button class="btn-select-car w-full mt-3 py-1.5 glass-btn rounded font-orbitron font-bold text-xs text-cyan-300">
+                        MUA / CHỌN
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Upgrades Panel -->
+            <div class="glass-panel p-3 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-2 mb-3">
+                <div class="text-left w-full sm:w-auto">
+                    <div class="font-orbitron text-xs text-cyan-400 font-bold uppercase">Nâng Cấp Xe</div>
+                    <div class="text-gray-400 text-[10px]">Gia tăng sức mạnh chống lốc xoáy</div>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+                    <button id="btn-upgrade-weight" class="glass-btn px-2.5 py-1.5 rounded text-[11px] font-bold text-gray-200 flex items-center gap-1">
+                        <i class="fa-solid fa-weight-hanging text-cyan-400"></i>
+                        <span>Thêm Tải Trọng: <strong id="cost-weight" class="text-yellow-400">$300</strong></span>
+                    </button>
+                    <button id="btn-upgrade-engine" class="glass-btn px-2.5 py-1.5 rounded text-[11px] font-bold text-gray-200 flex items-center gap-1">
+                        <i class="fa-solid fa-gauge-high text-cyan-400"></i>
+                        <span>Động Cơ: <strong id="cost-engine" class="text-yellow-400">$400</strong></span>
+                    </button>
+                    <button id="btn-upgrade-anchor" class="glass-btn px-2.5 py-1.5 rounded text-[11px] font-bold text-gray-200 flex items-center gap-1">
+                        <i class="fa-solid fa-anchor text-cyan-400"></i>
+                        <span>Neo Đất: <strong id="cost-anchor" class="text-yellow-400">$1,000</strong></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer Bottom CTA -->
+            <div class="flex justify-between items-center pt-1">
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 text-xs">Quỹ:</span>
+                    <span id="menu-cash" class="font-orbitron text-lg sm:text-xl font-bold text-emerald-400">$0</span>
+                </div>
+                <button id="btn-start-game" class="glass-btn px-6 py-2.5 rounded-xl font-orbitron font-black text-sm sm:text-base text-white bg-gradient-to-r from-cyan-500 to-blue-600 tracking-wider">
+                    XUẤT PHÁT SĂN BÃO <i class="fa-solid fa-play ml-1"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="game-over-menu" class="absolute inset-0 z-40 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="glass-panel max-w-sm w-full rounded-xl p-5 text-center space-y-4 border border-red-500/50">
+            <div class="w-12 h-12 bg-red-500/20 border border-red-500 rounded-full flex items-center justify-center mx-auto text-red-500 text-2xl">
+                <i class="fa-solid fa-car-burst"></i>
+            </div>
+            <div>
+                <h2 class="font-orbitron text-xl font-black text-red-500">XE ĐÃ BỊ NÁT VỤN!</h2>
+                <p class="text-xs text-gray-300 mt-1" id="game-over-reason">Xe của bạn quá nhẹ nên đã bị vòi bão hút lật tung trên không!</p>
+            </div>
+
+            <div class="glass-panel p-3 rounded-lg space-y-1.5 text-xs text-left">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Dữ liệu thu được:</span>
+                    <span id="end-data" class="font-orbitron font-bold text-cyan-300">0 GB</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Tiền thưởng:</span>
+                    <span id="end-cash" class="font-orbitron font-bold text-emerald-400">+$0</span>
+                </div>
+            </div>
+
+            <button id="btn-restart" class="w-full py-2.5 glass-btn rounded-lg font-orbitron font-bold text-xs text-cyan-300 border-cyan-400">
+                TRỞ VỀ GARAGE
+            </button>
+        </div>
+    </div>
+
+    <!-- GAME CODE -->
+    <script>
+        /* SOUND SYNTHESIZER */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.engineOsc = null;
+                this.engineGain = null;
+                this.windGain = null;
+                this.windFilter = null;
+            }
+
+            init() {
+                if (this.ctx) return;
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+
+                // Engine sound
+                this.engineOsc = this.ctx.createOscillator();
+                this.engineGain = this.ctx.createGain();
+                this.engineOsc.type = 'sawtooth';
+                this.engineOsc.frequency.setValueAtTime(40, this.ctx.currentTime);
+                this.engineGain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+
+                const engineFilter = this.ctx.createBiquadFilter();
+                engineFilter.type = 'lowpass';
+                engineFilter.frequency.setValueAtTime(350, this.ctx.currentTime);
+
+                this.engineOsc.connect(engineFilter);
+                engineFilter.connect(this.engineGain);
+                this.engineGain.connect(this.ctx.destination);
+                this.engineOsc.start();
+
+                // Wind Sound
+                const bufferSize = this.ctx.sampleRate * 2;
+                const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+                const whiteNoise = this.ctx.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
+                whiteNoise.loop = true;
+
+                this.windFilter = this.ctx.createBiquadFilter();
+                this.windFilter.type = 'bandpass';
+                this.windFilter.frequency.setValueAtTime(300, this.ctx.currentTime);
+                this.windFilter.Q.setValueAtTime(1.5, this.ctx.currentTime);
+
+                this.windGain = this.ctx.createGain();
+                this.windGain.gain.setValueAtTime(0.02, this.ctx.currentTime);
+
+                whiteNoise.connect(this.windFilter);
+                this.windFilter.connect(this.windGain);
+                this.windGain.connect(this.ctx.destination);
+                whiteNoise.start();
+            }
+
+            update(speed, dist) {
+                if (!this.ctx) return;
+                const pitch = 40 + (speed * 1.2);
+                this.engineOsc.frequency.setTargetAtTime(Math.min(pitch, 200), this.ctx.currentTime, 0.1);
+
+                const normDist = Math.max(0, 1 - (dist / 800));
+                this.windGain.gain.setTargetAtTime(0.02 + normDist * 0.4, this.ctx.currentTime, 0.1);
+                this.windFilter.frequency.setTargetAtTime(200 + normDist * 1000, this.ctx.currentTime, 0.1);
+            }
+
+            playBeep() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+
+            playCrash() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(90, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.4);
+            }
+        }
+
+        const audio = new SoundEngine();
+
+        /* VEHICLES & GAME STATE */
+        const VEHICLES_CONFIG = [
+            { id: 0, name: 'Bạch Thủ Cùi', price: 0, mass: 800, maxSpeed: 75, acceleration: 22, armor: 50, color: 0x8b5a2b, liftMultiplier: 2.2, hasAnchor: false, modelType: 'sedan' },
+            { id: 1, name: 'Storm SUV', price: 2500, mass: 2800, maxSpeed: 100, acceleration: 28, armor: 150, color: 0x0088cc, liftMultiplier: 0.9, hasAnchor: false, modelType: 'suv' },
+            { id: 2, name: 'Interceptor TIV-2', price: 8000, mass: 7500, maxSpeed: 115, acceleration: 32, armor: 400, color: 0x222225, liftMultiplier: 0.3, hasAnchor: true, modelType: 'tiv' }
+        ];
+
+        let playerState = {
+            cash: 500,
+            selectedCarIndex: 0,
+            ownedCars: [true, false, false],
+            upgrades: { weight: 0, engine: 0, anchor: false }
+        };
+
+        /* THREE.JS SCENE SETUP */
+        let scene, camera, renderer;
+        let tornadoGroup, tornadoParticles = [];
+        let playerCarGroup;
+        let clock = new THREE.Clock();
+
+        let isGameRunning = false;
+        let carHealth = 100, carMaxHealth = 100;
+        let collectedData = 0, carSpeed = 0;
+        let carVelocity = new THREE.Vector3();
+        let carAngularVelocity = new THREE.Vector3();
+        let isAnchored = false;
+        let keys = {};
+
+        let tornadoPosition = new THREE.Vector3(0, 0, -300);
+        let tornadoTarget = new THREE.Vector3(0, 0, 0);
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0d14);
+            scene.fog = new THREE.FogExp2(0x0a0d14, 0.0025);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1500);
+            camera.position.set(0, 6, 15);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambient = new THREE.AmbientLight(0x334466, 1.2);
+            scene.add(ambient);
+
+            const sun = new THREE.DirectionalLight(0x99bbff, 1.2);
+            sun.position.set(100, 200, 50);
+            sun.castShadow = true;
+            scene.add(sun);
+
+            // Ground
+            const groundGeo = new THREE.PlaneGeometry(1600, 1600, 64, 64);
+            groundGeo.rotateX(-Math.PI / 2);
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x111822, roughness: 0.9 });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // Tornado
+            createTornado();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createTornado() {
+            tornadoGroup = new THREE.Group();
+            scene.add(tornadoGroup);
+
+            const count = 1000;
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(count * 3);
+            const cols = new Float32Array(count * 3);
+
+            for (let i = 0; i < count; i++) {
+                const h = i / count;
+                const r = (1 - Math.pow(1 - h, 2)) * 50 + 4;
+                const a = Math.random() * Math.PI * 2;
+
+                pos[i * 3] = Math.cos(a) * r;
+                pos[i * 3 + 1] = h * 160;
+                pos[i * 3 + 2] = Math.sin(a) * r;
+
+                const isDust = Math.random() > 0.15;
+                cols[i * 3] = isDust ? 0.2 : 0;
+                cols[i * 3 + 1] = isDust ? 0.2 : 0.8;
+                cols[i * 3 + 2] = isDust ? 0.25 : 1;
+
+                tornadoParticles.push({ angle: a, radius: r, speed: 2 + Math.random() * 3 });
+            }
+
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+
+            const mat = new THREE.PointsMaterial({ size: 3.5, vertexColors: true, transparent: true, opacity: 0.7 });
+            const pSystem = new THREE.Points(geo, mat);
+            tornadoGroup.add(pSystem);
+            tornadoGroup.position.copy(tornadoPosition);
+        }
+
+        function buildVehicleModel(carConfig) {
+            if (playerCarGroup) scene.remove(playerCarGroup);
+
+            playerCarGroup = new THREE.Group();
+            const carMat = new THREE.MeshStandardMaterial({ color: carConfig.color, roughness: 0.4 });
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x112233, metalness: 0.8, transparent: true, opacity: 0.7 });
+
+            if (carConfig.modelType === 'sedan') {
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.7, 3.8), carMat);
+                body.position.y = 0.5;
+                body.castShadow = true;
+                playerCarGroup.add(body);
+
+                const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.6, 1.8), glassMat);
+                cabin.position.set(0, 1.0, -0.2);
+                playerCarGroup.add(cabin);
+            } else if (carConfig.modelType === 'suv') {
+                const body = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.0, 4.4), carMat);
+                body.position.y = 0.7;
+                body.castShadow = true;
+                playerCarGroup.add(body);
+
+                const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.8, 2.4), glassMat);
+                cabin.position.set(0, 1.4, -0.2);
+                playerCarGroup.add(cabin);
+            } else {
+                const body = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.1, 4.8), carMat);
+                body.position.y = 0.6;
+                body.castShadow = true;
+                playerCarGroup.add(body);
+
+                const armor = new THREE.Mesh(new THREE.ConeGeometry(1.8, 1.0, 4), carMat);
+                armor.rotateY(Math.PI / 4);
+                armor.position.set(0, 1.4, 0);
+                armor.scale.set(1, 0.7, 1.6);
+                playerCarGroup.add(armor);
+            }
+
+            // Wheels
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+            const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.35, 12);
+            wheelGeo.rotateZ(Math.PI / 2);
+            [[-0.95, 0.4, 1.2], [0.95, 0.4, 1.2], [-0.95, 0.4, -1.2], [0.95, 0.4, -1.2]].forEach(p => {
+                const w = new THREE.Mesh(wheelGeo, wheelMat);
+                w.position.set(p[0], p[1], p[2]);
+                playerCarGroup.add(w);
+            });
+
+            scene.add(playerCarGroup);
+            playerCarGroup.position.set(0, 0, 40);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        /* PHYSICS CALCULATIONS */
+        function updatePhysics(delta) {
+            if (!isGameRunning) return;
+
+            const carConfig = VEHICLES_CONFIG[playerState.selectedCarIndex];
+            const extraWeight = playerState.upgrades.weight * 500;
+            const totalMass = carConfig.mass + extraWeight;
+            const liftVulnerability = carConfig.liftMultiplier / (1 + (playerState.upgrades.weight * 0.4));
+
+            const carPos = playerCarGroup.position;
+            const horizontalDist = new THREE.Vector2(carPos.x - tornadoPosition.x, carPos.z - tornadoPosition.z).length();
+
+            let windSpeedKmh = 0;
+
+            if (horizontalDist < 300) {
+                const forceFactor = Math.pow(1 - (horizontalDist / 300), 2);
+                windSpeedKmh = Math.floor(forceFactor * 300);
+
+                if (isAnchored && playerState.upgrades.anchor) windSpeedKmh *= 0.15;
+
+                const pullDir = new THREE.Vector3().subVectors(tornadoPosition, carPos).normalize();
+                pullDir.y = 0;
+
+                const pullForce = (forceFactor * 40 * liftVulnerability) / (totalMass / 1000);
+                carVelocity.x += pullDir.x * pullForce * delta;
+                carVelocity.z += pullDir.z * pullForce * delta;
+
+                // Rotational torque force
+                const tangent = new THREE.Vector3(-pullDir.z, 0, pullDir.x);
+                carVelocity.x += tangent.x * pullForce * 0.6 * delta;
+                carVelocity.z += tangent.z * pullForce * 0.6 * delta;
+
+                // Vertical Lift
+                if (horizontalDist < 30 && (!isAnchored || !playerState.upgrades.anchor)) {
+                    const liftForce = (forceFactor * 65 * liftVulnerability) / (totalMass / 1000);
+                    carVelocity.y += (liftForce - 9.8) * delta;
+
+                    carAngularVelocity.x += (Math.random() - 0.5) * liftForce * 0.1;
+                    carAngularVelocity.y += (Math.random() - 0.5) * liftForce * 0.15;
+
+                    damageCar(4 * delta);
+                }
+            }
+
+            // Gravity & Ground
+            if (carPos.y > 0.1) {
+                carVelocity.y -= 22.0 * delta;
+            } else {
+                carPos.y = 0.1;
+                carVelocity.y = 0;
+                carAngularVelocity.multiplyScalar(0.85);
+
+                if (Math.abs(playerCarGroup.rotation.z) > 0.1 || Math.abs(playerCarGroup.rotation.x) > 0.1) {
+                    playerCarGroup.rotation.x *= 0.9;
+                    playerCarGroup.rotation.z *= 0.9;
+                }
+            }
+
+            // Driving controls
+            const enginePower = carConfig.acceleration + (playerState.upgrades.engine * 8);
+            const topSpeed = carConfig.maxSpeed + (playerState.upgrades.engine * 12);
+
+            const isUp = keys['w'] || keys['W'] || keys['ArrowUp'] || keys['touchUp'];
+            const isDown = keys['s'] || keys['S'] || keys['ArrowDown'] || keys['touchDown'];
+            const isLeft = keys['a'] || keys['A'] || keys['ArrowLeft'] || keys['touchLeft'];
+            const isRight = keys['d'] || keys['D'] || keys['ArrowRight'] || keys['touchRight'];
+
+            if (!isAnchored) {
+                if (isUp) carSpeed = THREE.MathUtils.lerp(carSpeed, topSpeed, enginePower * 0.04 * delta);
+                else if (isDown) carSpeed = THREE.MathUtils.lerp(carSpeed, -topSpeed * 0.5, enginePower * 0.04 * delta);
+                else carSpeed = THREE.MathUtils.lerp(carSpeed, 0, 2.5 * delta);
+
+                if (isLeft) playerCarGroup.rotation.y += (carSpeed >= 0 ? 1 : -1) * 2.2 * delta;
+                if (isRight) playerCarGroup.rotation.y -= (carSpeed >= 0 ? 1 : -1) * 2.2 * delta;
+            } else {
+                carSpeed = THREE.MathUtils.lerp(carSpeed, 0, 10.0 * delta);
+            }
+
+            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(playerCarGroup.quaternion);
+            carPos.addScaledVector(forward, carSpeed * 0.28 * delta);
+
+            carPos.x += carVelocity.x;
+            carPos.y += carVelocity.y * delta;
+            carPos.z += carVelocity.z;
+
+            playerCarGroup.rotation.x += carAngularVelocity.x * delta;
+            playerCarGroup.rotation.y += carAngularVelocity.y * delta;
+            playerCarGroup.rotation.z += carAngularVelocity.z * delta;
+
+            carVelocity.x *= 0.94;
+            carVelocity.z *= 0.94;
+
+            if (horizontalDist < 200 && isGameRunning) {
+                collectedData += (1 - (horizontalDist / 200)) * 12 * delta;
+                if (Math.random() < 0.08) audio.playBeep();
+            }
+
+            updateHUD(Math.abs(Math.round(carSpeed)), Math.round(windSpeedKmh), Math.round(horizontalDist));
+            updateCamera();
+            audio.update(Math.abs(carSpeed), horizontalDist);
+        }
+
+        function updateCamera() {
+            const offset = new THREE.Vector3(0, 4.5, 12).applyMatrix4(playerCarGroup.matrixWorld);
+            camera.position.lerp(offset, 0.1);
+            camera.lookAt(playerCarGroup.position.x, playerCarGroup.position.y + 1.2, playerCarGroup.position.z);
+        }
+
+        function updateTornado(delta) {
+            if (tornadoPosition.distanceTo(tornadoTarget) < 15) {
+                tornadoTarget.set((Math.random() - 0.5) * 500, 0, (Math.random() - 0.5) * 500);
+            }
+            const dir = new THREE.Vector3().subVectors(tornadoTarget, tornadoPosition).normalize();
+            tornadoPosition.addScaledVector(dir, 10 * delta);
+            tornadoGroup.position.copy(tornadoPosition);
+
+            const pos = tornadoGroup.children[0].geometry.attributes.position.array;
+            for (let i = 0; i < tornadoParticles.length; i++) {
+                const p = tornadoParticles[i];
+                p.angle += p.speed * delta;
+                pos[i * 3] = Math.cos(p.angle) * p.radius;
+                pos[i * 3 + 2] = Math.sin(p.angle) * p.radius;
+            }
+            tornadoGroup.children[0].geometry.attributes.position.needsUpdate = true;
+        }
+
+        function damageCar(amt) {
+            carHealth = Math.max(0, carHealth - amt);
+            const overlay = document.getElementById('damage-overlay');
+            overlay.style.opacity = '1';
+            setTimeout(() => overlay.style.opacity = '0', 150);
+
+            if (carHealth <= 0 && isGameRunning) {
+                triggerGameOver("Xe cùi bị gió xoáy tàn phá lật nát vụn!");
+            }
+        }
+
+        function resetCar() {
+            playerCarGroup.rotation.x = 0;
+            playerCarGroup.rotation.z = 0;
+            playerCarGroup.position.y = 0.5;
+            carVelocity.set(0, 0, 0);
+            carAngularVelocity.set(0, 0, 0);
+        }
+
+        /* HUD & UI UPDATES */
+        function updateHUD(speed, wind, dist) {
+            document.getElementById('hud-speed').textContent = speed;
+            document.getElementById('hud-wind').textContent = wind;
+            document.getElementById('hud-tornado-dist').textContent = `${dist} m`;
+
+            document.getElementById('hud-data-text').textContent = `${collectedData.toFixed(1)} GB`;
+            document.getElementById('hud-data-bar').style.width = `${Math.min(100, collectedData)}%`;
+
+            const hPct = Math.max(0, (carHealth / carMaxHealth) * 100);
+            document.getElementById('hud-health-bar').style.width = `${hPct}%`;
+            document.getElementById('hud-health-text').textContent = `${Math.round(hPct)}%`;
+
+            document.getElementById('hud-suction-bar').style.width = `${Math.min(100, (wind / 250) * 100)}%`;
+
+            const warning = document.getElementById('warning-banner');
+            if (wind > 150) warning.classList.remove('hidden');
+            else warning.classList.add('hidden');
+
+            const radarDot = document.getElementById('radar-tornado-dot');
+            const rx = Math.max(-25, Math.min(25, (tornadoPosition.x - playerCarGroup.position.x) * 0.08));
+            const rz = Math.max(-25, Math.min(25, (tornadoPosition.z - playerCarGroup.position.z) * 0.08));
+            radarDot.style.transform = `translate(${rx}px, ${rz}px)`;
+        }
+
+        function updateMenuUI() {
+            document.getElementById('menu-cash').textContent = `$${playerState.cash.toLocaleString()}`;
+            document.getElementById('hud-cash-text').textContent = `$${playerState.cash.toLocaleString()}`;
+
+            document.querySelectorAll('.vehicle-card').forEach((card, idx) => {
+                const btn = card.querySelector('.btn-select-car');
+                const isOwned = playerState.ownedCars[idx];
+                const isSelected = playerState.selectedCarIndex === idx;
+
+                if (isSelected) {
+                    card.classList.add('border-cyan-400');
+                    card.classList.remove('border-gray-700');
+                    btn.textContent = 'ĐANG CHỌN';
+                    btn.disabled = true;
+                } else if (isOwned) {
+                    card.classList.remove('border-cyan-400');
+                    card.classList.add('border-gray-700');
+                    btn.textContent = 'CHỌN XE';
+                    btn.disabled = false;
+                } else {
+                    card.classList.remove('border-cyan-400');
+                    card.classList.add('border-gray-700');
+                    btn.textContent = `MUA ($${VEHICLES_CONFIG[idx].price})`;
+                    btn.disabled = playerState.cash < VEHICLES_CONFIG[idx].price;
+                }
+            });
+
+            const anchorInd = document.getElementById('anchor-indicator');
+            const anchorIcon = document.getElementById('anchor-icon');
+            if (isAnchored) {
+                anchorInd.classList.add('border-cyan-400', 'bg-cyan-950/80');
+                anchorIcon.classList.add('text-cyan-400');
+                anchorIcon.classList.remove('text-gray-500');
+            } else {
+                anchorInd.classList.remove('border-cyan-400', 'bg-cyan-950/80');
+                anchorIcon.classList.remove('text-cyan-400');
+                anchorIcon.classList.add('text-gray-500');
+            }
+        }
+
+        function setupEvents() {
+            document.querySelectorAll('.vehicle-card').forEach((card, idx) => {
+                card.addEventListener('click', () => {
+                    if (!playerState.ownedCars[idx]) {
+                        const price = VEHICLES_CONFIG[idx].price;
+                        if (playerState.cash >= price) {
+                            playerState.cash -= price;
+                            playerState.ownedCars[idx] = true;
+                            playerState.selectedCarIndex = idx;
+                            updateMenuUI();
+                        }
+                    } else {
+                        playerState.selectedCarIndex = idx;
+                        updateMenuUI();
+                    }
+                });
+            });
+
+            document.getElementById('btn-upgrade-weight').addEventListener('click', () => {
+                const cost = 300 * (playerState.upgrades.weight + 1);
+                if (playerState.cash >= cost) {
+                    playerState.cash -= cost;
+                    playerState.upgrades.weight++;
+                    document.getElementById('cost-weight').textContent = `$${300 * (playerState.upgrades.weight + 1)}`;
+                    updateMenuUI();
+                }
+            });
+
+            document.getElementById('btn-upgrade-engine').addEventListener('click', () => {
+                const cost = 400 * (playerState.upgrades.engine + 1);
+                if (playerState.cash >= cost) {
+                    playerState.cash -= cost;
+                    playerState.upgrades.engine++;
+                    document.getElementById('cost-engine').textContent = `$${400 * (playerState.upgrades.engine + 1)}`;
+                    updateMenuUI();
+                }
+            });
+
+            document.getElementById('btn-upgrade-anchor').addEventListener('click', () => {
+                if (!playerState.upgrades.anchor && playerState.cash >= 1000) {
+                    playerState.cash -= 1000;
+                    playerState.upgrades.anchor = true;
+                    document.getElementById('cost-anchor').textContent = 'ĐÃ SỞ HỮU';
+                    updateMenuUI();
+                }
+            });
+
+            document.getElementById('btn-start-game').addEventListener('click', () => {
+                audio.init();
+                startGame();
+            });
+
+            document.getElementById('btn-pause').addEventListener('click', () => {
+                isGameRunning = false;
+                document.getElementById('game-hud').classList.add('hidden');
+                document.getElementById('main-menu').classList.remove('hidden');
+            });
+
+            document.getElementById('btn-restart').addEventListener('click', () => {
+                document.getElementById('game-over-menu').classList.add('hidden');
+                document.getElementById('main-menu').classList.remove('hidden');
+                updateMenuUI();
+            });
+
+            // Touch events for Mobile Controls
+            const bindTouch = (id, keyName) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+                el.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+            };
+            bindTouch('touch-up', 'touchUp');
+            bindTouch('touch-down', 'touchDown');
+            bindTouch('touch-left', 'touchLeft');
+            bindTouch('touch-right', 'touchRight');
+
+            document.getElementById('touch-reset').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                resetCar();
+            });
+            document.getElementById('touch-anchor').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (playerState.upgrades.anchor || VEHICLES_CONFIG[playerState.selectedCarIndex].hasAnchor) {
+                    isAnchored = !isAnchored;
+                    updateMenuUI();
+                }
+            });
+        }
+
+        function startGame() {
+            const config = VEHICLES_CONFIG[playerState.selectedCarIndex];
+            buildVehicleModel(config);
+
+            carHealth = config.armor;
+            carMaxHealth = config.armor;
+            collectedData = 0;
+            carSpeed = 0;
+            carVelocity.set(0, 0, 0);
+            carAngularVelocity.set(0, 0, 0);
+
+            if (config.hasAnchor) playerState.upgrades.anchor = true;
+
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('game-hud').classList.remove('hidden');
+
+            isGameRunning = true;
+        }
+
+        function triggerGameOver(text) {
+            isGameRunning = false;
+            audio.playCrash();
+
+            const earned = Math.floor(collectedData * 20);
+            playerState.cash += earned;
+
+            document.getElementById('game-over-reason').textContent = text;
+            document.getElementById('end-data').textContent = `${collectedData.toFixed(1)} GB`;
+            document.getElementById('end-cash').textContent = `+$${earned.toLocaleString()}`;
+
+            document.getElementById('game-hud').classList.add('hidden');
+            document.getElementById('game-over-menu').classList.remove('hidden');
+        }
+
+        function setupKeyboard() {
+            window.addEventListener('keydown', (e) => {
+                keys[e.key] = true;
+                if (e.code === 'Space' && isGameRunning) {
+                    if (playerState.upgrades.anchor || VEHICLES_CONFIG[playerState.selectedCarIndex].hasAnchor) {
+                        isAnchored = !isAnchored;
+                        updateMenuUI();
+                    }
+                }
+                if ((e.key === 'r' || e.key === 'R') && isGameRunning) resetCar();
+            });
+            window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = Math.min(clock.getDelta(), 0.1);
+            updateTornado(delta);
+            updatePhysics(delta);
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function () {
+            initThreeJS();
+            setupEvents();
+            setupKeyboard();
+            updateMenuUI();
+            animate();
+        };
+    </script>
+</body>
+</html>
