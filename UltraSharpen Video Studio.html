@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraSharpen Pro - Real Video Enhancer & FPS Exporter</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons CDN -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfeff',
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            900: '#164e63',
+                        },
+                        studio: {
+                            bg: '#090d16',
+                            panel: '#111827',
+                            border: '#1f2937',
+                            hover: '#374151'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for panel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+        
+        /* Custom slider styles */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #1f2937;
+            height: 6px;
+            border-radius: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #22d3ee;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+            transition: transform 0.1s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        /* Split view slider handle */
+        .split-divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #22d3ee;
+            box-shadow: 0 0 12px #22d3ee;
+            cursor: ew-resize;
+            z-index: 20;
+        }
+        .split-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            background: #090d16;
+            border: 2px solid #22d3ee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #22d3ee;
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-studio-bg text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
+
+    <!-- Hidden SVG Hardware Convolution Filters for Real Pixel Sharpening -->
+    <svg style="display: none;" width="0" height="0">
+        <defs>
+            <filter id="sharpenFilter" x="0%" y="0%" width="100%" height="100%">
+                <!-- Dynamic Matrix 3x3 Convolution for Real-time Hardware Sharpening -->
+                <feConvolveMatrix id="sharpenMatrix" order="3" preserveAlpha="true" matrix="0 0 0  0 1 0  0 0 0" />
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- App Header -->
+    <header class="border-b border-studio-border bg-studio-panel/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-cyan-500/20">
+                    <i class="ph-bold ph-video-camera"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">UltraSharpen Studio</h1>
+                    <p class="text-xs text-slate-400">Bộ xử lý khung hình & tăng độ nét Pixel video thực tế</p>
+                </div>
+            </div>
+
+            <!-- Status Indicator -->
+            <div class="hidden sm:flex items-center space-x-3 text-xs bg-studio-bg px-3 py-1.5 rounded-full border border-studio-border">
+                <span class="flex h-2.5 w-2.5 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+                </span>
+                <span class="text-slate-300 font-medium">GPU Hardware Acceleration: <span class="text-cyan-400">Đã kích hoạt</span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Studio Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Column: Real-time Interactive Video Canvas Preview (7 cols) -->
+        <section class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <!-- Video Stage Area -->
+            <div class="relative bg-black rounded-2xl border border-studio-border overflow-hidden shadow-2xl flex items-center justify-center min-h-[320px] md:min-h-[480px] group">
+                
+                <!-- Placeholder State when no video -->
+                <div id="placeholderState" class="flex flex-col items-center justify-center p-8 text-center space-y-4">
+                    <div class="w-20 h-20 rounded-full bg-studio-panel border border-studio-border flex items-center justify-center text-slate-500 text-3xl">
+                        <i class="ph-duotone ph-upload-simple"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-200">Chưa có video được tải lên</h3>
+                        <p class="text-xs text-slate-400 max-w-sm mt-1">Tải lên video MP4, WebM hoặc MOV để bắt đầu nâng cấp FPS và độ nét điểm ảnh thực tế.</p>
+                    </div>
+                    <button onclick="document.getElementById('videoInput').click()" class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-sm transition shadow-lg shadow-cyan-500/20 flex items-center space-x-2">
+                        <i class="ph-bold ph-plus"></i>
+                        <span>Chọn Video từ máy</span>
+                    </button>
+                </div>
+
+                <!-- Live Canvas Display -->
+                <div id="canvasContainer" class="relative w-full h-full hidden flex items-center justify-center bg-slate-950">
+                    <canvas id="mainCanvas" class="max-w-full max-h-[500px] object-contain rounded-lg shadow-inner"></canvas>
+                    
+                    <!-- Split Screen Compare Divider -->
+                    <div id="splitDivider" class="split-divider hidden" style="left: 50%;">
+                        <div class="split-handle">
+                            <i class="ph-bold ph-caret-left-right text-xs"></i>
+                        </div>
+                    </div>
+
+                    <!-- Watermark / Compare Badges -->
+                    <div id="compareBadges" class="absolute top-3 left-3 right-3 flex justify-between pointer-events-none hidden text-[11px] font-bold uppercase tracking-wider">
+                        <span class="bg-black/70 backdrop-blur-md text-amber-400 px-2.5 py-1 rounded border border-amber-500/30">Ảnh Gốc (Original)</span>
+                        <span class="bg-cyan-950/80 backdrop-blur-md text-cyan-300 px-2.5 py-1 rounded border border-cyan-500/30">Đã Tăng Độ Nét (Sharpened)</span>
+                    </div>
+
+                    <!-- Live Render Stats Overlay -->
+                    <div class="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono flex items-center space-x-3">
+                        <span class="text-slate-400">Xem trước: <strong id="liveFpsText" class="text-cyan-400">0 FPS</strong></span>
+                        <span class="text-slate-600">|</span>
+                        <span class="text-slate-400">Res Canvas: <strong id="liveResText" class="text-indigo-400">0x0</strong></span>
+                    </div>
+                </div>
+
+                <!-- Hidden Native Video Element for Decoding -->
+                <video id="sourceVideo" class="hidden" playsinline crossorigin="anonymous"></video>
+            </div>
+
+            <!-- Video Player Controls -->
+            <div id="playerControls" class="bg-studio-panel border border-studio-border rounded-xl p-3 flex flex-col space-y-2 opacity-50 pointer-events-none transition-all">
+                
+                <!-- Seekbar Slider -->
+                <div class="flex items-center space-x-3">
+                    <span id="currentTimeText" class="text-xs font-mono text-slate-400 w-12 text-right">00:00</span>
+                    <input type="range" id="seekBar" value="0" min="0" max="100" step="0.1" class="flex-1">
+                    <span id="durationText" class="text-xs font-mono text-slate-400 w-12">00:00</span>
+                </div>
+
+                <!-- Buttons & Options Toolbar -->
+                <div class="flex items-center justify-between pt-1">
+                    <div class="flex items-center space-x-2">
+                        <button id="btnPlayPause" class="w-9 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black flex items-center justify-center transition font-bold shadow">
+                            <i class="ph-fill ph-play text-lg" id="playIcon"></i>
+                        </button>
+                        <button id="btnMute" class="w-9 h-9 rounded-lg bg-studio-bg hover:bg-studio-hover text-slate-300 flex items-center justify-center border border-studio-border transition">
+                            <i class="ph-bold ph-speaker-high" id="muteIcon"></i>
+                        </button>
+                    </div>
+
+                    <!-- Split Screen Compare Toggle -->
+                    <div class="flex items-center space-x-2">
+                        <button id="btnToggleCompare" class="px-3 py-1.5 rounded-lg bg-studio-bg hover:bg-studio-hover border border-studio-border text-xs font-medium text-slate-300 flex items-center space-x-1.5 transition">
+                            <i class="ph-bold ph-columns text-cyan-400"></i>
+                            <span>So sánh Trước / Sau</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Details Card -->
+            <div id="fileInfoCard" class="bg-studio-panel border border-studio-border rounded-xl p-4 hidden">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center space-x-1.5">
+                    <i class="ph-bold ph-info text-cyan-400"></i>
+                    <span>Thông Tin Video Gốc</span>
+                </h4>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-studio-bg p-2.5 rounded-lg border border-studio-border">
+                        <p class="text-[10px] text-slate-500 uppercase font-semibold">Độ Phân Giải</p>
+                        <p id="infoRes" class="text-xs font-bold text-slate-200 mt-0.5">--</p>
+                    </div>
+                    <div class="bg-studio-bg p-2.5 rounded-lg border border-studio-border">
+                        <p class="text-[10px] text-slate-500 uppercase font-semibold">Thời Lượng</p>
+                        <p id="infoDuration" class="text-xs font-bold text-slate-200 mt-0.5">--</p>
+                    </div>
+                    <div class="bg-studio-bg p-2.5 rounded-lg border border-studio-border">
+                        <p class="text-[10px] text-slate-500 uppercase font-semibold">Kích Thước</p>
+                        <p id="infoSize" class="text-xs font-bold text-slate-200 mt-0.5">--</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Studio Render & Enhancement Control Panel (5 cols) -->
+        <section class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-studio-panel border border-studio-border rounded-2xl p-5 space-y-6 shadow-xl">
+                
+                <!-- 1. Import Video Dropzone -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+                        <span>1. Chọn Tệp Video</span>
+                        <span class="text-[10px] text-cyan-400 font-normal">Hỗ trợ MP4, WebM, MOV</span>
+                    </label>
+                    <div id="dropZone" class="border-2 border-dashed border-studio-border hover:border-cyan-500/50 bg-studio-bg/50 rounded-xl p-4 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-2">
+                        <i class="ph-duotone ph-cloud-arrow-up text-3xl text-cyan-400"></i>
+                        <p class="text-xs text-slate-300">Kéo & thả video vào đây hoặc <span class="text-cyan-400 underline font-medium">Bấm để duyệt</span></p>
+                        <input type="file" id="videoInput" accept="video/mp4,video/webm,video/quicktime,video/*" class="hidden">
+                    </div>
+                </div>
+
+                <hr class="border-studio-border">
+
+                <!-- 2. Custom Target FPS (1 - 120 FPS) -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                            <i class="ph-bold ph-gauge text-cyan-400"></i>
+                            <span>2. Khung Hình/Giây (FPS Thực Tế)</span>
+                        </label>
+                        <span id="fpsDisplay" class="text-xs font-mono font-bold bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/30">60 FPS</span>
+                    </div>
+
+                    <!-- Quick Preset Buttons -->
+                    <div class="grid grid-cols-5 gap-1.5">
+                        <button type="button" class="fps-btn px-2 py-1.5 rounded-lg text-xs font-bold bg-studio-bg border border-studio-border hover:border-cyan-500 text-slate-300 transition" data-fps="24">24</button>
+                        <button type="button" class="fps-btn px-2 py-1.5 rounded-lg text-xs font-bold bg-studio-bg border border-studio-border hover:border-cyan-500 text-slate-300 transition" data-fps="30">30</button>
+                        <button type="button" class="fps-btn px-2 py-1.5 rounded-lg text-xs font-bold bg-studio-bg border border-studio-border hover:border-cyan-500 text-slate-300 transition" data-fps="50">50</button>
+                        <button type="button" class="fps-btn active-fps px-2 py-1.5 rounded-lg text-xs font-bold bg-cyan-500 text-black shadow transition" data-fps="60">60</button>
+                        <button type="button" class="fps-btn px-2 py-1.5 rounded-lg text-xs font-bold bg-studio-bg border border-studio-border hover:border-cyan-500 text-slate-300 transition" data-fps="120">120</button>
+                    </div>
+
+                    <!-- Manual FPS Slider & Input -->
+                    <div class="flex items-center space-x-3 pt-1">
+                        <input type="range" id="fpsSlider" min="1" max="120" value="60" class="flex-1">
+                        <div class="w-16">
+                            <input type="number" id="fpsInput" min="1" max="120" value="60" class="w-full bg-studio-bg border border-studio-border rounded-lg px-2 py-1 text-xs text-center font-mono font-bold text-cyan-400 focus:border-cyan-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Ghi hình trực tiếp luồng render Canvas với tần số từ 1 đến 120 frames/giây.</p>
+                </div>
+
+                <hr class="border-studio-border">
+
+                <!-- 3. Resolution Upscaling -->
+                <div class="space-y-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                        <i class="ph-bold ph-[#arrows-out-cardinal] text-cyan-400"></i>
+                        <span>3. Nâng Cấp Độ Phân Giải (Resolution)</span>
+                    </label>
+                    
+                    <select id="resSelect" class="w-full bg-studio-bg border border-studio-border rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:border-cyan-500 focus:outline-none">
+                        <option value="1">Giữ Nguyên Độ Phân Giải Gốc (1.0x)</option>
+                        <option value="1.5">Nâng Cấp Pixel 1.5x HD</option>
+                        <option value="2">Nâng Cấp Siêu Nét 2.0x Ultra</option>
+                        <option value="720">Xuất Chuẩn HD (720p)</option>
+                        <option value="1080">Xuất Chuẩn Full HD (1080p)</option>
+                        <option value="1440">Xuất Chuẩn 2K Quad HD (1440p)</option>
+                        <option value="2160">Xuất Chuẩn 4K Ultra HD (2160p)</option>
+                    </select>
+                </div>
+
+                <hr class="border-studio-border">
+
+                <!-- 4. Real Convolution Pixel Sharpening & Micro-contrast -->
+                <div class="space-y-4">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+                        <span class="flex items-center space-x-1.5">
+                            <i class="ph-bold ph-sparkle text-cyan-400"></i>
+                            <span>4. Tăng Độ Nét Pixel Thực Sự</span>
+                        </span>
+                        <span class="text-[10px] text-indigo-400 font-mono">Convolution Matrix</span>
+                    </label>
+
+                    <!-- Sharpen Strength Slider -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Cường Độ Làm Nét (Sharpen Matrix)</span>
+                            <span id="sharpenValText" class="font-mono text-cyan-400 font-bold">45%</span>
+                        </div>
+                        <input type="range" id="sharpenSlider" min="0" max="100" value="45" class="w-full">
+                    </div>
+
+                    <!-- Micro Contrast Slider -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Tương Phản Vi Mô (Clarity / Micro-Contrast)</span>
+                            <span id="contrastValText" class="font-mono text-cyan-400 font-bold">110%</span>
+                        </div>
+                        <input type="range" id="contrastSlider" min="90" max="150" value="110" class="w-full">
+                    </div>
+
+                    <!-- Saturation / Color Balance Slider -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Độ Đậm Màu (Vibrance)</span>
+                            <span id="saturateValText" class="font-mono text-cyan-400 font-bold">105%</span>
+                        </div>
+                        <input type="range" id="saturateSlider" min="80" max="160" value="105" class="w-full">
+                    </div>
+                </div>
+
+                <hr class="border-studio-border">
+
+                <!-- 5. Render Bitrate -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+                        <span>5. Chất Lượng Luồng Xuất (Bitrate)</span>
+                        <span class="text-[10px] text-slate-400">Mbps càng cao video càng rõ</span>
+                    </label>
+                    <select id="bitrateSelect" class="w-full bg-studio-bg border border-studio-border rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:border-cyan-500 focus:outline-none">
+                        <option value="8000000">Tiêu chuẩn (8 Mbps)</option>
+                        <option value="15000000" selected>Chất lượng cao (15 Mbps - Khuyên dùng)</option>
+                        <option value="25000000">Siêu nét Ultra (25 Mbps)</option>
+                        <option value="50000000">Master Studio (50 Mbps)</option>
+                        <option value="80000000">Maximum Quality (80 Mbps)</option>
+                    </select>
+                </div>
+
+                <!-- Primary Action Button -->
+                <button id="btnStartRender" disabled class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 disabled:opacity-40 disabled:pointer-events-none text-black font-bold text-sm tracking-wide transition shadow-lg shadow-cyan-500/25 flex items-center justify-center space-x-2">
+                    <i class="ph-bold ph-export text-lg"></i>
+                    <span>BẮT ĐẦU RENDER & XUẤT VIDEO</span>
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Render Progress Modal Overlay -->
+    <div id="renderModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-studio-panel border border-studio-border rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl relative text-center">
+            
+            <div class="space-y-2">
+                <div class="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mx-auto text-2xl animate-pulse">
+                    <i class="ph-bold ph-circle-notch animate-spin"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-100">Đang Kết Xuất Video Thực Tế...</h3>
+                <p class="text-xs text-slate-400">Hệ thống đang vẽ từng khung hình nâng cấp và thu luồng Audio/Video.</p>
+            </div>
+
+            <!-- Progress Circle / Bar -->
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs font-mono">
+                    <span class="text-slate-400">Tiến trình</span>
+                    <span id="renderProgressText" class="text-cyan-400 font-bold">0%</span>
+                </div>
+                <div class="w-full h-3 bg-studio-bg rounded-full overflow-hidden p-0.5 border border-studio-border">
+                    <div id="renderProgressBar" class="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full transition-all duration-150" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Realtime Metrics -->
+            <div class="grid grid-cols-2 gap-3 text-left font-mono text-xs">
+                <div class="bg-studio-bg p-2.5 rounded-lg border border-studio-border">
+                    <span class="text-[10px] text-slate-500 block uppercase">FPS Render</span>
+                    <span id="renderLiveFps" class="text-slate-200 font-bold">0 FPS</span>
+                </div>
+                <div class="bg-studio-bg p-2.5 rounded-lg border border-studio-border">
+                    <span class="text-[10px] text-slate-500 block uppercase">Thời gian còn lại</span>
+                    <span id="renderEta" class="text-slate-200 font-bold">Đang tính...</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div id="modalActions" class="pt-2 flex items-center justify-center space-x-3">
+                <button id="btnCancelRender" class="px-5 py-2.5 rounded-xl bg-studio-bg hover:bg-studio-hover border border-studio-border text-slate-300 font-semibold text-xs transition">
+                    Hủy Bỏ
+                </button>
+                <a id="btnDownloadVideo" download="video_sharpened_ultrasharpen.webm" class="hidden px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition shadow-lg shadow-cyan-500/30 flex items-center space-x-2">
+                    <i class="ph-bold ph-download-simple text-base"></i>
+                    <span>TẢI VIDEO NỀN VỀ MÁY</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-studio-panel border border-cyan-500/40 text-slate-100 px-4 py-3 rounded-xl shadow-2xl z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3 pointer-events-none">
+        <i class="ph-bold ph-info text-cyan-400 text-lg"></i>
+        <span id="toastMsg" class="text-xs font-medium">Thông báo ở đây</span>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // DOM Elements
+        const sourceVideo = document.getElementById('sourceVideo');
+        const mainCanvas = document.getElementById('mainCanvas');
+        const ctx = mainCanvas.getContext('2d', { alpha: false, willReadFrequently: false });
+        const videoInput = document.getElementById('videoInput');
+        const dropZone = document.getElementById('dropZone');
+        
+        // Control DOMs
+        const fpsSlider = document.getElementById('fpsSlider');
+        const fpsInput = document.getElementById('fpsInput');
+        const fpsDisplay = document.getElementById('fpsDisplay');
+        const fpsBtns = document.querySelectorAll('.fps-btn');
+        const resSelect = document.getElementById('resSelect');
+        const sharpenSlider = document.getElementById('sharpenSlider');
+        const sharpenValText = document.getElementById('sharpenValText');
+        const contrastSlider = document.getElementById('contrastSlider');
+        const contrastValText = document.getElementById('contrastValText');
+        const saturateSlider = document.getElementById('saturateSlider');
+        const saturateValText = document.getElementById('saturateValText');
+        const bitrateSelect = document.getElementById('bitrateSelect');
+        const btnStartRender = document.getElementById('btnStartRender');
+        
+        // SVG Matrix Filter Element
+        const sharpenMatrix = document.getElementById('sharpenMatrix');
+
+        // Player Controls DOM
+        const playerControls = document.getElementById('playerControls');
+        const btnPlayPause = document.getElementById('btnPlayPause');
+        const playIcon = document.getElementById('playIcon');
+        const btnMute = document.getElementById('btnMute');
+        const muteIcon = document.getElementById('muteIcon');
+        const seekBar = document.getElementById('seekBar');
+        const currentTimeText = document.getElementById('currentTimeText');
+        const durationText = document.getElementById('durationText');
+        const btnToggleCompare = document.getElementById('btnToggleCompare');
+        const splitDivider = document.getElementById('splitDivider');
+        const compareBadges = document.getElementById('compareBadges');
+
+        // Info DOMs
+        const placeholderState = document.getElementById('placeholderState');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const fileInfoCard = document.getElementById('fileInfoCard');
+        const infoRes = document.getElementById('infoRes');
+        const infoDuration = document.getElementById('infoDuration');
+        const infoSize = document.getElementById('infoSize');
+        const liveFpsText = document.getElementById('liveFpsText');
+        const liveResText = document.getElementById('liveResText');
+
+        // Modal DOMs
+        const renderModal = document.getElementById('renderModal');
+        const renderProgressBar = document.getElementById('renderProgressBar');
+        const renderProgressText = document.getElementById('renderProgressText');
+        const renderLiveFps = document.getElementById('renderLiveFps');
+        const renderEta = document.getElementById('renderEta');
+        const btnCancelRender = document.getElementById('btnCancelRender');
+        const btnDownloadVideo = document.getElementById('btnDownloadVideo');
+
+        // Global State Variables
+        let videoFile = null;
+        let targetFps = 60;
+        let isSplitView = false;
+        let splitPosition = 0.5; // 50% split
+        let isDraggingSplit = false;
+        let animationFrameId = null;
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        let currentLiveFps = 0;
+
+        // Render Recording State
+        let isRendering = false;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let renderStartTime = 0;
+        let audioCtx = null;
+        let audioDestination = null;
+        let audioSource = null;
+
+        // --- 1. Video File Upload & Metadata Handling ---
+
+        dropZone.addEventListener('click', () => videoInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-cyan-500', 'bg-cyan-500/5');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-cyan-500', 'bg-cyan-500/5');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-cyan-500', 'bg-cyan-500/5');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleVideoSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        videoInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleVideoSelect(e.target.files[0]);
+            }
+        });
+
+        function handleVideoSelect(file) {
+            if (!file.type.startsWith('video/')) {
+                showToast('Vui lòng chọn tệp định dạng video hợp lệ!');
+                return;
+            }
+            videoFile = file;
+            const url = URL.createObjectURL(file);
+            sourceVideo.src = url;
+            
+            // Format size
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            infoSize.textContent = `${sizeMB} MB`;
+
+            showToast('Đang tải dữ liệu video...');
+        }
+
+        sourceVideo.addEventListener('loadedmetadata', () => {
+            // Update Info UI
+            infoRes.textContent = `${sourceVideo.videoWidth} x ${sourceVideo.videoHeight}`;
+            infoDuration.textContent = formatTime(sourceVideo.duration);
+            
+            // Show workspace components
+            placeholderState.classList.add('hidden');
+            canvasContainer.classList.remove('hidden');
+            fileInfoCard.classList.remove('hidden');
+            playerControls.classList.remove('opacity-50', 'pointer-events-none');
+            btnStartRender.disabled = false;
+
+            // Setup Canvas resolution
+            updateCanvasDimensions();
+            
+            // Initialize audio graph for MediaRecorder
+            initAudioContext();
+
+            // Start live preview render loop
+            startPreviewLoop();
+            
+            showToast('Video đã được tải thành công!');
+        });
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // --- 2. Real Canvas Resolution & Scaling Logic ---
+
+        function updateCanvasDimensions() {
+            if (!sourceVideo.videoWidth) return;
+
+            const scaleVal = resSelect.value;
+            let targetW = sourceVideo.videoWidth;
+            let targetH = sourceVideo.videoHeight;
+            const aspect = sourceVideo.videoWidth / sourceVideo.videoHeight;
+
+            if (scaleVal === '1.5') {
+                targetW = Math.round(sourceVideo.videoWidth * 1.5);
+                targetH = Math.round(sourceVideo.videoHeight * 1.5);
+            } else if (scaleVal === '2') {
+                targetW = Math.round(sourceVideo.videoWidth * 2);
+                targetH = Math.round(sourceVideo.videoHeight * 2);
+            } else if (scaleVal === '720') {
+                targetH = 720;
+                targetW = Math.round(720 * aspect);
+            } else if (scaleVal === '1080') {
+                targetH = 1080;
+                targetW = Math.round(1080 * aspect);
+            } else if (scaleVal === '1440') {
+                targetH = 1440;
+                targetW = Math.round(1440 * aspect);
+            } else if (scaleVal === '2160') {
+                targetH = 2160;
+                targetW = Math.round(2160 * aspect);
+            }
+
+            // Ensure even numbers for video codecs
+            mainCanvas.width = targetW % 2 === 0 ? targetW : targetW + 1;
+            mainCanvas.height = targetH % 2 === 0 ? targetH : targetH + 1;
+
+            liveResText.textContent = `${mainCanvas.width}x${mainCanvas.height}`;
+            
+            // Enable high quality smooth upscaling algorithm
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+        }
+
+        resSelect.addEventListener('change', updateCanvasDimensions);
+
+        // --- 3. Dynamic Hardware Convolution Sharpening Algorithm ---
+
+        function updateSharpenFilterMatrix() {
+            const val = parseFloat(sharpenSlider.value);
+            sharpenValText.textContent = `${val}%`;
+
+            // Normalize slider (0 to 100) into matrix strength factor k (0.0 to 1.8)
+            const k = (val / 100) * 1.8;
+            const center = 1 + (4 * k);
+            const edge = -k;
+
+            // 3x3 Sharpen Kernel:
+            // [ 0,     edge,   0 ]
+            // [ edge, center, edge ]
+            // [ 0,     edge,   0 ]
+            const matrixStr = `0 ${edge} 0  ${edge} ${center} ${edge}  0 ${edge} 0`;
+            sharpenMatrix.setAttribute('kernelMatrix', matrixStr);
+        }
+
+        sharpenSlider.addEventListener('input', updateSharpenFilterMatrix);
+        
+        contrastSlider.addEventListener('input', () => {
+            contrastValText.textContent = `${contrastSlider.value}%`;
+        });
+        
+        saturateSlider.addEventListener('input', () => {
+            saturateValText.textContent = `${saturateSlider.value}%`;
+        });
+
+        // --- 4. Custom FPS Selection Logic (1-120 FPS) ---
+
+        function setFpsValue(val) {
+            targetFps = Math.min(120, Math.max(1, parseInt(val) || 60));
+            fpsSlider.value = targetFps;
+            fpsInput.value = targetFps;
+            fpsDisplay.textContent = `${targetFps} FPS`;
+
+            // Update active preset button highlight
+            fpsBtns.forEach(btn => {
+                if (parseInt(btn.dataset.fps) === targetFps) {
+                    btn.classList.add('bg-cyan-500', 'text-black', 'shadow', 'active-fps');
+                    btn.classList.remove('bg-studio-bg', 'text-slate-300');
+                } else {
+                    btn.classList.remove('bg-cyan-500', 'text-black', 'shadow', 'active-fps');
+                    btn.classList.add('bg-studio-bg', 'text-slate-300');
+                }
+            });
+        }
+
+        fpsBtns.forEach(btn => {
+            btn.addEventListener('click', () => setFpsValue(btn.dataset.fps));
+        });
+
+        fpsSlider.addEventListener('input', (e) => setFpsValue(e.target.value));
+        fpsInput.addEventListener('change', (e) => setFpsValue(e.target.value));
+
+        // --- 5. Main Canvas Render Loop (Draw & Filter Application) ---
+
+        function renderFrame() {
+            if (!sourceVideo.videoWidth) return;
+
+            const w = mainCanvas.width;
+            const h = mainCanvas.height;
+
+            const contrastVal = contrastSlider.value;
+            const saturateVal = saturateSlider.value;
+            
+            // Build Context Filter String combining SVG Sharpen Matrix + Micro Contrast + Saturation
+            const filterString = `url(#sharpenFilter) contrast(${contrastVal}%) saturate(${saturateVal}%)`;
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (isSplitView) {
+                // Split View Mode: Render Original on Left, Sharpened on Right
+                const splitX = w * splitPosition;
+
+                // 1. Draw Original Video on Left Side
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(0, 0, splitX, h);
+                ctx.clip();
+                ctx.filter = 'none';
+                ctx.drawImage(sourceVideo, 0, 0, w, h);
+                ctx.restore();
+
+                // 2. Draw Processed Video on Right Side
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(splitX, 0, w - splitX, h);
+                ctx.clip();
+                ctx.filter = filterString;
+                ctx.drawImage(sourceVideo, 0, 0, w, h);
+                ctx.restore();
+
+            } else {
+                // Full Screen Processed Render
+                ctx.filter = filterString;
+                ctx.drawImage(sourceVideo, 0, 0, w, h);
+            }
+
+            // Calculate live FPS count for display
+            const now = performance.now();
+            frameCount++;
+            if (now - lastFrameTime >= 1000) {
+                currentLiveFps = frameCount;
+                liveFpsText.textContent = `${currentLiveFps} FPS`;
+                frameCount = 0;
+                lastFrameTime = now;
+            }
+        }
+
+        function startPreviewLoop() {
+            function loop() {
+                if (!isRendering) {
+                    renderFrame();
+                    
+                    // Update seekbar
+                    if (!sourceVideo.paused) {
+                        seekBar.value = (sourceVideo.currentTime / sourceVideo.duration) * 100;
+                        currentTimeText.textContent = formatTime(sourceVideo.currentTime);
+                    }
+                }
+                animationFrameId = requestAnimationFrame(loop);
+            }
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            loop();
+        }
+
+        // --- 6. Player Interaction Logic ---
+
+        btnPlayPause.addEventListener('click', () => {
+            if (sourceVideo.paused) {
+                sourceVideo.play();
+                playIcon.className = 'ph-fill ph-pause text-lg';
+            } else {
+                sourceVideo.pause();
+                playIcon.className = 'ph-fill ph-play text-lg';
+            }
+        });
+
+        sourceVideo.addEventListener('ended', () => {
+            playIcon.className = 'ph-fill ph-play text-lg';
+        });
+
+        btnMute.addEventListener('click', () => {
+            sourceVideo.muted = !sourceVideo.muted;
+            muteIcon.className = sourceVideo.muted ? 'ph-bold ph-speaker-slash text-amber-400' : 'ph-bold ph-speaker-high';
+        });
+
+        seekBar.addEventListener('input', (e) => {
+            const time = (e.target.value / 100) * sourceVideo.duration;
+            sourceVideo.currentTime = time;
+            currentTimeText.textContent = formatTime(time);
+        });
+
+        // Split Screen View Dragging Logic
+        btnToggleCompare.addEventListener('click', () => {
+            isSplitView = !isSplitView;
+            if (isSplitView) {
+                splitDivider.classList.remove('hidden');
+                compareBadges.classList.remove('hidden');
+                btnToggleCompare.classList.add('border-cyan-500', 'bg-cyan-500/10', 'text-cyan-300');
+            } else {
+                splitDivider.classList.add('hidden');
+                compareBadges.classList.hidden = true;
+                compareBadges.classList.add('hidden');
+                btnToggleCompare.classList.remove('border-cyan-500', 'bg-cyan-500/10', 'text-cyan-300');
+            }
+        });
+
+        splitDivider.addEventListener('mousedown', (e) => {
+            isDraggingSplit = true;
+            e.preventDefault();
+        });
+
+        window.addEventListener('mouseup', () => isDraggingSplit = false);
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingSplit || !isSplitView) return;
+            const rect = canvasContainer.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            splitPosition = x / rect.width;
+            splitDivider.style.left = `${splitPosition * 100}%`;
+        });
+
+        // Touch support for Split Divider
+        splitDivider.addEventListener('touchstart', () => isDraggingSplit = true);
+        window.addEventListener('touchend', () => isDraggingSplit = false);
+        window.addEventListener('touchmove', (e) => {
+            if (!isDraggingSplit || !isSplitView || !e.touches[0]) return;
+            const rect = canvasContainer.getBoundingClientRect();
+            let x = e.touches[0].clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            splitPosition = x / rect.width;
+            splitDivider.style.left = `${splitPosition * 100}%`;
+        });
+
+        // --- 7. Web Audio API Setup ---
+
+        function initAudioContext() {
+            if (audioCtx) return;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                audioDestination = audioCtx.createMediaStreamDestination();
+                audioSource = audioCtx.createMediaElementSource(sourceVideo);
+                
+                // Connect to destination (for recording) and speaker output (for hearing)
+                audioSource.connect(audioDestination);
+                audioSource.connect(audioCtx.destination);
+            } catch (e) {
+                console.warn('Audio Context error or already initialized:', e);
+            }
+        }
+
+        // --- 8. Real Video Render & MediaRecorder Export Flow ---
+
+        btnStartRender.addEventListener('click', startRealRendering);
+
+        async function startRealRendering() {
+            if (!sourceVideo.videoWidth) return;
+
+            // Ensure AudioContext is resumed
+            if (audioCtx && audioCtx.state === 'suspended') {
+                await audioCtx.resume();
+            }
+
+            isRendering = true;
+            sourceVideo.pause();
+            sourceVideo.currentTime = 0;
+            
+            // Temporary disable split view during export so full video gets enhanced
+            const wasSplit = isSplitView;
+            isSplitView = false;
+
+            // Open Modal
+            renderModal.classList.remove('hidden');
+            btnDownloadVideo.classList.add('hidden');
+            btnCancelRender.classList.remove('hidden');
+            renderProgressBar.style.width = '0%';
+            renderProgressText.textContent = '0%';
+            renderLiveFps.textContent = '0 FPS';
+            renderEta.textContent = 'Đang chuẩn bị...';
+
+            // 1. Capture Real-time Canvas Video Stream at Target FPS
+            const canvasStream = mainCanvas.captureStream(targetFps);
+            const videoTrack = canvasStream.getVideoTracks()[0];
+
+            // 2. Combine Canvas Video Track + Video Audio Track
+            const outputStream = new MediaStream();
+            outputStream.addTrack(videoTrack);
+
+            if (audioDestination && audioDestination.stream.getAudioTracks().length > 0) {
+                const audioTrack = audioDestination.stream.getAudioTracks()[0];
+                outputStream.addTrack(audioTrack);
+            }
+
+            // 3. Configure MediaRecorder with target Bitrate
+            const targetBitrate = parseInt(bitrateSelect.value);
+            
+            let mimeType = 'video/webm;codecs=vp9,opus';
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'video/webm;codecs=vp8,opus';
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'video/webm';
+                }
+            }
+
+            try {
+                mediaRecorder = new MediaRecorder(outputStream, {
+                    mimeType: mimeType,
+                    videoBitsPerSecond: targetBitrate
+                });
+            } catch (err) {
+                mediaRecorder = new MediaRecorder(outputStream);
+            }
+
+            recordedChunks = [];
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) {
+                    recordedChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+                const videoUrl = URL.createObjectURL(blob);
+                
+                // Configure Download Button
+                btnDownloadVideo.href = videoUrl;
+                btnDownloadVideo.download = `Enhanced_${targetFps}FPS_${resSelect.value}x_${Date.now()}.webm`;
+                btnDownloadVideo.classList.remove('hidden');
+                btnCancelRender.classList.add('hidden');
+                
+                renderProgressText.textContent = '100% (Hoàn thành!)';
+                renderProgressBar.style.width = '100%';
+                renderEta.textContent = 'Sẵn sàng tải về';
+                
+                // Restore split view state
+                isSplitView = wasSplit;
+                isRendering = false;
+                showToast('Kết xuất video hoàn tất! Hãy nhấn Tải Video xuống.');
+            };
+
+            // 4. Start Render Loop Step-by-Step
+            mediaRecorder.start(100); // collect chunks every 100ms
+            sourceVideo.play();
+            renderStartTime = performance.now();
+
+            let localFrameCount = 0;
+            let lastFpsCheck = performance.now();
+
+            function exportLoop() {
+                if (!isRendering) return;
+
+                // Force frame render onto canvas
+                renderFrame();
+
+                localFrameCount++;
+                const now = performance.now();
+                
+                // Update Render FPS
+                if (now - lastFpsCheck >= 1000) {
+                    renderLiveFps.textContent = `${localFrameCount} FPS`;
+                    localFrameCount = 0;
+                    lastFpsCheck = now;
+                }
+
+                // Update Progress %
+                const progress = Math.min(100, (sourceVideo.currentTime / sourceVideo.duration) * 100);
+                renderProgressBar.style.width = `${progress}%`;
+                renderProgressText.textContent = `${Math.round(progress)}%`;
+
+                // Calculate ETA
+                const elapsedSeconds = (now - renderStartTime) / 1000;
+                if (progress > 5) {
+                    const totalEstimated = (elapsedSeconds / progress) * 100;
+                    const remaining = Math.max(0, Math.round(totalEstimated - elapsedSeconds));
+                    renderEta.textContent = `${remaining} giây`;
+                }
+
+                // Check finish
+                if (sourceVideo.ended || sourceVideo.currentTime >= sourceVideo.duration) {
+                    mediaRecorder.stop();
+                    sourceVideo.pause();
+                } else {
+                    requestAnimationFrame(exportLoop);
+                }
+            }
+
+            requestAnimationFrame(exportLoop);
+        }
+
+        // Cancel Render Event
+        btnCancelRender.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            isRendering = false;
+            sourceVideo.pause();
+            renderModal.classList.add('hidden');
+            showToast('Đã hủy quá trình render video.');
+        });
+
+        // --- 9. Helper Toast Notification ---
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // Initialize SVG Filter matrix on load
+        updateSharpenFilterMatrix();
+
+    </script>
+</body>
+</html>
